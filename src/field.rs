@@ -5,6 +5,7 @@ use crate::constants::{Layout, Width};
 use crate::errors::{Error, Result};
 use crate::ranges::Ranges;
 
+#[derive(Debug)]
 pub struct Field<T32 = u8, T64 = T32, Out = T64>
 where
     T32: FromBytes + IntoBytes + TryFrom<Out>,
