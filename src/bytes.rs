@@ -97,7 +97,7 @@ mod tests {
     #[test]
     fn test_from_bytes_u8() {
         let d = &[0x02];
-        let v: u8 = u8::from_bytes(d, Layout::Any).unwrap();
+        let v: u8 = u8::from_bytes(d, Layout::Little).unwrap();
         assert_eq!(v, 0x02);
     }
 
@@ -106,7 +106,7 @@ mod tests {
     fn test_to_bytes_u8() {
         let v: u8 = 0x02;
         let mut b = [0; 1];
-        v.to_bytes(&mut b, Layout::Any).unwrap();
+        v.to_bytes(&mut b, Layout::Little).unwrap();
         assert_eq!(&b, &[0x02]);
     }
 
@@ -204,7 +204,7 @@ mod tests {
     #[test]
     fn test_from_bytes_string() {
         let d = &[b'E', b'L', b'F'];
-        let v: String = String::from_bytes(d, Layout::Any).unwrap();
+        let v: String = String::from_bytes(d, Layout::Little).unwrap();
         assert_eq!(v, "ELF".to_string());
     }
 }

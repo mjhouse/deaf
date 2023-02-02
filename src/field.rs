@@ -25,23 +25,13 @@ where
     T64: FromBytes + IntoBytes + TryFrom<Out>,
     Out: TryFrom<T32> + TryFrom<T64>,
 {
-    pub const fn simple(ranges: Ranges) -> Self {
+    pub const fn new(ranges: Ranges) -> Self {
         Self {
             a: PhantomData {},
             b: PhantomData {},
             c: PhantomData {},
             ranges,
-            layout: Layout::Any,
-        }
-    }
-
-    pub const fn complex(ranges: Ranges, layout: Layout) -> Self {
-        Self {
-            a: PhantomData {},
-            b: PhantomData {},
-            c: PhantomData {},
-            ranges,
-            layout,
+            layout: Layout::Little,
         }
     }
 
@@ -96,40 +86,40 @@ where
 mod tests {
     use super::*;
 
-    pub const RANGES_STR: Ranges = Ranges::simple(0x01..0x04);
-    pub const RANGES_U8:  Ranges = Ranges::simple(0x04..0x05);
-    pub const RANGES_U16: Ranges = Ranges::simple(0x01..0x03);
-    pub const RANGES_U32: Ranges = Ranges::simple(0x01..0x05);
-    pub const RANGES_U64: Ranges = Ranges::simple(0x01..0x09);
+    pub const RANGES_STR: Ranges = Ranges::new(0x01..0x04, 0x01..0x04);
+    pub const RANGES_U8:  Ranges = Ranges::new(0x01..0x02, 0x01..0x02);
+    pub const RANGES_U16: Ranges = Ranges::new(0x01..0x03, 0x01..0x03);
+    pub const RANGES_U32: Ranges = Ranges::new(0x01..0x05, 0x01..0x05);
+    pub const RANGES_U64: Ranges = Ranges::new(0x01..0x09, 0x01..0x09);
 
-    pub const RANGES_COMPLEX_U8_U16: Ranges = Ranges::complex(0x01..0x02,0x01..0x03);
+    pub const RANGES_COMPLEX_U8_U16: Ranges = Ranges::new(0x01..0x02, 0x01..0x03);
 
     #[test]
     fn test_simple_field_u8_get() {
         let bytes = &[ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 ];
-        let field: Field<u8> = Field::simple(RANGES_U8);
+        let field: Field<u8> = Field::new(RANGES_U8);
 
         let result = field.get(bytes);
         assert!(result.is_ok());
 
         let value = result.unwrap();
-        assert_eq!(value, 0x05);
+        assert_eq!(value, 0x02);
     }
 
     #[test]
     fn test_simple_field_u8_set() {
         let bytes = &mut [ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 ];
-        let field: Field<u8> = Field::simple(RANGES_U8);
+        let field: Field<u8> = Field::new(RANGES_U8);
 
         let result = field.set(bytes,0xFF);
         assert!(result.is_ok());
-        assert_eq!(bytes[4], 0xFF);
+        assert_eq!(bytes[1], 0xFF);
     }
 
     #[test]
     fn test_simple_field_u16_get() {
         let bytes = &[ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 ];
-        let field: Field<u16> = Field::simple(RANGES_U16);
+        let field: Field<u16> = Field::new(RANGES_U16);
 
         let result = field.get(bytes);
         assert!(result.is_ok());
@@ -141,7 +131,7 @@ mod tests {
     #[test]
     fn test_simple_field_u16_set() {
         let bytes = &mut [ 0x06, 0x05, 0x04, 0x03, 0x02, 0x01 ];
-        let field: Field<u16> = Field::simple(RANGES_U16);
+        let field: Field<u16> = Field::new(RANGES_U16);
 
         let result = field.set(bytes,0x0302);
         assert!(result.is_ok());
@@ -153,7 +143,7 @@ mod tests {
     #[test]
     fn test_simple_field_u32_get() {
         let bytes = &[ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 ];
-        let field: Field<u32> = Field::simple(RANGES_U32);
+        let field: Field<u32> = Field::new(RANGES_U32);
 
         let result = field.get(bytes);
         assert!(result.is_ok());
@@ -165,7 +155,7 @@ mod tests {
     #[test]
     fn test_simple_field_u32_set() {
         let bytes = &mut [ 0x06, 0x05, 0x04, 0x03, 0x02, 0x01 ];
-        let field: Field<u32> = Field::simple(RANGES_U32);
+        let field: Field<u32> = Field::new(RANGES_U32);
 
         let result = field.set(bytes,0x05040302);
         assert!(result.is_ok());
@@ -176,7 +166,7 @@ mod tests {
     #[test]
     fn test_simple_field_u64_get() {
         let bytes = &[ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A ];
-        let field: Field<u64> = Field::simple(RANGES_U64);
+        let field: Field<u64> = Field::new(RANGES_U64);
 
         let result = field.get(bytes);
         assert!(result.is_ok());
@@ -188,7 +178,7 @@ mod tests {
     #[test]
     fn test_simple_field_u64_set() {
         let bytes = &mut [ 0x0A, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01 ];
-        let field: Field<u64> = Field::simple(RANGES_U64);
+        let field: Field<u64> = Field::new(RANGES_U64);
 
         let result = field.set(bytes,0x0908070605040302);
         assert!(result.is_ok());
@@ -199,7 +189,7 @@ mod tests {
     #[test]
     fn test_simple_field_string_get() {
         let bytes = &[ 0x00, b'E', b'L', b'F', 0x06 ];
-        let field: Field<String> = Field::simple(RANGES_STR);
+        let field: Field<String> = Field::new(RANGES_STR);
 
         let result = field.get(bytes);
         assert!(result.is_ok());
@@ -211,7 +201,7 @@ mod tests {
     #[test]
     fn test_simple_field_string_set() {
         let bytes = &mut [ 0x00, b'E', b'L', b'F', 0x06 ];
-        let field: Field<String> = Field::simple(RANGES_STR);
+        let field: Field<String> = Field::new(RANGES_STR);
 
         let result = field.set(bytes,"BAD".to_string());
         assert!(result.is_ok());
@@ -224,9 +214,8 @@ mod tests {
     fn test_complex_field_u8_u16_get() {
         let bytes = &[ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 ];
 
-        let mut field: Field<u8,u16> = Field::complex(
-            RANGES_COMPLEX_U8_U16,
-            Layout::Little);
+        let mut field: Field<u8,u16> = Field::new(
+            RANGES_COMPLEX_U8_U16);
 
         // check at 32-bit width
         field.ranges.width = Width::X32;
@@ -243,9 +232,8 @@ mod tests {
     fn test_complex_field_u8_u16_set() {
         let bytes = &mut [ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 ];
 
-        let mut field: Field<u8,u16> = Field::complex(
-            RANGES_COMPLEX_U8_U16,
-            Layout::Little);
+        let mut field: Field<u8,u16> = Field::new(
+            RANGES_COMPLEX_U8_U16);
 
         // check at 32-bit width
         field.ranges.width = Width::X32;
@@ -256,6 +244,40 @@ mod tests {
         field.ranges.width = Width::X64;
         assert!(field.set(bytes,0x0903).is_ok());
         assert_eq!(bytes[1..3], [ 0x03, 0x09 ]);
+    }
+
+    #[test]
+    fn test_complex_field_width_get() {
+        let mut bytes = [ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 ];
+
+        let field: Field<u8,u8, Width> = Field::new(
+            RANGES_U8);
+
+        // check at 64-bit width
+        let value = field.get(&bytes).unwrap();
+        assert_eq!(value, Width::X64);
+
+        bytes[1] = 0x01;
+
+        // check at 32-bit width
+        let value = field.get(&bytes).unwrap();
+        assert_eq!(value, Width::X32);
+    }
+
+    #[test]
+    fn test_complex_field_width_set() {
+        let mut bytes = [ 0x01, 0x00, 0x03, 0x04, 0x05, 0x06 ];
+
+        let field: Field<u8,u8, Width> = Field::new(
+            RANGES_U8);
+
+        // check at 64-bit width
+        assert!(field.set(&mut bytes, Width::X64).is_ok());
+        assert_eq!(bytes[1],0x02);
+
+        // check at 64-bit width
+        assert!(field.set(&mut bytes, Width::X32).is_ok());
+        assert_eq!(bytes[1],0x01);
     }
 
 }
