@@ -1,7 +1,50 @@
+use paste::paste;
+
 use crate::errors::{Error, Result};
 use crate::constants::{Width,Layout,ELF_SIZE_32,ELF_SIZE_64};
 use crate::field::Field;
 use crate::ranges::*;
+
+/*
+    Create a getter, setter and accessor:
+
+    ```
+    property!(class,ei_class,Width)
+    ```
+
+    expands to:
+
+    ```
+    // no-mut access to already-parsed value
+    pub fn class(&self) -> Width;
+
+    // re-parse a single value from the binary
+    pub fn get_class(&self, b: &[u8]) -> Result<Width>;
+
+    // set a new value in the binary
+    pub fn set_class(&mut self, b: &mut [u8], v: Width) -> Result<()>;
+    ```
+
+*/
+macro_rules! property {
+    ( $n: ident, $f: ident, $v: ident ) => {
+        paste!{
+            pub fn $n(&self) -> $v {
+                self.values.$f.clone()
+            }
+        
+            pub fn [< get_ $n >](&self, b: &[u8]) -> Result<$v> {
+                self.$f.get(b)
+            }
+        
+            pub fn [< set_ $n >](&mut self, b: &mut [u8], v: $v) -> Result<()> {
+                self.$f.set(b,v.clone())?;
+                self.values.$f = v;
+                Ok(())
+            }
+        }
+    }
+}
 
 #[derive(Debug,Clone)]
 pub struct HeaderValues {
@@ -186,74 +229,24 @@ impl Header {
     pub fn magic(&self) -> String {
         self.values.ei_magic.clone()
     }
-    
-    pub fn class(&self) -> Width {
-        self.values.ei_class.clone()
-    }
-    
-    pub fn data(&self) -> Layout {
-        self.values.ei_data.clone()
-    }
-    
-    pub fn version(&self) -> u8 {
-        self.values.ei_version.clone()
-    }
-    
-    pub fn osabi(&self) -> u8 {
-        self.values.ei_osabi.clone()
-    }
-    
-    pub fn abiversion(&self) -> u8 {
-        self.values.ei_abiversion.clone()
-    }
-    
-    pub fn file_type(&self) -> u16 {
-        self.values.e_type.clone()
-    }
-    
-    pub fn machine(&self) -> u16 {
-        self.values.e_machine.clone()
-    }
-    
-    pub fn entry(&self) -> u64 {
-        self.values.e_entry.clone()
-    }
-    
-    pub fn phoff(&self) -> u64 {
-        self.values.e_phoff.clone()
-    }
-    
-    pub fn shoff(&self) -> u64 {
-        self.values.e_shoff.clone()
-    }
-    
-    pub fn flags(&self) -> u32 {
-        self.values.e_flags.clone()
-    }
-    
-    pub fn ehsize(&self) -> u16 {
-        self.values.e_ehsize.clone()
-    }
-    
-    pub fn phentsize(&self) -> u16 {
-        self.values.e_phentsize.clone()
-    }
-    
-    pub fn phnum(&self) -> u16 {
-        self.values.e_phnum.clone()
-    }
-    
-    pub fn shentsize(&self) -> u16 {
-        self.values.e_shentsize.clone()
-    }
-    
-    pub fn shnum(&self) -> u16 {
-        self.values.e_shnum.clone()
-    }
-    
-    pub fn shstrndx(&self) -> u16 {
-        self.values.e_shstrndx.clone()
-    }
+
+    property!(class, ei_class, Width);
+    property!(data,ei_data,Layout);
+    property!(version,ei_version,u8);
+    property!(osabi,ei_osabi,u8);
+    property!(abiversion,ei_abiversion,u8);
+    property!(file_type,e_type,u16);
+    property!(machine,e_machine,u16);
+    property!(entry,e_entry,u64);
+    property!(phoff,e_phoff,u64);
+    property!(shoff,e_shoff,u64);
+    property!(flags,e_flags,u32);
+    property!(ehsize,e_ehsize,u16);
+    property!(phentsize,e_phentsize,u16);
+    property!(phnum,e_phnum,u16);
+    property!(shentsize,e_shentsize,u16);
+    property!(shnum,e_shnum,u16);
+    property!(shstrndx,e_shstrndx,u16);
 
 }
 
