@@ -1,9 +1,9 @@
 use std::marker::PhantomData;
 
-use crate::bytes::{FromBytes, IntoBytes};
-use crate::constants::{Layout, Width};
+use crate::headers::common::bytes::{FromBytes, IntoBytes};
+use crate::headers::common::constants::{Layout, Width};
 use crate::errors::{Error, Result};
-use crate::ranges::Ranges;
+use crate::headers::common::ranges::Ranges;
 
 #[derive(Debug)]
 pub struct Field<T32 = u8, T64 = T32, Out = T64>

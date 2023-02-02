@@ -1,5 +1,5 @@
 use std::ops::Range;
-use crate::constants::Width;
+use crate::headers::common::constants::Width;
 
 pub const EI_MAGIC:       Ranges = Ranges::new(0x01..0x04,0x01..0x04); // String
 pub const EI_CLASS:       Ranges = Ranges::new(0x04..0x05,0x04..0x05); // u8
@@ -24,6 +24,15 @@ pub const E_PHNUM:        Ranges = Ranges::new(0x2C..0x2E, 0x38..0x3A); // u16 /
 pub const E_SHENTSIZE:    Ranges = Ranges::new(0x2E..0x30, 0x3A..0x3C); // u16 / u16
 pub const E_SHNUM:        Ranges = Ranges::new(0x30..0x32, 0x3C..0x3E); // u16 / u16
 pub const E_SHSTRNDX:     Ranges = Ranges::new(0x32..0x34, 0x3E..0x40); // u16 / u16
+
+pub const P_TYPE:   Ranges = Ranges::new(0x00..0x04,0x00..0x04);
+pub const P_FLAGS:  Ranges = Ranges::new(0x18..0x1C,0x04..0x08);
+pub const P_OFFSET: Ranges = Ranges::new(0x04..0x08,0x08..0x10);
+pub const P_VADDR:  Ranges = Ranges::new(0x08..0x0C,0x10..0x18);
+pub const P_PADDR:  Ranges = Ranges::new(0x0C..0x10,0x18..0x20);
+pub const P_FILESZ: Ranges = Ranges::new(0x10..0x14,0x20..0x28);
+pub const P_MEMSZ:  Ranges = Ranges::new(0x14..0x18,0x28..0x30);
+pub const P_ALIGN:  Ranges = Ranges::new(0x1C..0x20,0x30..0x38);
 
 // This struct maintains several ranges and returns
 // them depending on the current width.

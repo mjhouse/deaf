@@ -1,4 +1,4 @@
-use crate::constants::Layout;
+use crate::headers::common::constants::Layout;
 use crate::errors::{Error, Result};
 
 pub trait FromBytes {

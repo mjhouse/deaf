@@ -1,9 +1,9 @@
 use paste::paste;
 
 use crate::errors::{Error, Result};
-use crate::constants::{Width,Layout,ELF_SIZE_32,ELF_SIZE_64};
-use crate::field::Field;
-use crate::ranges::*;
+use crate::headers::common::constants::{Width,Layout,ELF_SIZE_32,ELF_SIZE_64};
+use crate::headers::common::field::Field;
+use crate::headers::common::ranges::*;
 
 /*
     Create a getter, setter and accessor:
@@ -47,7 +47,7 @@ macro_rules! property {
 }
 
 #[derive(Debug,Clone)]
-pub struct HeaderValues {
+pub struct FileHeaderValues {
     ei_size: usize,
     ei_magic: String,
     ei_class: Width,
@@ -70,7 +70,7 @@ pub struct HeaderValues {
     e_shstrndx: u16,
 }
 
-pub struct Header {
+pub struct FileHeader {
     ei_size: usize,
     ei_magic: Field<String>,
     ei_class: Field<u8,u8,Width>,
@@ -91,10 +91,10 @@ pub struct Header {
     e_shentsize: Field<u16>,
     e_shnum: Field<u16>,
     e_shstrndx: Field<u16>,
-    values: HeaderValues,
+    values: FileHeaderValues,
 }
 
-impl HeaderValues {
+impl FileHeaderValues {
 
     pub fn new() -> Self {
         Self {
@@ -123,7 +123,7 @@ impl HeaderValues {
 
 }
 
-impl Header {
+impl FileHeader {
 
     pub fn new() -> Self {
         Self {
@@ -147,7 +147,7 @@ impl Header {
             e_shentsize: Field::new(E_SHENTSIZE),
             e_shnum: Field::new(E_SHNUM),
             e_shstrndx: Field::new(E_SHSTRNDX),
-            values: HeaderValues::new(),
+            values: FileHeaderValues::new(),
         }
     }
 
@@ -186,14 +186,7 @@ impl Header {
         self.e_shstrndx.ranges.width = width.clone();
     }
 
-    fn get_size(&self) -> usize {
-        match self.values.ei_class {
-            Width::X64 => ELF_SIZE_64,
-            Width::X32 => ELF_SIZE_32,
-        } 
-    }
-
-    pub fn read(&mut self, b: &[u8]) -> Result<HeaderValues> {
+    pub fn read(&mut self, b: &[u8]) -> Result<FileHeaderValues> {
         self.values.ei_magic      = self.ei_magic.get(b)?;
         self.values.ei_class      = self.ei_class.get(b)?;
         self.values.ei_data       = self.ei_data.get(b)?;
@@ -225,11 +218,15 @@ impl Header {
     pub fn size(&self) -> usize {
         self.values.ei_size.clone()
     }
-    
-    pub fn magic(&self) -> String {
-        self.values.ei_magic.clone()
+
+    pub fn get_size(&self) -> usize {
+        match self.values.ei_class {
+            Width::X64 => ELF_SIZE_64,
+            Width::X32 => ELF_SIZE_32,
+        } 
     }
 
+    property!(magic, ei_magic, String);
     property!(class, ei_class, Width);
     property!(data,ei_data,Layout);
     property!(version,ei_version,u8);
@@ -262,7 +259,7 @@ mod tests {
         let mut b = Vec::new();
         f.read_to_end(&mut b).unwrap();
 
-        let header = Header::parse(&b);
+        let header = FileHeader::parse(&b);
         assert!(header.is_ok());
     }
 }
