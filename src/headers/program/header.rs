@@ -1,14 +1,19 @@
-use crate::headers::common::constants::Width;
-use crate::headers::common::constants::Layout;
+use crate::headers::common::constants::{
+    Width,
+    Layout,
+    PHType,
+    PH_SIZE_32,
+    PH_SIZE_64
+};
+
 use crate::headers::common::field::Field;
 use crate::headers::common::ranges::*;
-
 use crate::errors::{Error, Result};
 
 #[derive(Debug,Clone)]
 pub struct ProgramHeaderValues {
     p_size: usize, 
-    p_type: u32,
+    p_type: PHType,
     p_flags: u32,
     p_offset: u64,
     p_vaddr: u64,
@@ -18,13 +23,14 @@ pub struct ProgramHeaderValues {
     p_align: u64,
 }
 
+#[derive(Debug)]
 pub struct ProgramHeader {
     offset: usize,
     layout: Layout,
     width: Width,
 
     p_size: usize,
-    p_type: Field<u32>,
+    p_type: Field<u32,u32,PHType>,
     p_flags: Field<u32>,
     p_offset: Field<u32,u64>,
     p_vaddr: Field<u32,u64>,
@@ -41,7 +47,7 @@ impl ProgramHeaderValues {
     pub fn new() -> Self {
         Self {
             p_size: 0, 
-            p_type: 0,
+            p_type: PHType::PT_NULL,
             p_flags: 0,
             p_offset: 0,
             p_vaddr: 0,
@@ -71,6 +77,33 @@ impl ProgramHeader {
             p_align: Field::new(P_ALIGN),
             values: ProgramHeaderValues::new(),
         }
+    }
+
+    pub fn parse(b: &[u8], offset: usize, layout: Layout, width: Width) -> Result<Self> {
+        let mut header = Self::new(offset,layout,width);
+        header.read(b)?;
+        Ok(header)
+    }
+
+    pub fn parse_all(b: &[u8], count: usize, offset: usize, layout: Layout, width: Width) -> Result<Vec<Self>> {
+        let mut result = vec![];
+        result.reserve_exact(count);
+
+        let size = match width {
+            Width::X64 => PH_SIZE_64,
+            Width::X32 => PH_SIZE_32,
+        };
+
+        for i in 0..count {
+            let index = offset + i * size;
+            result.push(Self::parse(
+                b,
+                index,
+                layout.clone(),
+                width.clone())?);
+        }
+
+        Ok(result)
     }
 
     pub fn set_width(&mut self, width: Width) {
@@ -120,14 +153,30 @@ mod tests {
     use super::*;
     use std::fs::File;
     use std::io::Read;
+    use crate::headers::file::header::FileHeader;
 
-    // #[test]
-    // fn test_extract_header_from_shared_library() {
-    //     let mut f = File::open("assets/libvpf.so.4.1").unwrap();
-    //     let mut b = Vec::new();
-    //     f.read_to_end(&mut b).unwrap();
+    #[test]
+    fn test_extract_header_from_shared_library() {
+        let mut f = File::open("assets/libvpf.so.4.1").unwrap();
+        let mut b = Vec::new();
+        
+        f.read_to_end(&mut b)
+            .unwrap();
 
-    //     let header = FileHeader::parse(&b);
-    //     assert!(header.is_ok());
-    // }
+        let file_header = FileHeader::parse(&b)
+            .unwrap();
+
+        let count = file_header.phnum();
+        let offset = file_header.phoff();
+        let layout = file_header.data();
+        let width = file_header.class();
+        
+        let program_headers = ProgramHeader::parse_all(
+            &b,
+            count,
+            offset,
+            layout,
+            width);
+        assert!(program_headers.is_ok())
+    }
 }

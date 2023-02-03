@@ -59,12 +59,12 @@ pub struct FileHeaderValues {
     e_machine: u16,
     e_version: u32,
     e_entry: u64,
-    e_phoff: u64,
+    e_phoff: usize,
     e_shoff: u64,
     e_flags: u32,
     e_ehsize: u16,
     e_phentsize: u16,
-    e_phnum: u16,
+    e_phnum: usize,
     e_shentsize: u16,
     e_shnum: u16,
     e_shstrndx: u16,
@@ -82,12 +82,12 @@ pub struct FileHeader {
     e_machine: Field<u16>,
     e_version: Field<u32>,
     e_entry: Field<u32,u64>,
-    e_phoff: Field<u32,u64>,
+    e_phoff: Field<u32,u64,usize>,
     e_shoff: Field<u32,u64>,
     e_flags: Field<u32>,
     e_ehsize: Field<u16>,
     e_phentsize: Field<u16>,
-    e_phnum: Field<u16>,
+    e_phnum: Field<u16,u16,usize>,
     e_shentsize: Field<u16>,
     e_shnum: Field<u16>,
     e_shstrndx: Field<u16>,
@@ -226,8 +226,8 @@ impl FileHeader {
         } 
     }
 
-    property!(magic, ei_magic, String);
-    property!(class, ei_class, Width);
+    property!(magic, ei_magic,String);
+    property!(class, ei_class,Width);
     property!(data,ei_data,Layout);
     property!(version,ei_version,u8);
     property!(osabi,ei_osabi,u8);
@@ -235,12 +235,12 @@ impl FileHeader {
     property!(file_type,e_type,u16);
     property!(machine,e_machine,u16);
     property!(entry,e_entry,u64);
-    property!(phoff,e_phoff,u64);
+    property!(phoff,e_phoff,usize);
     property!(shoff,e_shoff,u64);
     property!(flags,e_flags,u32);
     property!(ehsize,e_ehsize,u16);
     property!(phentsize,e_phentsize,u16);
-    property!(phnum,e_phnum,u16);
+    property!(phnum,e_phnum,usize);
     property!(shentsize,e_shentsize,u16);
     property!(shnum,e_shnum,u16);
     property!(shstrndx,e_shstrndx,u16);
