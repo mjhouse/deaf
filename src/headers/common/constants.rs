@@ -73,11 +73,11 @@ impl_constant!(u32,PHType,
     0x00000005 => PT_SHLIB,        // 	Reserved.
     0x00000006 => PT_PHDR,         // 	Segment containing program header table itself.
     0x00000007 => PT_TLS,          // 	Thread-Local Storage template.
-    0x6474e550 => PT_GNU_EH_FRAME, //   Location of .eh_frame section for stack unwinding
-    0x6474e553 => PT_GNU_PROPERTY, //   Location of .note.gnu.property section  for special loader notes
-    0x6474e551 => PT_GNU_STACK,    //   Location of stack segment?
-    0x6474e552 => GNU_RELRO,       //   
     0x60000000 => PT_LOOS,         //   Lower bound of OS-specific types
+    0x6474e550 => PT_GNU_EH_FRAME, //   OS-specific location of .eh_frame section for stack unwinding
+    0x6474e553 => PT_GNU_PROPERTY, //   OS-specific location of .note.gnu.property section  for special loader notes
+    0x6474e551 => PT_GNU_STACK,    //   OS-specific location of stack segment?
+    0x6474e552 => GNU_RELRO,       //   OS-specific segment to be made read-only after linking
     0x6fffffff => PT_HIOS,         //   Uppder bound of OS-specific types
     0x70000000 => PT_LOPROC,       //   Lower bound of processor-specific types
     0x7fffffff => PT_HIPROC        //   Upper bound of processor-specific types
