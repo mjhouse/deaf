@@ -12,7 +12,7 @@ use crate::errors::{Error, Result};
 
 #[derive(Debug,Clone)]
 pub struct ProgramHeaderValues {
-    p_size: usize, 
+    p_size: usize,   // TODO: change this to just be 'size'
     p_type: PHType,
     p_flags: u32,
     p_offset: u64,
@@ -29,7 +29,7 @@ pub struct ProgramHeader {
     layout: Layout,
     width: Width,
 
-    p_size: usize,
+    p_size: usize, // TODO: change this to just be 'size'
     p_type: Field<u32,u32,PHType>,
     p_flags: Field<u32>,
     p_offset: Field<u32,u64>,
@@ -66,7 +66,7 @@ impl ProgramHeader {
             offset,
             layout,
             width,
-            p_size: 0, 
+            p_size: 0,  // TODO: change this to just be 'size'
             p_type: Field::new(P_TYPE),
             p_flags: Field::new(P_FLAGS),
             p_offset: Field::new(P_OFFSET),
@@ -94,45 +94,47 @@ impl ProgramHeader {
             Width::X32 => PH_SIZE_32,
         };
 
+        // TODO: set the size on each ProgramHeader as they are parsed
+
         for i in 0..count {
             let index = offset + i * size;
             result.push(Self::parse(
                 b,
                 index,
-                layout.clone(),
-                width.clone())?);
+                layout,
+                width)?);
         }
 
         Ok(result)
     }
 
     pub fn set_width(&mut self, width: Width) {
-        self.p_type.ranges.width = width.clone();
-        self.p_flags.ranges.width = width.clone();
-        self.p_offset.ranges.width = width.clone();
-        self.p_vaddr.ranges.width = width.clone();
-        self.p_paddr.ranges.width = width.clone();
-        self.p_filesz.ranges.width = width.clone();
-        self.p_memsz.ranges.width = width.clone();
-        self.p_align.ranges.width = width.clone();
+        self.p_type.ranges.width = width;
+        self.p_flags.ranges.width = width;
+        self.p_offset.ranges.width = width;
+        self.p_vaddr.ranges.width = width;
+        self.p_paddr.ranges.width = width;
+        self.p_filesz.ranges.width = width;
+        self.p_memsz.ranges.width = width;
+        self.p_align.ranges.width = width;
     }
 
     pub fn set_layout(&mut self, layout: Layout) {
-        self.p_type.layout = layout.clone();
-        self.p_flags.layout = layout.clone();
-        self.p_offset.layout = layout.clone();
-        self.p_vaddr.layout = layout.clone();
-        self.p_paddr.layout = layout.clone();
-        self.p_filesz.layout = layout.clone();
-        self.p_memsz.layout = layout.clone();
-        self.p_align.layout = layout.clone();
+        self.p_type.layout = layout;
+        self.p_flags.layout = layout;
+        self.p_offset.layout = layout;
+        self.p_vaddr.layout = layout;
+        self.p_paddr.layout = layout;
+        self.p_filesz.layout = layout;
+        self.p_memsz.layout = layout;
+        self.p_align.layout = layout;
     }
 
     pub fn read(&mut self, b: &[u8]) -> Result<ProgramHeaderValues> {
         let s = &b[self.offset..];
 
-        self.set_layout(self.layout.clone());
-        self.set_width(self.width.clone());
+        self.set_layout(self.layout);
+        self.set_width(self.width);
 
         self.values.p_type   = self.p_type.get(s)?;
         self.values.p_flags  = self.p_flags.get(s)?;
@@ -156,7 +158,7 @@ mod tests {
     use crate::headers::file::header::FileHeader;
 
     #[test]
-    fn test_extract_header_from_shared_library() {
+    fn test_extract_program_headers() {
         let mut f = File::open("assets/libvpf.so.4.1").unwrap();
         let mut b = Vec::new();
         
@@ -177,6 +179,7 @@ mod tests {
             offset,
             layout,
             width);
+
         assert!(program_headers.is_ok())
     }
 }

@@ -1,7 +1,7 @@
 use paste::paste;
 
 use crate::errors::{Error, Result};
-use crate::headers::common::constants::{Width,Layout,ELF_SIZE_32,ELF_SIZE_64};
+use crate::headers::common::constants::{Width,Layout,FH_SIZE_32,FH_SIZE_64};
 use crate::headers::common::field::Field;
 use crate::headers::common::ranges::*;
 
@@ -60,13 +60,13 @@ pub struct FileHeaderValues {
     e_version: u32,
     e_entry: u64,
     e_phoff: usize,
-    e_shoff: u64,
+    e_shoff: usize,
     e_flags: u32,
     e_ehsize: u16,
     e_phentsize: u16,
     e_phnum: usize,
     e_shentsize: u16,
-    e_shnum: u16,
+    e_shnum: usize,
     e_shstrndx: u16,
 }
 
@@ -83,13 +83,13 @@ pub struct FileHeader {
     e_version: Field<u32>,
     e_entry: Field<u32,u64>,
     e_phoff: Field<u32,u64,usize>,
-    e_shoff: Field<u32,u64>,
+    e_shoff: Field<u32,u64,usize>,
     e_flags: Field<u32>,
     e_ehsize: Field<u16>,
     e_phentsize: Field<u16>,
     e_phnum: Field<u16,u16,usize>,
     e_shentsize: Field<u16>,
-    e_shnum: Field<u16>,
+    e_shnum: Field<u16,u16,usize>,
     e_shstrndx: Field<u16>,
     values: FileHeaderValues,
 }
@@ -158,32 +158,32 @@ impl FileHeader {
     }
 
     fn set_layout(&mut self, layout: Layout) {
-        self.e_type.layout = layout.clone();
-        self.e_machine.layout = layout.clone();
-        self.e_version.layout = layout.clone();
-        self.e_entry.layout = layout.clone();
-        self.e_phoff.layout = layout.clone();
-        self.e_shoff.layout = layout.clone();
-        self.e_flags.layout = layout.clone();
-        self.e_ehsize.layout = layout.clone();
-        self.e_phentsize.layout = layout.clone();
-        self.e_phnum.layout = layout.clone();
-        self.e_shentsize.layout = layout.clone();
-        self.e_shnum.layout = layout.clone();
-        self.e_shstrndx.layout = layout.clone();
+        self.e_type.layout = layout;
+        self.e_machine.layout = layout;
+        self.e_version.layout = layout;
+        self.e_entry.layout = layout;
+        self.e_phoff.layout = layout;
+        self.e_shoff.layout = layout;
+        self.e_flags.layout = layout;
+        self.e_ehsize.layout = layout;
+        self.e_phentsize.layout = layout;
+        self.e_phnum.layout = layout;
+        self.e_shentsize.layout = layout;
+        self.e_shnum.layout = layout;
+        self.e_shstrndx.layout = layout;
     }
 
     fn set_width(&mut self, width: Width) {
-        self.e_entry.ranges.width = width.clone();
-        self.e_phoff.ranges.width = width.clone();
-        self.e_shoff.ranges.width = width.clone();
-        self.e_flags.ranges.width = width.clone();
-        self.e_ehsize.ranges.width = width.clone();
-        self.e_phentsize.ranges.width = width.clone();
-        self.e_phnum.ranges.width = width.clone();
-        self.e_shentsize.ranges.width = width.clone();
-        self.e_shnum.ranges.width = width.clone();
-        self.e_shstrndx.ranges.width = width.clone();
+        self.e_entry.ranges.width = width;
+        self.e_phoff.ranges.width = width;
+        self.e_shoff.ranges.width = width;
+        self.e_flags.ranges.width = width;
+        self.e_ehsize.ranges.width = width;
+        self.e_phentsize.ranges.width = width;
+        self.e_phnum.ranges.width = width;
+        self.e_shentsize.ranges.width = width;
+        self.e_shnum.ranges.width = width;
+        self.e_shstrndx.ranges.width = width;
     }
 
     pub fn read(&mut self, b: &[u8]) -> Result<FileHeaderValues> {
@@ -194,8 +194,8 @@ impl FileHeader {
         self.values.ei_osabi      = self.ei_osabi.get(b)?;
         self.values.ei_abiversion = self.ei_abiversion.get(b)?;
 
-        self.set_layout(self.values.ei_data.clone());
-        self.set_width(self.values.ei_class.clone());
+        self.set_layout(self.values.ei_data);
+        self.set_width(self.values.ei_class);
 
         self.values.ei_size       = self.get_size();
         self.values.e_type        = self.e_type.get(b)?;
@@ -221,8 +221,8 @@ impl FileHeader {
 
     pub fn get_size(&self) -> usize {
         match self.values.ei_class {
-            Width::X64 => ELF_SIZE_64,
-            Width::X32 => ELF_SIZE_32,
+            Width::X64 => FH_SIZE_64,
+            Width::X32 => FH_SIZE_32,
         } 
     }
 
@@ -236,13 +236,13 @@ impl FileHeader {
     property!(machine,e_machine,u16);
     property!(entry,e_entry,u64);
     property!(phoff,e_phoff,usize);
-    property!(shoff,e_shoff,u64);
+    property!(shoff,e_shoff,usize);
     property!(flags,e_flags,u32);
     property!(ehsize,e_ehsize,u16);
     property!(phentsize,e_phentsize,u16);
     property!(phnum,e_phnum,usize);
     property!(shentsize,e_shentsize,u16);
-    property!(shnum,e_shnum,u16);
+    property!(shnum,e_shnum,usize);
     property!(shstrndx,e_shstrndx,u16);
 
 }
@@ -254,7 +254,7 @@ mod tests {
     use std::io::Read;
 
     #[test]
-    fn test_extract_header_from_shared_library() {
+    fn test_extract_file_header() {
         let mut f = File::open("assets/libvpf.so.4.1").unwrap();
         let mut b = Vec::new();
         f.read_to_end(&mut b).unwrap();

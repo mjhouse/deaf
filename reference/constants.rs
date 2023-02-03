@@ -1,8 +1,8 @@
 use std::ops::Range;
 use crate::field::Field;
 
-pub const ELF_SIZE_32:    usize = 52;
-pub const ELF_SIZE_64:    usize = 64;
+pub const FH_SIZE_32:    usize = 52;
+pub const FH_SIZE_64:    usize = 64;
 
 pub const EI_MAGIC:       (usize,usize) = (0x00,0x04);
 pub const EI_CLASS:       (usize,usize) = (0x04,0x05);
