@@ -10,6 +10,9 @@ pub enum Error {
     #[error("Binary is not an ELF file")]
     FileTypeError,
 
+    #[error("Given section is of the wrong type")]
+    WrongSectionError,
+
     #[error("Failed while converting bytes to integer values")]
     ParseValueError(#[from] std::array::TryFromSliceError),
 

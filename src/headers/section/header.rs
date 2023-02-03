@@ -11,17 +11,17 @@ use crate::errors::{Error, Result};
 
 #[derive(Debug,Clone)]
 pub struct SectionHeaderValues {
-    size: usize, 
-    sh_name: u32,
-    sh_type: SHType,
-    sh_flags: u64,
-    sh_address: u64,
-    sh_offset: u64,
-    sh_size: u64,
-    sh_link: u32,
-    sh_info: u32,
-    sh_addralign: u64,
-    sh_entsize: u64,
+    pub size: usize, 
+    pub sh_name: u32,
+    pub sh_type: SHType,
+    pub sh_flags: u64,
+    pub sh_address: u64,
+    pub sh_offset: usize,
+    pub sh_size: usize,
+    pub sh_link: u32,
+    pub sh_info: u32,
+    pub sh_addralign: u64,
+    pub sh_entsize: usize,
 }
 
 #[derive(Debug)]
@@ -35,14 +35,14 @@ pub struct SectionHeader {
     sh_type: Field<u32,u32,SHType>,
     sh_flags: Field<u32,u64>,
     sh_address: Field<u32,u64>,
-    sh_offset: Field<u32,u64>,
-    sh_size: Field<u32,u64>,
+    sh_offset: Field<u32,u64,usize>,
+    sh_size: Field<u32,u64,usize>,
     sh_link: Field<u32>,
     sh_info: Field<u32>,
     sh_addralign: Field<u32,u64>,
-    sh_entsize: Field<u32,u64>,
+    sh_entsize: Field<u32,u64,usize>,
 
-    values: SectionHeaderValues,
+    pub values: SectionHeaderValues,
 }
 
 impl SectionHeaderValues {
@@ -170,7 +170,7 @@ mod tests {
     use crate::headers::file::header::FileHeader;
 
     #[test]
-    fn test_extract_program_headers() {
+    fn test_extract_section_headers() {
         let mut f = File::open("assets/libvpf.so.4.1").unwrap();
         let mut b = Vec::new();
         
