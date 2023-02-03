@@ -6,6 +6,20 @@ pub const ELF_SIZE_64: usize = 64;
 pub const PH_SIZE_32: usize = 32;
 pub const PH_SIZE_64: usize = 56;
 
+macro_rules! impl_try_from_no_fail {
+    ( $f: ident, $t: ident, $( $n: pat => $m: ident ),+ ) => {
+        impl TryFrom<$f> for $t {
+            type Error = Error;
+            fn try_from(f: $f) -> Result<Self> {
+                match f {
+                    $( $n => Ok(Self::$m), )+
+                    v => Ok(Self::Unknown(v)),
+                }
+            }
+        }
+    }
+}
+
 macro_rules! impl_try_from {
     ( $f: ident, $t: ident, $( $n: pat => $m: ident ),+ ) => {
         impl TryFrom<$f> for $t {
@@ -13,10 +27,7 @@ macro_rules! impl_try_from {
             fn try_from(f: $f) -> Result<Self> {
                 match f {
                     $( $n => Ok(Self::$m), )+
-                    v => {
-                        println!("FAILED: {}",v);
-                        Err(Error::ParseError)
-                    },
+                    _ => Err(Error::ParseError),
                 }
             }
         }
