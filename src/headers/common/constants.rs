@@ -1,3 +1,5 @@
+use bitflags::bitflags;
+
 use crate::errors::{Error, Result};
 
 // global const section sizes for various widths
@@ -172,3 +174,12 @@ impl_constant_nofail!(u32, SHType, [
     0x00000013 => SHT_NUM,           //   Number of defined types.
     0x60000000 => SHT_LOOS           //   Start OS-specific. 
 ]);
+
+bitflags! {
+    pub struct SHFlags: u64 {
+        const SHF_WRITE     = 0x00000001; //   Contains data that is writable during process execution. 
+        const SHF_ALLOC     = 0x00000002; //   Occupies memory during process execution.
+        const SHF_EXECINSTR = 0x00000004; //   Contains executable machine instructions. 
+        const SHF_MASKPROC  = 0xf0000000; //   Reserved for processor-specific semantics. 
+    }
+}

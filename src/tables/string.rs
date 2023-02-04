@@ -35,14 +35,13 @@ impl StringTable {
         let start = self.offset;
         let end = start + self.section_size;
 
-        for i in start..end {
-            let ch = b[i] as char;
-            if ch == '\0' {
-                result.push(string.clone());
-                string.clear();
-            }
-            else {
-                string.push(ch);
+        for v in b[start..end].iter() {
+            match *v as char {
+                '\0' => {
+                    result.push(string.clone());
+                    string.clear();
+                },
+                ch   => string.push(ch),
             }
         }
 

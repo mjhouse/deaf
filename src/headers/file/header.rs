@@ -1,50 +1,8 @@
-use paste::paste;
-
 use crate::errors::{Error, Result};
 use crate::headers::common::constants::{Width,Layout,FH_SIZE_32,FH_SIZE_64};
 use crate::headers::common::field::Field;
 use crate::headers::common::ranges::*;
-
-/*
-    Create a getter, setter and accessor:
-
-    ```
-    property!(class,ei_class,Width)
-    ```
-
-    expands to:
-
-    ```
-    // no-mut access to already-parsed value
-    pub fn class(&self) -> Width;
-
-    // re-parse a single value from the binary
-    pub fn get_class(&self, b: &[u8]) -> Result<Width>;
-
-    // set a new value in the binary
-    pub fn set_class(&mut self, b: &mut [u8], v: Width) -> Result<()>;
-    ```
-
-*/
-macro_rules! property {
-    ( $n: ident, $f: ident, $v: ident ) => {
-        paste!{
-            pub fn $n(&self) -> $v {
-                self.values.$f.clone()
-            }
-        
-            pub fn [< get_ $n >](&self, b: &[u8]) -> Result<$v> {
-                self.$f.get(b)
-            }
-        
-            pub fn [< set_ $n >](&mut self, b: &mut [u8], v: $v) -> Result<()> {
-                self.$f.set(b,v.clone())?;
-                self.values.$f = v;
-                Ok(())
-            }
-        }
-    }
-}
+use crate::impl_property;
 
 #[derive(Debug,Clone)]
 pub struct FileHeaderValues {
@@ -226,24 +184,24 @@ impl FileHeader {
         } 
     }
 
-    property!(magic, ei_magic,String);
-    property!(class, ei_class,Width);
-    property!(data,ei_data,Layout);
-    property!(version,ei_version,u8);
-    property!(osabi,ei_osabi,u8);
-    property!(abiversion,ei_abiversion,u8);
-    property!(file_type,e_type,u16);
-    property!(machine,e_machine,u16);
-    property!(entry,e_entry,u64);
-    property!(phoff,e_phoff,usize);
-    property!(shoff,e_shoff,usize);
-    property!(flags,e_flags,u32);
-    property!(ehsize,e_ehsize,u16);
-    property!(phentsize,e_phentsize,u16);
-    property!(phnum,e_phnum,usize);
-    property!(shentsize,e_shentsize,u16);
-    property!(shnum,e_shnum,usize);
-    property!(shstrndx,e_shstrndx,usize);
+    impl_property!(magic, ei_magic,String);
+    impl_property!(class, ei_class,Width);
+    impl_property!(data,ei_data,Layout);
+    impl_property!(version,ei_version,u8);
+    impl_property!(osabi,ei_osabi,u8);
+    impl_property!(abiversion,ei_abiversion,u8);
+    impl_property!(file_type,e_type,u16);
+    impl_property!(machine,e_machine,u16);
+    impl_property!(entry,e_entry,u64);
+    impl_property!(phoff,e_phoff,usize);
+    impl_property!(shoff,e_shoff,usize);
+    impl_property!(flags,e_flags,u32);
+    impl_property!(ehsize,e_ehsize,u16);
+    impl_property!(phentsize,e_phentsize,u16);
+    impl_property!(phnum,e_phnum,usize);
+    impl_property!(shentsize,e_shentsize,u16);
+    impl_property!(shnum,e_shnum,usize);
+    impl_property!(shstrndx,e_shstrndx,usize);
 
 }
 

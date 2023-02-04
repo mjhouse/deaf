@@ -2,12 +2,14 @@ use crate::headers::common::constants::{
     Width,
     Layout,
     SHType,
+    SHFlags,
     sizes
 };
 
 use crate::headers::common::field::Field;
 use crate::headers::common::ranges::*;
 use crate::errors::{Error, Result};
+use crate::impl_property;
 
 #[derive(Debug,Clone)]
 pub struct SectionHeaderValues {
@@ -158,6 +160,34 @@ impl SectionHeader {
         self.values.sh_entsize   = self.sh_entsize.get(s)?;
 
         Ok(self.values.clone())
+    }
+
+    impl_property!(name,sh_name,u32);
+    impl_property!(section_type,sh_type,SHType);
+    // impl_property!(flags,sh_flags,u64);
+    impl_property!(address,sh_address,u64);
+    impl_property!(offset,sh_offset,usize);
+    impl_property!(size,sh_size,usize);
+    impl_property!(link,sh_link,u32);
+    impl_property!(info,sh_info,u32);
+    impl_property!(addralign,sh_addralign,u64);
+    impl_property!(entsize,sh_entsize,usize);
+
+    pub fn flags(&self) -> Result<SHFlags> {
+        SHFlags::from_bits(self.values.sh_flags as u64)
+            .ok_or(Error::ParseError)
+    }
+
+    pub fn get_flags(&self, b: &[u8]) -> Result<SHFlags> {
+        self.sh_flags.get(b)
+            .and_then(|f| SHFlags::from_bits(f as u64)
+                .ok_or(Error::ParseError))
+    }
+
+    pub fn set_flags(&mut self, b: &mut [u8], flags: SHFlags) -> Result<()> {
+        self.sh_flags.set(b,flags.bits())?;
+        self.values.sh_flags = flags.bits();
+        Ok(())
     }
 
 }
