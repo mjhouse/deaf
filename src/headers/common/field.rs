@@ -1,5 +1,7 @@
 use std::marker::PhantomData;
+use num_enum::{IntoPrimitive, TryFromPrimitive};
 
+use crate::headers::common::bytes::{AsInput,AsOutput};
 use crate::headers::common::bytes::{FromBytes, IntoBytes};
 use crate::headers::common::constants::{Layout, Width};
 use crate::errors::{Error, Result};
@@ -8,9 +10,9 @@ use crate::headers::common::ranges::Ranges;
 #[derive(Debug)]
 pub struct Field<T32 = u8, T64 = T32, Out = T64>
 where
-    T32: FromBytes + IntoBytes + TryFrom<Out>,
-    T64: FromBytes + IntoBytes + TryFrom<Out>,
-    Out: TryFrom<T32> + TryFrom<T64>,
+    T32: FromBytes + IntoBytes,
+    T64: FromBytes + IntoBytes,
+    Out: AsInput<T64> + AsInput<T32> + AsOutput<T64> + AsOutput<T32> + std::fmt::Debug,
 {
     a: PhantomData<T32>,
     b: PhantomData<T64>,
@@ -21,9 +23,9 @@ where
 
 impl<T32, T64, Out> Field<T32, T64, Out>
 where
-    T32: FromBytes + IntoBytes + TryFrom<Out>,
-    T64: FromBytes + IntoBytes + TryFrom<Out>,
-    Out: TryFrom<T32> + TryFrom<T64>,
+    T32: FromBytes + IntoBytes,
+    T64: FromBytes + IntoBytes,
+    Out: AsInput<T64> + AsInput<T32> + AsOutput<T64> + AsOutput<T32> + std::fmt::Debug,
 {
     pub const fn new(ranges: Ranges) -> Self {
         Self {
@@ -38,46 +40,40 @@ where
     pub fn get_x32(&self, b: &[u8]) -> Result<Out> {
         let bytes = &b[self.ranges.get()];
         let layout = self.layout.clone();
-        Ok(T32::from_bytes(bytes, layout)
-            .and_then(|v| Out::try_from(v)
-                .or(Err(Error::ParseError)))?)
+        T32::from_bytes(bytes, layout)
+            .and_then(|v| Out::as_output(v))
     }
 
     pub fn get_x64(&self, b: &[u8]) -> Result<Out> {
         let bytes = &b[self.ranges.get()];
         let layout = self.layout.clone();
-        Ok(T64::from_bytes(bytes, layout)
-            .and_then(|v| Out::try_from(v)
-                .or(Err(Error::ParseError)))?)
+        T64::from_bytes(bytes, layout)
+            .and_then(|v| Out::as_output(v))
     }
 
     pub fn set_x32(&self, b: &mut [u8], v: Out) -> Result<()> {
         let bytes = &mut b[self.ranges.get()];
         let layout = self.layout.clone();
-        T32::try_from(v)
-            .or(Err(Error::ParseError))
-            .and_then(|v| v.to_bytes(bytes,layout))
+        AsInput::<T32>::as_input(v)?.to_bytes(bytes,layout)
     }
 
     pub fn set_x64(&self, b: &mut [u8], v: Out) -> Result<()> {
         let bytes = &mut b[self.ranges.get()];
         let layout = self.layout.clone();
-        T64::try_from(v)
-            .or(Err(Error::ParseError))
-            .and_then(|v| v.to_bytes(bytes,layout))
+        AsInput::<T64>::as_input(v)?.to_bytes(bytes,layout)
     }
 
     pub fn get(&self, b: &[u8]) -> Result<Out> {
         Ok(match self.ranges.width {
+            Width::X32 => self.get_x32(b)?,
             Width::X64 => self.get_x64(b)?,
-            _          => self.get_x32(b)?,
         })
     }
 
     pub fn set(&self, b: &mut [u8], v: Out) -> Result<()> {
         Ok(match self.ranges.width {
+            Width::X32 => self.set_x32(b,v)?,
             Width::X64 => self.set_x64(b,v)?,
-            _          => self.set_x32(b,v)?
         })
     }
 }

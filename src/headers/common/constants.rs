@@ -1,4 +1,5 @@
 use bitflags::bitflags;
+use num_enum::{IntoPrimitive, TryFromPrimitive};
 
 use crate::errors::{Error, Result};
 
@@ -38,148 +39,94 @@ pub mod sizes {
 
 }
 
-macro_rules! impl_try_from {
-    ( $f: ident, $t: ident, $( $n: pat => $m: ident ),+ ) => {
-        impl TryFrom<$f> for $t {
-            type Error = Error;
-            fn try_from(f: $f) -> Result<Self> {
-                match f {
-                    $( $n => Ok(Self::$m), )+
-                    _ => Err(Error::ParseError),
-                }
-            }
-        }
-    }
+#[allow(non_camel_case_types)]
+#[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+#[repr(u8)]
+pub enum Width {
+    X32 = 0x01, // Little endian (e.g. 0xABCD is represented as 'CD AB')
+    X64 = 0x02  // Big endian (e.g. 0xABCD is represented as 'AB CD' )
 }
 
-macro_rules! impl_try_from_nofail {
-    ( $f: ident, $t: ident, $( $n: pat => $m: ident ),+ ) => {
-        impl TryFrom<$f> for $t {
-            type Error = Error;
-            fn try_from(f: $f) -> Result<Self> {
-                match f {
-                    $( $n => Ok(Self::$m), )+
-                    v => Ok(Self::Unknown(v)),
-                }
-            }
-        }
-    }
+#[allow(non_camel_case_types)]
+#[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+#[repr(u8)]
+pub enum Layout {
+    Little = 0x01, // Little endian (e.g. 0xABCD is represented as 'CD AB')
+    Big = 0x02     // Big endian (e.g. 0xABCD is represented as 'AB CD' )
 }
 
-macro_rules! impl_into {
-    ( $f: ident, $t: ident, $( $n: expr => $m: ident ),+ ) => {
-        impl Into<$f> for $t {
-            fn into(self) -> $f {
-                match self {
-                    $( Self::$m => $n, )+
-                }
-            }
-        }
-    }
-}
-
-macro_rules! impl_into_nofail {
-    ( $f: ident, $t: ident, $( $n: expr => $m: ident ),+ ) => {
-        impl Into<$f> for $t {
-            fn into(self) -> $f {
-                match self {
-                    $( Self::$m => $n, )+
-                    Self::Unknown(v) => v
-                }
-            }
-        }
-    }
-}
-
-macro_rules! impl_constant {
-    ( $f: ident, $t: ident, [ $( $n: expr => $m: ident ),+ ] ) => {
-        #[allow(non_camel_case_types)]
-        #[derive(Debug, Clone, Copy, PartialEq)]
-        pub enum $t {
-            $( $m, )+
-        }
-
-        impl_try_from!($f,$t, $( $n => $m ),+);
-        impl_into!($f,$t, $( $n => $m ),+);
-    }
-}
-
-macro_rules! impl_constant_nofail {
-    ( $f: ident, $t: ident, [ $( $n: expr => $m: ident ),+ ] ) => {
-        #[allow(non_camel_case_types)]
-        #[derive(Debug, Clone, Copy, PartialEq)]
-        pub enum $t {
-            $( $m, )+
-            Unknown($f)
-        }
-
-        impl_try_from_nofail!($f,$t, $( $n => $m ),+);
-        impl_into_nofail!($f,$t, $( $n => $m ),+);
-    }
-}
-
-impl_constant!(u8, Width, [
-    2 => X64,   // 64-bit address widths
-    1 => X32    // 32-bit address widths
-]);
-
-impl_constant!(u8, Layout, [
-    2 => Big,   // Big endian (e.g. 0xABCD is represented as 'AB CD' )
-    1 => Little // Little endian (e.g. 0xABCD is represented as 'CD AB')
-]);
-
-impl_constant_nofail!(u32, PHType, [
-    0x00000000 => PT_NULL,         // 	Program header table entry unused.
-    0x00000001 => PT_LOAD,         // 	Loadable segment.
-    0x00000002 => PT_DYNAMIC,      // 	Dynamic linking information.
-    0x00000003 => PT_INTERP,       // 	Interpreter information.
-    0x00000004 => PT_NOTE,         // 	Auxiliary information.
-    0x00000005 => PT_SHLIB,        // 	Reserved.
-    0x00000006 => PT_PHDR,         // 	Segment containing program header table itself.
-    0x00000007 => PT_TLS,          // 	Thread-Local Storage template.
-    0x60000000 => PT_LOOS,         //   Lower bound of OS-specific types
-    0x6474e550 => PT_GNU_EH_FRAME, //   OS-specific location of .eh_frame section for stack unwinding
-    0x6474e553 => PT_GNU_PROPERTY, //   OS-specific location of .note.gnu.property section  for special loader notes
-    0x6474e551 => PT_GNU_STACK,    //   OS-specific location of stack segment?
-    0x6474e552 => GNU_RELRO,       //   OS-specific segment to be made read-only after linking
+#[allow(non_camel_case_types)]
+#[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+#[repr(u32)]
+pub enum PHType {
+    PT_NULL = 0x00000000,         // 	Program header table entry unused.
+    PT_LOAD = 0x00000001,         // 	Loadable segment.
+    PT_DYNAMIC = 0x00000002,      // 	Dynamic linking information.
+    PT_INTERP = 0x00000003,       // 	Interpreter information.
+    PT_NOTE = 0x00000004,         // 	Auxiliary information.
+    PT_SHLIB = 0x00000005,        // 	Reserved.
+    PT_PHDR = 0x00000006,         // 	Segment containing program header table itself.
+    PT_TLS = 0x00000007,          // 	Thread-Local Storage template.
+    PT_LOOS = 0x60000000,         //   Lower bound of OS-specific types
+    PT_GNU_EH_FRAME = 0x6474e550, //   OS-specific location of .eh_frame section for stack unwinding
+    PT_GNU_PROPERTY = 0x6474e553, //   OS-specific location of .note.gnu.property section  for special loader notes
+    PT_GNU_STACK = 0x6474e551,    //   OS-specific location of stack segment?
+    GNU_RELRO = 0x6474e552,       //   OS-specific segment to be made read-only after linking
 
     // add other os-specific types here
 
-    0x6fffffff => PT_HIOS,         //   Uppder bound of OS-specific types
-    0x70000000 => PT_LOPROC,       //   Lower bound of processor-specific types
+    PT_HIOS = 0x6fffffff,         //   Uppder bound of OS-specific types
+    PT_LOPROC = 0x70000000,       //   Lower bound of processor-specific types
 
     // add other processor specific types here
 
-    0x7fffffff => PT_HIPROC        //   Upper bound of processor-specific types
-]);
+    PT_HIPROC = 0x7fffffff,       //   Upper bound of processor-specific types
+    #[num_enum(catch_all)]
+    Unknown(u32)
+}
 
-impl_constant_nofail!(u32, SHType, [
-    0x00000000 => SHT_NULL,          //   Section header table entry unused
-    0x00000001 => SHT_PROGBITS,      //   Program data
-    0x00000002 => SHT_SYMTAB,        //   Symbol table
-    0x00000003 => SHT_STRTAB,        //   String table
-    0x00000004 => SHT_RELA,          //   Relocation entries with addends
-    0x00000005 => SHT_HASH,          //   Symbol hash table
-    0x00000006 => SHT_DYNAMIC,       //   Dynamic linking information
-    0x00000007 => SHT_NOTE,          //   Notes
-    0x00000008 => SHT_NOBITS,        //   Program space with no data (bss)
-    0x00000009 => SHT_REL,           //   Relocation entries, no addends
-    0x0000000A => SHT_SHLIB,         //   Reserved
-    0x0000000B => SHT_DYNSYM,        //   Dynamic linker symbol table
-    0x0000000E => SHT_INIT_ARRAY,    //   Array of constructors
-    0x0000000F => SHT_FINI_ARRAY,    //   Array of destructors
-    0x00000010 => SHT_PREINIT_ARRAY, //   Array of pre-constructors
-    0x00000011 => SHT_GROUP,         //   Section group
-    0x00000012 => SHT_SYMTAB_SHNDX,  //   Extended section indices
-    0x00000013 => SHT_NUM,           //   Number of defined types.
-    0x60000000 => SHT_LOOS           //   Start OS-specific. 
-]);
+#[allow(non_camel_case_types)]
+#[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, num_enum::FromPrimitive)]
+#[repr(u32)]
+pub enum SHType {
+    SHT_NULL = 0x00000000,
+    SHT_PROGBITS = 0x00000001,
+    SHT_SYMTAB = 0x00000002,
+    SHT_STRTAB = 0x00000003,
+    SHT_RELA = 0x00000004,
+    SHT_HASH = 0x00000005,
+    SHT_DYNAMIC = 0x00000006,
+    SHT_NOTE = 0x00000007,
+    SHT_NOBITS = 0x00000008,
+    SHT_REL = 0x00000009,
+    SHT_SHLIB = 0x0000000A,
+    SHT_DYNSYM = 0x0000000B,
+    SHT_INIT_ARRAY = 0x0000000E,
+    SHT_FINI_ARRAY = 0x0000000F,
+    SHT_PREINIT_ARRAY = 0x00000010,
+    SHT_GROUP = 0x00000011,
+    SHT_SYMTAB_SHNDX = 0x00000012,
+    SHT_NUM = 0x00000013,
+    SHT_LOOS = 0x60000000,
+    #[num_enum(catch_all)]
+    Unknown(u32),
+}
 
 bitflags! {
     pub struct SHFlags: u64 {
-        const SHF_WRITE     = 0x00000001; //   Contains data that is writable during process execution. 
-        const SHF_ALLOC     = 0x00000002; //   Occupies memory during process execution.
-        const SHF_EXECINSTR = 0x00000004; //   Contains executable machine instructions. 
-        const SHF_MASKPROC  = 0xf0000000; //   Reserved for processor-specific semantics. 
+        const SHF_WRITE            = 0x00000001; //   Contains data that is writable during process execution. 
+        const SHF_ALLOC            = 0x00000002; //   Occupies memory during process execution.
+        const SHF_EXECINSTR        = 0x00000004; //   Contains executable machine instructions. 
+        const SHF_MERGE            = 0x00000010; //   Identifies a section containing data that may be merged to eliminate duplication
+        const SHF_STRINGS          = 0x00000020; //   Identifies a section that consists of null-terminated character strings
+        const SHF_INFO_LINK        = 0x00000040; //   This section headers sh_info field holds a section header table index.
+        const SHF_LINK_ORDER       = 0x00000080; //   This section adds special ordering requirements to the link-editor
+        const SHF_OS_NONCONFORMING = 0x00000100; //   This section requires special OS-specific processing
+        const SHF_GROUP            = 0x00000200; //   This section is a member, perhaps the only one, of a section group
+        const SHF_TLS              = 0x00000400; //   This section holds thread-local storage
+        const SHF_MASKOS           = 0x0ff00000; //   All bits included in this mask are reserved for operating system-specific semantics.
+        const SHF_ORDERED          = 0x40000000; //   This section requires ordering in relation to other sections of the same type
+        const SHF_EXCLUDE          = 0x80000000; //   This section is excluded from input to the link-edit of an executable or shared object
+        const SHF_MASKPROC         = 0xf0000000; //   Reserved for processor-specific semantics. 
     }
 }

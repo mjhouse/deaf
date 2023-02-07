@@ -173,22 +173,22 @@ impl SectionHeader {
     impl_property!(addralign,sh_addralign,u64);
     impl_property!(entsize,sh_entsize,usize);
 
-    pub fn flags(&self) -> Result<SHFlags> {
-        SHFlags::from_bits(self.values.sh_flags as u64)
-            .ok_or(Error::ParseError)
-    }
+    // pub fn flags(&self) -> Result<SHFlags> {
+    //     SHFlags::from_bits(self.values.sh_flags as u64)
+    //         .ok_or(Error::ParseError)
+    // }
 
-    pub fn get_flags(&self, b: &[u8]) -> Result<SHFlags> {
-        self.sh_flags.get(b)
-            .and_then(|f| SHFlags::from_bits(f as u64)
-                .ok_or(Error::ParseError))
-    }
+    // pub fn get_flags(&self, b: &[u8]) -> Result<SHFlags> {
+    //     self.sh_flags.get(b)
+    //         .and_then(|f| SHFlags::from_bits(f as u64)
+    //             .ok_or(Error::ParseError))
+    // }
 
-    pub fn set_flags(&mut self, b: &mut [u8], flags: SHFlags) -> Result<()> {
-        self.sh_flags.set(b,flags.bits())?;
-        self.values.sh_flags = flags.bits();
-        Ok(())
-    }
+    // pub fn set_flags(&mut self, b: &mut [u8], flags: SHFlags) -> Result<()> {
+    //     self.sh_flags.set(b,flags.bits())?;
+    //     self.values.sh_flags = flags.bits();
+    //     Ok(())
+    // }
 
 }
 

@@ -13,6 +13,12 @@ pub enum Error {
     #[error("Given section is of the wrong type")]
     WrongSectionError,
 
+    #[error("Could not convert from primitive value")]
+    FromPrimitiveError,
+
+    #[error("This error will never actually be created")]
+    InfallibleError(#[from] std::convert::Infallible),
+
     #[error("Failed while converting bytes to integer values")]
     ParseValueError(#[from] std::array::TryFromSliceError),
 

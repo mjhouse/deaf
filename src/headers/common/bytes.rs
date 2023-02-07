@@ -1,5 +1,6 @@
-use crate::headers::common::constants::Layout;
+use crate::headers::common::constants::*;
 use crate::errors::{Error, Result};
+use num_enum::{TryFromPrimitive,FromPrimitive};
 
 pub trait FromBytes {
     fn from_bytes(b: &[u8], l: Layout) -> Result<Self>
@@ -9,6 +10,16 @@ pub trait FromBytes {
 
 pub trait IntoBytes {
     fn to_bytes(&self, b: &mut [u8], l: Layout) -> Result<()>;
+}
+
+// convert A into Self
+pub trait AsOutput<A> {
+    fn as_output(v: A) -> Result<Self> where Self: Sized;
+}
+
+// convert self into A
+pub trait AsInput<A> {
+    fn as_input(self) -> Result<A> where A: Sized;
 }
 
 macro_rules! from {
@@ -86,6 +97,129 @@ impl FromBytes for String {
 impl IntoBytes for String {
     fn to_bytes(&self, b: &mut [u8], _: Layout) -> Result<()> {
         Ok(b.copy_from_slice(&self.as_bytes()))
+    }
+}
+
+impl AsInput<String> for String {
+    fn as_input(self) -> Result<Self> { Ok(self) }
+}
+
+impl AsInput<u8> for u8 {
+    fn as_input(self) -> Result<Self> { Ok(self) }
+}
+
+impl AsInput<u16> for u16 {
+    fn as_input(self) -> Result<Self> { Ok(self) }
+}
+
+impl AsInput<u8> for u16 {
+    fn as_input(self) -> Result<u8> { Ok(self as u8) }
+}
+
+impl AsInput<u32> for u32 {
+    fn as_input(self) -> Result<Self> { Ok(self) }
+}
+
+impl AsInput<u32> for u64 {
+    fn as_input(self) -> Result<u32> { Ok(self as u32) }
+}
+
+impl AsInput<u64> for u64 {
+    fn as_input(self) -> Result<Self> { Ok(self) }
+}
+
+impl AsInput<u16> for usize {
+    fn as_input(self) -> Result<u16> { Ok(self as u16) }
+}
+
+impl AsInput<u32> for usize {
+    fn as_input(self) -> Result<u32> { Ok(self as u32) }
+}
+
+impl AsInput<u64> for usize {
+    fn as_input(self) -> Result<u64> { Ok(self as u64) }
+}
+
+impl AsInput<u8> for Width {
+    fn as_input(self) -> Result<u8> { Ok(self.into()) }
+}
+
+impl AsInput<u8> for Layout {
+    fn as_input(self) -> Result<u8> { Ok(self.into()) }
+}
+
+impl AsInput<u32> for PHType {
+    fn as_input(self) -> Result<u32> { Ok(self.into()) }
+}
+
+impl AsInput<u32> for SHType {
+    fn as_input(self) -> Result<u32> { Ok(self.into()) }
+}
+
+impl AsOutput<String> for String {
+    fn as_output(a: Self) -> Result<Self> { Ok(a) }
+}
+
+impl AsOutput<u8> for u8 {
+    fn as_output(a: Self) -> Result<Self> { Ok(a) }
+}
+
+impl AsOutput<u8> for u16 {
+    fn as_output(a: u8) -> Result<Self> { Ok(a as u16) }
+}
+
+impl AsOutput<u16> for u16 {
+    fn as_output(a: Self) -> Result<Self> { Ok(a) }
+}
+
+impl AsOutput<u32> for u32 {
+    fn as_output(a: Self) -> Result<Self> { Ok(a) }
+}
+
+impl AsOutput<u32> for u64 {
+    fn as_output(a: u32) -> Result<Self> { Ok(a as u64) }
+}
+
+impl AsOutput<u64> for u64 {
+    fn as_output(a: Self) -> Result<Self> { Ok(a) }
+}
+
+impl AsOutput<u16> for usize {
+    fn as_output(a: u16) -> Result<Self> { Ok(a as usize) }
+}
+
+impl AsOutput<u32> for usize {
+    fn as_output(a: u32) -> Result<Self> { Ok(a as usize) }
+}
+
+impl AsOutput<u64> for usize {
+    fn as_output(a: u64) -> Result<Self> { Ok(a as usize) }
+}
+
+impl AsOutput<u8> for Width {
+    fn as_output(a: u8) -> Result<Self> {
+        Self::try_from_primitive(a)
+            .or(Err(Error::FromPrimitiveError))
+    }
+}
+
+impl AsOutput<u8> for Layout {
+    fn as_output(a: u8) -> Result<Self> {
+        Self::try_from_primitive(a)
+            .or(Err(Error::FromPrimitiveError))
+    }
+}
+
+impl AsOutput<u32> for PHType {
+    fn as_output(a: u32) -> Result<Self> {
+        Self::try_from_primitive(a)
+            .or(Err(Error::FromPrimitiveError))
+    }
+}
+
+impl AsOutput<u32> for SHType {
+    fn as_output(a: u32) -> Result<Self> {
+        Ok(Self::from_primitive(a))
     }
 }
 
