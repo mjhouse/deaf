@@ -1,5 +1,5 @@
 use bitflags::bitflags;
-use num_enum::{IntoPrimitive, TryFromPrimitive};
+use num_enum::{IntoPrimitive, TryFromPrimitive, FromPrimitive};
 
 use crate::errors::{Error, Result};
 
@@ -86,7 +86,7 @@ pub enum PHType {
 }
 
 #[allow(non_camel_case_types)]
-#[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, num_enum::FromPrimitive)]
+#[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, FromPrimitive)]
 #[repr(u32)]
 pub enum SHType {
     SHT_NULL = 0x00000000,

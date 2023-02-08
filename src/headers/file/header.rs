@@ -28,6 +28,7 @@ pub struct FileHeaderValues {
     e_shstrndx: usize,
 }
 
+#[derive(Debug)]
 pub struct FileHeader {
     ei_size: usize,
     ei_magic: Field<String>,

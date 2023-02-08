@@ -113,7 +113,7 @@ impl AsInput<u16> for u16 {
 }
 
 impl AsInput<u8> for u16 {
-    fn as_input(self) -> Result<u8> { Ok(self as u8) }
+    fn as_input(self) -> Result<u8> { Ok(self.try_into()?) }
 }
 
 impl AsInput<u32> for u32 {
@@ -121,7 +121,7 @@ impl AsInput<u32> for u32 {
 }
 
 impl AsInput<u32> for u64 {
-    fn as_input(self) -> Result<u32> { Ok(self as u32) }
+    fn as_input(self) -> Result<u32> { Ok(self.try_into()?) }
 }
 
 impl AsInput<u64> for u64 {
@@ -129,15 +129,15 @@ impl AsInput<u64> for u64 {
 }
 
 impl AsInput<u16> for usize {
-    fn as_input(self) -> Result<u16> { Ok(self as u16) }
+    fn as_input(self) -> Result<u16> { Ok(self.try_into()?) }
 }
 
 impl AsInput<u32> for usize {
-    fn as_input(self) -> Result<u32> { Ok(self as u32) }
+    fn as_input(self) -> Result<u32> { Ok(self.try_into()?) }
 }
 
 impl AsInput<u64> for usize {
-    fn as_input(self) -> Result<u64> { Ok(self as u64) }
+    fn as_input(self) -> Result<u64> { Ok(self.try_into()?) }
 }
 
 impl AsInput<u8> for Width {
@@ -165,7 +165,7 @@ impl AsOutput<u8> for u8 {
 }
 
 impl AsOutput<u8> for u16 {
-    fn as_output(a: u8) -> Result<Self> { Ok(a as u16) }
+    fn as_output(a: u8) -> Result<Self> { Ok(a.try_into()?) }
 }
 
 impl AsOutput<u16> for u16 {
@@ -177,7 +177,7 @@ impl AsOutput<u32> for u32 {
 }
 
 impl AsOutput<u32> for u64 {
-    fn as_output(a: u32) -> Result<Self> { Ok(a as u64) }
+    fn as_output(a: u32) -> Result<Self> { Ok(a.try_into()?) }
 }
 
 impl AsOutput<u64> for u64 {
@@ -185,15 +185,15 @@ impl AsOutput<u64> for u64 {
 }
 
 impl AsOutput<u16> for usize {
-    fn as_output(a: u16) -> Result<Self> { Ok(a as usize) }
+    fn as_output(a: u16) -> Result<Self> { Ok(a.try_into()?) }
 }
 
 impl AsOutput<u32> for usize {
-    fn as_output(a: u32) -> Result<Self> { Ok(a as usize) }
+    fn as_output(a: u32) -> Result<Self> { Ok(a.try_into()?) }
 }
 
 impl AsOutput<u64> for usize {
-    fn as_output(a: u64) -> Result<Self> { Ok(a as usize) }
+    fn as_output(a: u64) -> Result<Self> { Ok(a.try_into()?) }
 }
 
 impl AsOutput<u8> for Width {
