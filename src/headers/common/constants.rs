@@ -1,4 +1,3 @@
-use bitflags::bitflags;
 use num_enum::{IntoPrimitive, TryFromPrimitive, FromPrimitive};
 
 use crate::errors::{Error, Result};
@@ -112,21 +111,25 @@ pub enum SHType {
     Unknown(u32),
 }
 
-bitflags! {
-    pub struct SHFlags: u64 {
-        const SHF_WRITE            = 0x00000001; //   Contains data that is writable during process execution. 
-        const SHF_ALLOC            = 0x00000002; //   Occupies memory during process execution.
-        const SHF_EXECINSTR        = 0x00000004; //   Contains executable machine instructions. 
-        const SHF_MERGE            = 0x00000010; //   Identifies a section containing data that may be merged to eliminate duplication
-        const SHF_STRINGS          = 0x00000020; //   Identifies a section that consists of null-terminated character strings
-        const SHF_INFO_LINK        = 0x00000040; //   This section headers sh_info field holds a section header table index.
-        const SHF_LINK_ORDER       = 0x00000080; //   This section adds special ordering requirements to the link-editor
-        const SHF_OS_NONCONFORMING = 0x00000100; //   This section requires special OS-specific processing
-        const SHF_GROUP            = 0x00000200; //   This section is a member, perhaps the only one, of a section group
-        const SHF_TLS              = 0x00000400; //   This section holds thread-local storage
-        const SHF_MASKOS           = 0x0ff00000; //   All bits included in this mask are reserved for operating system-specific semantics.
-        const SHF_ORDERED          = 0x40000000; //   This section requires ordering in relation to other sections of the same type
-        const SHF_EXCLUDE          = 0x80000000; //   This section is excluded from input to the link-edit of an executable or shared object
-        const SHF_MASKPROC         = 0xf0000000; //   Reserved for processor-specific semantics. 
-    }
+use enumflags2::{bitflags, make_bitflags, BitFlags};
+
+#[bitflags]
+#[repr(u64)]
+#[allow(non_camel_case_types)]
+#[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+pub enum SHFlags {
+    SHF_WRITE            = 0x00000001, //   Contains data that is writable during process execution. 
+    SHF_ALLOC            = 0x00000002, //   Occupies memory during process execution.
+    SHF_EXECINSTR        = 0x00000004, //   Contains executable machine instructions. 
+    SHF_MERGE            = 0x00000010, //   Identifies a section containing data that may be merged to eliminate duplication
+    SHF_STRINGS          = 0x00000020, //   Identifies a section that consists of null-terminated character strings
+    SHF_INFO_LINK        = 0x00000040, //   This section headers sh_info field holds a section header table index.
+    SHF_LINK_ORDER       = 0x00000080, //   This section adds special ordering requirements to the link-editor
+    SHF_OS_NONCONFORMING = 0x00000100, //   This section requires special OS-specific processing
+    SHF_GROUP            = 0x00000200, //   This section is a member, perhaps the only one, of a section group
+    SHF_TLS              = 0x00000400, //   This section holds thread-local storage
+    // SHF_MASKOS           = 0x0ff00000, //   All bits included in this mask are reserved for operating system-specific semantics.
+    SHF_ORDERED          = 0x40000000, //   This section requires ordering in relation to other sections of the same type
+    SHF_EXCLUDE          = 0x80000000, //   This section is excluded from input to the link-edit of an executable or shared object
+    // SHF_MASKPROC         = 0xf0000000, //   Reserved for processor-specific semantics. 
 }
