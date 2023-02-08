@@ -207,22 +207,19 @@ impl AsOutput<u64> for usize {
 
 impl AsOutput<u8> for Width {
     fn as_output(a: u8) -> Result<Self> {
-        Self::try_from_primitive(a)
-            .or(Err(Error::FromPrimitiveError))
+        Ok(Self::try_from_primitive(a)?)
     }
 }
 
 impl AsOutput<u8> for Layout {
     fn as_output(a: u8) -> Result<Self> {
-        Self::try_from_primitive(a)
-            .or(Err(Error::FromPrimitiveError))
+        Ok(Self::try_from_primitive(a)?)
     }
 }
 
 impl AsOutput<u32> for PHType {
     fn as_output(a: u32) -> Result<Self> {
-        Self::try_from_primitive(a)
-            .or(Err(Error::FromPrimitiveError))
+        Ok(Self::try_from_primitive(a)?)
     }
 }
 
@@ -234,15 +231,13 @@ impl AsOutput<u32> for SHType {
 
 impl AsOutput<u64> for BitFlags<SHFlags> {
     fn as_output(a: u64) -> Result<BitFlags<SHFlags>> {
-        BitFlags::from_bits(a)
-            .or(Err(Error::FromPrimitiveError))
+        Ok(BitFlags::from_bits(a)?)
     }
 }
 
 impl AsOutput<u32> for BitFlags<SHFlags> {
     fn as_output(a: u32) -> Result<BitFlags<SHFlags>> {
-        BitFlags::from_bits(a.into())
-            .or(Err(Error::FromPrimitiveError))
+        Ok(BitFlags::from_bits(a.into())?)
     }
 }
 

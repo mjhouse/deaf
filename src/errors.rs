@@ -1,5 +1,8 @@
 use thiserror::Error as ThisError;
 
+use num_enum::{TryFromPrimitiveError,TryFromPrimitive};
+use enumflags2::{FromBitsError,BitFlag};
+
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(ThisError, Debug)]
@@ -14,7 +17,7 @@ pub enum Error {
     WrongSectionError,
 
     #[error("Could not convert from primitive value")]
-    FromPrimitiveError,
+    FromPrimitiveError(String),
 
     #[error("This error will never actually be created")]
     InfallibleError(#[from] std::convert::Infallible),
@@ -30,4 +33,23 @@ pub enum Error {
 
     #[error(transparent)]
     IOError(#[from] std::io::Error),
+}
+
+impl<T> From<TryFromPrimitiveError<T>> for Error
+where 
+    T: TryFromPrimitive
+{
+    fn from(e: TryFromPrimitiveError<T>) -> Self {
+        Error::FromPrimitiveError(format!("TryFromPrimitiveError: {}",e.to_string()))
+    }
+}
+
+impl<T> From<FromBitsError<T>> for Error
+where
+    T: BitFlag,
+    T::Numeric: core::fmt::LowerHex
+{
+    fn from(e: FromBitsError<T>) -> Self {
+        Error::FromPrimitiveError(format!("FromBitsError: {:x}",e.invalid_bits()))
+    }
 }
