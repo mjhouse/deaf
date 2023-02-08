@@ -19,53 +19,31 @@
     pub fn set_class(&mut self, b: &mut [u8], v: Width) -> Result<()>;
     ```
 
+    $v:ident < $( $N:ident ),* >
 */
 #[macro_export]
 macro_rules! impl_property {
-    ( $n: ident, $f: ident, $v: ident ) => {
+    // implements a property with the form: `impl_promperty!(NAME,FIELD,OUTPUT<GENERIC>)`
+    ( $n: ident, $f: ident, $v:ident < $( $N:ident ),* > ) => {
         paste::paste!{
-            pub fn $n(&self) -> $v {
+            pub fn $n(&self) -> $v< $( $N ),* > {
                 self.values.$f.clone()
             }
         
-            pub fn [< get_ $n >](&self, b: &[u8]) -> Result<$v> {
+            pub fn [< get_ $n >](&self, b: &[u8]) -> Result<$v< $( $N ),* >> {
                 self.$f.get(b)
             }
         
-            pub fn [< set_ $n >](&mut self, b: &mut [u8], v: $v) -> Result<()> {
+            pub fn [< set_ $n >](&mut self, b: &mut [u8], v: $v< $( $N ),* >) -> Result<()> {
                 self.$f.set(b,v.clone())?;
                 self.values.$f = v;
                 Ok(())
             }
         }
-    }
-}
-
-macro_rules! impl_constant {
-    ( $f: ident, $t: ident, [ $( $n: tt => $m: ident ),+ ] ) => {
-
-        #[allow(non_camel_case_types)]
-        #[derive(Debug, Clone, Copy, PartialEq, num_enum::IntoPrimitive, num_enum::TryFromPrimitive)]
-        #[repr($f)]
-        pub enum $t {
-            $( $m ),+
-        }
-
-    }
-}
-
-macro_rules! impl_constant_nofail {
-    ( $f: ident, $t: ident, [ $( $n: tt => $m: ident ),+ ] ) => {
-
-        #[allow(non_camel_case_types)]
-        #[derive(Debug, Clone, Copy, PartialEq, num_enum::IntoPrimitive, num_enum::TryFromPrimitive)]
-        #[repr($f)]
-        pub enum $t {
-            $( $m = $n ),+,
-            #[num_enum(catch_all)]
-            Unknown($f)
-        }
-
+    };
+    // implements a property with the form: `impl_promperty!(NAME,FIELD,OUTPUT)`
+    ( $n: ident, $f: ident, $v: ident ) => {
+        impl_property!($n,$f,$v<>);
     }
 }
 

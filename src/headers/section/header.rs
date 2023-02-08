@@ -5,6 +5,7 @@ use crate::headers::common::constants::{
     SHFlags,
     sizes
 };
+use enumflags2::BitFlags;
 
 use crate::headers::common::field::Field;
 use crate::headers::common::ranges::*;
@@ -16,7 +17,7 @@ pub struct SectionHeaderValues {
     pub size: usize, 
     pub sh_name: u32,
     pub sh_type: SHType,
-    pub sh_flags: u64,
+    pub sh_flags: BitFlags<SHFlags>,
     pub sh_address: u64,
     pub sh_offset: usize,
     pub sh_size: usize,
@@ -35,7 +36,7 @@ pub struct SectionHeader {
 
     sh_name: Field<u32>,
     sh_type: Field<u32,u32,SHType>,
-    sh_flags: Field<u32,u64>,
+    sh_flags: Field<u32,u64,BitFlags<SHFlags>>,
     sh_address: Field<u32,u64>,
     sh_offset: Field<u32,u64,usize>,
     sh_size: Field<u32,u64,usize>,
@@ -54,7 +55,7 @@ impl SectionHeaderValues {
             size: 0, 
             sh_name: 0,
             sh_type: SHType::SHT_NULL,
-            sh_flags: 0,
+            sh_flags: BitFlags::EMPTY,
             sh_address: 0,
             sh_offset: 0,
             sh_size: 0,
@@ -164,7 +165,7 @@ impl SectionHeader {
 
     impl_property!(name,sh_name,u32);
     impl_property!(section_type,sh_type,SHType);
-    // impl_property!(flags,sh_flags,u64);
+    impl_property!(flags,sh_flags,BitFlags<SHFlags>);
     impl_property!(address,sh_address,u64);
     impl_property!(offset,sh_offset,usize);
     impl_property!(size,sh_size,usize);
@@ -172,23 +173,6 @@ impl SectionHeader {
     impl_property!(info,sh_info,u32);
     impl_property!(addralign,sh_addralign,u64);
     impl_property!(entsize,sh_entsize,usize);
-
-    // pub fn flags(&self) -> Result<SHFlags> {
-    //     SHFlags::from_bits(self.values.sh_flags as u64)
-    //         .ok_or(Error::ParseError)
-    // }
-
-    // pub fn get_flags(&self, b: &[u8]) -> Result<SHFlags> {
-    //     self.sh_flags.get(b)
-    //         .and_then(|f| SHFlags::from_bits(f as u64)
-    //             .ok_or(Error::ParseError))
-    // }
-
-    // pub fn set_flags(&mut self, b: &mut [u8], flags: SHFlags) -> Result<()> {
-    //     self.sh_flags.set(b,flags.bits())?;
-    //     self.values.sh_flags = flags.bits();
-    //     Ok(())
-    // }
 
 }
 
@@ -223,5 +207,34 @@ mod tests {
             width);
 
         assert!(section_headers.is_ok())
+    }
+
+    #[test]
+    fn test_check_section_header_flags() {
+        let mut f = File::open("assets/libvpf.so.4.1").unwrap();
+        let mut b = Vec::new();
+        
+        f.read_to_end(&mut b)
+            .unwrap();
+
+        let file_header = FileHeader::parse(&b)
+            .unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let layout = file_header.data();
+        let width = file_header.class();
+        
+        let section_headers = SectionHeader::parse_all(
+            &b,
+            count,
+            offset,
+            layout,
+            width).unwrap();
+
+        for header in section_headers.into_iter() {
+            // dbg!(header.flags());
+        }
+
     }
 }

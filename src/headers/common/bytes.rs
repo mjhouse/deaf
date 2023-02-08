@@ -1,6 +1,7 @@
 use crate::headers::common::constants::*;
 use crate::errors::{Error, Result};
 use num_enum::{TryFromPrimitive,FromPrimitive};
+use enumflags2::BitFlags;
 
 pub trait FromBytes {
     fn from_bytes(b: &[u8], l: Layout) -> Result<Self>
@@ -156,6 +157,14 @@ impl AsInput<u32> for SHType {
     fn as_input(self) -> Result<u32> { Ok(self.into()) }
 }
 
+impl AsInput<u32> for BitFlags<SHFlags> {
+    fn as_input(self) -> Result<u32> { Ok(self.bits().try_into()?) }
+}
+
+impl AsInput<u64> for BitFlags<SHFlags> {
+    fn as_input(self) -> Result<u64> { Ok(self.bits()) }
+}
+
 impl AsOutput<String> for String {
     fn as_output(a: Self) -> Result<Self> { Ok(a) }
 }
@@ -220,6 +229,20 @@ impl AsOutput<u32> for PHType {
 impl AsOutput<u32> for SHType {
     fn as_output(a: u32) -> Result<Self> {
         Ok(Self::from_primitive(a))
+    }
+}
+
+impl AsOutput<u64> for BitFlags<SHFlags> {
+    fn as_output(a: u64) -> Result<BitFlags<SHFlags>> {
+        BitFlags::from_bits(a)
+            .or(Err(Error::FromPrimitiveError))
+    }
+}
+
+impl AsOutput<u32> for BitFlags<SHFlags> {
+    fn as_output(a: u32) -> Result<BitFlags<SHFlags>> {
+        BitFlags::from_bits(a.into())
+            .or(Err(Error::FromPrimitiveError))
     }
 }
 

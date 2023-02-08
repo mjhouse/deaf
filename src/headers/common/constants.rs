@@ -116,7 +116,7 @@ use enumflags2::{bitflags, make_bitflags, BitFlags};
 #[bitflags]
 #[repr(u64)]
 #[allow(non_camel_case_types)]
-#[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum SHFlags {
     SHF_WRITE            = 0x00000001, //   Contains data that is writable during process execution. 
     SHF_ALLOC            = 0x00000002, //   Occupies memory during process execution.
