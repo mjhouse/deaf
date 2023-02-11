@@ -6,6 +6,7 @@ use crate::headers::section::header::{
 use crate::headers::common::constants::{
     SHType
 };
+use crate::tables::common::ByteIterator;
 
 pub struct StringTable {
     offset: usize,
@@ -29,23 +30,14 @@ impl StringTable {
     }
 
     pub fn read(&mut self, b: &[u8]) -> Vec<String> {
-        let mut result = vec![];
-        let mut string = String::new();
-
         let start = self.offset;
         let end = start + self.section_size;
 
-        for v in b[start..end].iter() {
-            match *v as char {
-                '\0' => {
-                    result.push(string.clone());
-                    string.clear();
-                },
-                ch   => string.push(ch),
-            }
-        }
+        self.values = ByteIterator::value(&b[start..end],b'\0')
+            .filter_map(|d| std::str::from_utf8(d).ok())
+            .map(|s| s.into())
+            .collect();
 
-        self.values = result;
         self.values.clone()
     }
 

@@ -24,6 +24,14 @@ impl<'a> ByteIterator<'a> {
         }
     }
 
+    pub fn value(data: &'a [u8], value: u8) -> Self {
+        Self::new(data,ByteDelimiter::Value(value))
+    }
+
+    pub fn length(data: &'a [u8], length: usize) -> Self {
+        Self::new(data,ByteDelimiter::Length(length))
+    }
+
     fn take_slice(&self) -> Option<&'a [u8]> {
         if self.index <= self.limit {
             Some(&self.data[self.index..])

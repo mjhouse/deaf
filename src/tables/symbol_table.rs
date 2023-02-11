@@ -7,10 +7,15 @@ use crate::headers::common::constants::{
     SHType
 };
 
+// https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter6-79797.html
 #[derive(Default,Debug,Clone)]
 pub struct Symbol {
-    value: usize,
-
+    name: u64,  // st_name
+    value: u64, // st_value
+    size: u64,  // st_size
+    info: u8,   // st_info
+    other: u8,  // st_other
+    shndx: u64, // st_shndx
 }
 
 pub struct SymbolTable {
@@ -35,9 +40,6 @@ impl SymbolTable {
     }
 
     pub fn read(&mut self, b: &[u8]) -> Vec<Symbol> {
-        let mut result = vec![];
-        let mut string = Symbol::default();
-
         let start = self.offset;
         let end = start + self.section_size;
 
@@ -51,7 +53,6 @@ impl SymbolTable {
         //     }
         // }
 
-        self.values = result;
         self.values.clone()
     }
 
