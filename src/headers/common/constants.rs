@@ -2,7 +2,7 @@ use num_enum::{IntoPrimitive, TryFromPrimitive, FromPrimitive};
 
 use crate::errors::{Error, Result};
 
-// global const section sizes for various widths
+// global const sizes for various widths
 pub const FH_SIZE_32: usize = 52;
 pub const FH_SIZE_64: usize = 64;
 
@@ -11,6 +11,9 @@ pub const PH_SIZE_64: usize = 56;
 
 pub const SH_SIZE_32: usize = 40;
 pub const SH_SIZE_64: usize = 64;
+
+pub const ST_SIZE_32: usize = 22;
+pub const ST_SIZE_64: usize = 34;
 
 pub mod sizes {
     use super::*;
@@ -33,6 +36,13 @@ pub mod sizes {
         match width {
             Width::X32 => SH_SIZE_32,
             Width::X64 => SH_SIZE_64,
+        }
+    }
+
+    pub fn symbol_table(width: Width) -> usize {
+        match width {
+            Width::X32 => ST_SIZE_32,
+            Width::X64 => ST_SIZE_64,
         }
     }
 

@@ -6,17 +6,7 @@ use crate::headers::section::header::{
 use crate::headers::common::constants::{
     SHType
 };
-
-// https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter6-79797.html
-#[derive(Default,Debug,Clone)]
-pub struct Symbol {
-    name: u64,  // st_name
-    value: u64, // st_value
-    size: u64,  // st_size
-    info: u8,   // st_info
-    other: u8,  // st_other
-    shndx: u64, // st_shndx
-}
+use crate::tables::symbol::Symbol;
 
 pub struct SymbolTable {
     offset: usize,
@@ -53,7 +43,7 @@ impl SymbolTable {
         //     }
         // }
 
-        self.values.clone()
+        Vec::new()
     }
 
 }

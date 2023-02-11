@@ -1,4 +1,4 @@
 
-mod common;
-mod string_table;
-mod symbol_table;
+pub mod common;
+pub mod string;
+pub mod symbol;
