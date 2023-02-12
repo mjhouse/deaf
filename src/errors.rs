@@ -13,6 +13,9 @@ pub enum Error {
     #[error("Binary is not an ELF file")]
     FileTypeError,
 
+    #[error("Slice or access is out of bounds")]
+    OutOfBoundsError,
+
     #[error("Given section is of the wrong type")]
     WrongSectionError,
 

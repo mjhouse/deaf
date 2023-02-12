@@ -45,12 +45,12 @@ pub const SH_INFO:        Ranges = Ranges::new(0x1C..0x20,0x2C..0x30);
 pub const SH_ADDRALIGN:   Ranges = Ranges::new(0x20..0x24,0x30..0x38);
 pub const SH_ENTSIZE:     Ranges = Ranges::new(0x24..0x28,0x38..0x40);
 
-pub const ST_NAME:        Ranges = Ranges::new(0x00..0x04,0x00..0x08); // u32 / u64
-pub const ST_VALUE:       Ranges = Ranges::new(0x04..0x08,0x12..0x1A); // u32 / u64
-pub const ST_SIZE:        Ranges = Ranges::new(0x08..0x10,0x1A..0x22); // u32 / u64
-pub const ST_INFO:        Ranges = Ranges::new(0x10..0x11,0x08..0x09); // u8  / u8
-pub const ST_OTHER:       Ranges = Ranges::new(0x11..0x12,0x09..0x0A); // u8  / u8
-pub const ST_SHNDX:       Ranges = Ranges::new(0x12..0x16,0x0A..0x12); // u32 / u64
+pub const ST_NAME:        Ranges = Ranges::new(0x00..0x04,0x00..0x04); // u32 / u32
+pub const ST_VALUE:       Ranges = Ranges::new(0x04..0x08,0x08..0x10); // u32 / u64
+pub const ST_SIZE:        Ranges = Ranges::new(0x08..0x10,0x10..0x18); // u32 / u64
+pub const ST_INFO:        Ranges = Ranges::new(0x10..0x11,0x04..0x05); // u8  / u8
+pub const ST_OTHER:       Ranges = Ranges::new(0x11..0x12,0x05..0x06); // u8  / u8
+pub const ST_SHNDX:       Ranges = Ranges::new(0x12..0x14,0x06..0x08); // u16 / u16
 
 // This struct maintains several ranges and returns
 // them depending on the current width.

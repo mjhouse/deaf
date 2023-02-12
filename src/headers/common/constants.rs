@@ -12,8 +12,27 @@ pub const PH_SIZE_64: usize = 56;
 pub const SH_SIZE_32: usize = 40;
 pub const SH_SIZE_64: usize = 64;
 
-pub const ST_SIZE_32: usize = 22;
-pub const ST_SIZE_64: usize = 34;
+pub const ST_SIZE_32: usize = 16;
+pub const ST_SIZE_64: usize = 24;
+
+// typedef struct {
+//     Elf32_Word      st_name;   // 4
+//     Elf32_Addr      st_value;  // 4
+//     Elf32_Word      st_size;   // 4
+//     unsigned char   st_info;   // 1
+//     unsigned char   st_other;  // 1
+//     Elf32_Half      st_shndx;  // 2
+// } Elf32_Sym;
+
+// typedef struct
+// {
+//     Elf64_Word      st_name;   // 4
+//     unsigned char   st_info;   // 1
+//     unsigned char   st_other;  // 1
+//     Elf64_Half      st_shndx;  // 2
+//     Elf64_Addr      st_value;  // 8
+//     Elf64_Xword     st_size;   // 8
+// } Elf64_Sym;
 
 pub mod sizes {
     use super::*;

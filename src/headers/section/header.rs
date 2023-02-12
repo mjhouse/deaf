@@ -163,6 +163,17 @@ impl SectionHeader {
         Ok(self.values.clone())
     }
 
+    pub fn body<'a>(&self, b: &'a [u8]) -> Result<&'a [u8]> {
+        let start = self.offset;
+        let end = start + self.values.sh_size;
+
+        if end < b.len() {
+            Ok(&b[start..end])
+        } else {
+            Err(Error::OutOfBoundsError)
+        }
+    }
+
     impl_property!(name,sh_name,u32);
     impl_property!(section_type,sh_type,SHType);
     impl_property!(flags,sh_flags,BitFlags<SHFlags>);
