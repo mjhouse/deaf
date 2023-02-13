@@ -3,7 +3,6 @@ use crate::headers::common::constants::{Width,Layout};
 use crate::headers::common::field::Field;
 use crate::headers::common::ranges::*;
 
-// https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter6-79797.html
 #[derive(Debug,Clone)]
 pub struct SymbolValues {
     st_name: u32,  // st_name

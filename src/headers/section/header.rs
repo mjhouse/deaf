@@ -174,6 +174,14 @@ impl SectionHeader {
         }
     }
 
+    pub fn layout(&self) -> Layout {
+        self.layout.clone()
+    }
+
+    pub fn width(&self) -> Width {
+        self.width.clone()
+    }
+
     impl_property!(name,sh_name,u32);
     impl_property!(section_type,sh_type,SHType);
     impl_property!(flags,sh_flags,BitFlags<SHFlags>);
