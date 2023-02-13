@@ -1,4 +1,5 @@
 
+mod info;
 mod table;
 mod symbol;
 

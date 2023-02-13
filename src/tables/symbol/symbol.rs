@@ -2,6 +2,7 @@ use crate::errors::{Error, Result};
 use crate::headers::common::constants::{Width,Layout};
 use crate::headers::common::field::Field;
 use crate::headers::common::ranges::*;
+use crate::impl_property;
 
 #[derive(Debug,Clone)]
 pub struct SymbolValues {
@@ -93,6 +94,13 @@ impl Symbol {
         self.values.st_shndx = self.st_shndx.get(b)?;
         Ok(self.values.clone())
     }
+
+    impl_property!(name,st_name,u32);
+    impl_property!(value,st_value,u64);
+    impl_property!(size,st_size,u64);
+    impl_property!(info,st_info,u8);
+    impl_property!(other,st_other,u8);
+    impl_property!(shndx,st_shndx,u16);
 
 }
 

@@ -1,5 +1,5 @@
 use num_enum::{IntoPrimitive, TryFromPrimitive, FromPrimitive};
-
+use enumflags2::{bitflags, make_bitflags, BitFlags};
 use crate::errors::{Error, Result};
 
 // global const sizes for various widths
@@ -67,25 +67,25 @@ pub mod sizes {
 
 }
 
+#[repr(u8)]
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
-#[repr(u8)]
 pub enum Width {
     X32 = 0x01, // Little endian (e.g. 0xABCD is represented as 'CD AB')
     X64 = 0x02  // Big endian (e.g. 0xABCD is represented as 'AB CD' )
 }
 
+#[repr(u8)]
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
-#[repr(u8)]
 pub enum Layout {
     Little = 0x01, // Little endian (e.g. 0xABCD is represented as 'CD AB')
     Big = 0x02     // Big endian (e.g. 0xABCD is represented as 'AB CD' )
 }
 
+#[repr(u32)]
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
-#[repr(u32)]
 pub enum PHType {
     PT_NULL = 0x00000000,         // 	Program header table entry unused.
     PT_LOAD = 0x00000001,         // 	Loadable segment.
@@ -113,9 +113,9 @@ pub enum PHType {
     Unknown(u32)
 }
 
+#[repr(u32)]
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, FromPrimitive)]
-#[repr(u32)]
 pub enum SHType {
     SHT_NULL = 0x00000000,
     SHT_PROGBITS = 0x00000001,
@@ -140,8 +140,6 @@ pub enum SHType {
     Unknown(u32),
 }
 
-use enumflags2::{bitflags, make_bitflags, BitFlags};
-
 #[bitflags]
 #[repr(u64)]
 #[allow(non_camel_case_types)]
@@ -161,4 +159,26 @@ pub enum SHFlags {
     SHF_ORDERED          = 0x40000000, //   This section requires ordering in relation to other sections of the same type
     SHF_EXCLUDE          = 0x80000000, //   This section is excluded from input to the link-edit of an executable or shared object
     // SHF_MASKPROC         = 0xf0000000, //   Reserved for processor-specific semantics. 
+}
+
+#[repr(u8)]
+#[allow(non_camel_case_types)]
+#[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+pub enum STBind {
+    STB_LOCAL   = 0x00,
+    STB_GLOBAL  = 0x01,
+    STB_WEAK    = 0x02,
+}
+
+#[repr(u8)]
+#[allow(non_camel_case_types)]
+#[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+pub enum STType {
+    STT_NOTYPE  = 0x00,
+    STT_OBJECT  = 0x01,
+    STT_FUNC    = 0x02,
+    STT_SECTION = 0x03,
+    STT_FILE    = 0x04,
+    STT_COMMON  = 0x05,
+    STT_TLS     = 0x06,
 }
