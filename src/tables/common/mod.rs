@@ -1,4 +1,6 @@
 
-mod chunks;
+mod constants;
+mod byte_iter;
 
-pub use chunks::{ByteIterator,ByteDelimiter};
+pub use constants::ByteDelimiter;
+pub use byte_iter::ByteIter;

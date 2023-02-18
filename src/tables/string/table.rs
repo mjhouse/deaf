@@ -6,7 +6,7 @@ use crate::headers::section::header::{
 use crate::headers::common::constants::{
     SHType
 };
-use crate::tables::common::ByteIterator;
+use crate::tables::common::ByteIter;
 
 pub struct StringTable {
     offset: usize,
@@ -33,12 +33,36 @@ impl StringTable {
         let start = self.offset;
         let end = start + self.section_size;
 
-        self.values = ByteIterator::value(&b[start..end],b'\0')
+        self.values = ByteIter::value(&b[start..end],b'\0')
             .filter_map(|d| std::str::from_utf8(d).ok())
             .map(|s| s.into())
             .collect();
 
         self.values.clone()
+    }
+
+    pub fn write(&self, bytes: &mut [u8]) -> Result<usize> {
+        let section_size = self.size();
+        let section_start = self.offset;
+        let section_end = self.offset + section_size;
+
+        // check buffer is big enough
+        if bytes.len() > section_end {
+            return Err(Error::OutOfBoundsError);
+        }
+
+        // iterate all contained strings
+        for (i,string) in self.values.iter().enumerate() {
+
+        }
+
+        Ok(self.values.len())
+    }
+
+    pub fn size(&self) -> usize {
+        self.values
+            .iter()
+            .fold(0,|a,v| a + v.len())
     }
 
 }

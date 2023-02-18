@@ -2,12 +2,20 @@ use crate::errors::{Error, Result};
 use crate::headers::common::bytes::{AsOutput,AsInput};
 use crate::headers::common::constants::{STBind,STType};
 
+#[derive(Debug,Clone,Copy)]
 pub struct SymbolInfo {
     binding: STBind,
     typing: STType,
 }
 
 impl SymbolInfo {
+
+    pub fn empty() -> Self {
+        Self { 
+            binding: STBind::STB_LOCAL,
+            typing: STType::STT_NOTYPE
+        }
+    }
 
     pub fn new(v: u8) -> Result<Self> {
         let binding = STBind::try_from(v >> 4)?;
@@ -19,6 +27,14 @@ impl SymbolInfo {
         let b: u8 = self.binding.into();
         let t: u8 = self.typing.into();
         (b << 4) | t
+    }
+
+    pub fn typing(&self) -> STType {
+        self.typing.clone()
+    }
+
+    pub fn binding(&self) -> STBind {
+        self.binding.clone()
     }
 
 }

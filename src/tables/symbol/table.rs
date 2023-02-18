@@ -1,19 +1,17 @@
 use crate::errors::{Error, Result};
-use crate::headers::common::constants::{Width,Layout};
+use crate::headers::common::constants::{Width,Layout,SHType,sizes};
 use crate::headers::section::header::{
     SectionHeader,
     SectionHeaderValues
 };
-use crate::headers::common::constants::{
-    SHType
-};
 use crate::tables::symbol::Symbol;
-use crate::tables::common::ByteIterator;
+use crate::tables::common::ByteIter;
 
 pub struct SymbolTable {
     offset: usize,
     layout: Layout,
     width: Width,
+    is_parsed: bool,
     entity_size: usize,
     section_size: usize,
     values: Vec<Symbol>
@@ -27,6 +25,7 @@ impl SymbolTable {
                 offset: header.values.sh_offset,
                 layout: header.layout(),
                 width: header.width(),
+                is_parsed: false,
                 entity_size: header.values.sh_entsize,
                 section_size: header.values.sh_size,
                 values: vec![],
@@ -35,23 +34,97 @@ impl SymbolTable {
         }
     }
 
-    pub fn read(&mut self, b: &[u8]) -> Result<&Vec<Symbol>> {
+    pub fn parse(header: SectionHeader, bytes: &[u8]) -> Result<Self> {
+        let mut table = Self::new(header)?;
+        table.read(bytes)?;
+        Ok(table)
+    }
+
+    pub fn read(&mut self, bytes: &[u8]) -> Result<&Vec<Symbol>> {
+        self.values.clear();
+
         let start = self.offset;
-        let end = start + self.section_size;
+        let end = self.offset + self.section_size;
 
         let size = self.entity_size;
         let layout = self.layout;
         let width = self.width;
 
-        self.values = ByteIterator::length(&b[start..end],size)
+        self.values = ByteIter::length(&bytes[start..end],size)
             .map(|s| Symbol::parse(s,layout,width))
             .collect::<Result<Vec<Symbol>>>()?;
 
+        self.is_parsed = true;
         Ok(&self.values)
     }
 
+    pub fn write(&self, bytes: &mut [u8]) -> Result<usize> {
+        let section_size = self.size();
+        let section_start = self.offset;
+        let section_end = self.offset + section_size;
+
+        // check buffer is big enough
+        if bytes.len() > section_end {
+            return Err(Error::OutOfBoundsError);
+        }
+
+        let size = self.entity_size;
+        let layout = self.layout;
+        let width = self.width;
+
+        // iterate all contained symbols
+        for (i,symbol) in self.values.iter().enumerate() {
+            // calculate symbol position in the output buffer
+            let symbol_start = section_start + (i * size);
+            let symbol_end = symbol_start + size;
+
+            // write each symbol to the symbol table
+            let buffer = &mut bytes[symbol_start..symbol_end];
+            symbol.write(buffer)?;
+        }
+
+        Ok(self.values.len())
+    }
+
+    // the number of symbols in the table
     pub fn len(&self) -> usize {
         self.values.len()
+    }
+
+    // the current calculated size of the table
+    pub fn size(&self) -> usize {
+        self.len() * self.entity_size
+    }
+
+    // the size when the section was parsed
+    pub fn original_size(&self) -> usize {
+        self.section_size
+    }
+
+    pub fn get(&self, index: usize) -> Option<&Symbol> {
+        self.values.get(index)
+    }
+
+    pub fn add(&mut self, symbol: Symbol) -> Option<&Symbol> {
+        self.values.push(symbol);
+        self.values.last()
+    }
+
+    pub fn insert(&mut self, index: usize, symbol: Symbol) -> Option<&Symbol> {
+        if self.values.len() > index {
+            self.values.insert(index,symbol);
+            self.get(index)
+        } else {
+            None
+        }
+    }
+
+    pub fn remove(&mut self, index: usize) -> Option<Symbol> {
+        if self.values.len() > index {
+            Some(self.values.remove(index))
+        } else {
+            None
+        }
     }
 
 }
@@ -94,11 +167,11 @@ mod tests {
 
         for section in headers.into_iter() {
             if section.section_type() == SHType::SHT_SYMTAB {
-                let mut result = SymbolTable::new(section);
+                let mut result = SymbolTable::parse(section,&b);
+                
                 assert!(result.is_ok());
+                let table = result.unwrap();
 
-                let mut table = result.unwrap();
-                assert!(table.read(&b).is_ok());
                 assert_eq!(table.len(),SYMBOL_COUNT);
             }
         }
