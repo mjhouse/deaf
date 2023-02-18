@@ -7,6 +7,7 @@ use crate::headers::common::constants::{
     SHType
 };
 use crate::tables::common::ByteIter;
+use std::ffi::CString;
 
 pub struct StringTable {
     offset: usize,
@@ -51,18 +52,33 @@ impl StringTable {
             return Err(Error::OutOfBoundsError);
         }
 
-        // iterate all contained strings
-        for (i,string) in self.values.iter().enumerate() {
+        let mut string_start = section_start;
 
+        // iterate all contained strings
+        for string in self.values.iter() {
+            // calculate end position in the output buffer
+            let string_end = string_start + string.len();
+
+            // get a constrained, mutable slice of bytes to write to
+            let buffer = &mut bytes[string_start..string_end];
+
+            // convert to nul-terminated c-string representation
+            let cstr = CString::new(string.as_bytes())?;
+
+            // copy the string to the byte slice
+            buffer.clone_from_slice(cstr.as_bytes_with_nul());
+
+            string_start = string_end;
         }
 
         Ok(self.values.len())
     }
 
     pub fn size(&self) -> usize {
+        // +1 for null terminator
         self.values
             .iter()
-            .fold(0,|a,v| a + v.len())
+            .fold(0,|a,v| a + v.len() + 1)
     }
 
 }
