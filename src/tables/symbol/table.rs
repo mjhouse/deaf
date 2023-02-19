@@ -59,12 +59,8 @@ impl SymbolTable {
     }
 
     pub fn write(&self, bytes: &mut [u8]) -> Result<usize> {
-        let section_size = self.size();
-        let section_start = self.offset;
-        let section_end = self.offset + section_size;
-
         // check buffer is big enough
-        if bytes.len() > section_end {
+        if bytes.len() > self.size() {
             return Err(Error::OutOfBoundsError);
         }
 
@@ -75,7 +71,7 @@ impl SymbolTable {
         // iterate all contained symbols
         for (i,symbol) in self.values.iter().enumerate() {
             // calculate symbol position in the output buffer
-            let symbol_start = section_start + (i * size);
+            let symbol_start = i * size;
             let symbol_end = symbol_start + size;
 
             // write each symbol to the symbol table

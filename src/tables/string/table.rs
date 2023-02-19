@@ -43,16 +43,13 @@ impl StringTable {
     }
 
     pub fn write(&self, bytes: &mut [u8]) -> Result<usize> {
-        let section_size = self.size();
-        let section_start = self.offset;
-        let section_end = self.offset + section_size;
 
         // check buffer is big enough
-        if bytes.len() > section_end {
+        if bytes.len() > self.size() {
             return Err(Error::OutOfBoundsError);
         }
 
-        let mut string_start = section_start;
+        let mut string_start = 0;
 
         // iterate all contained strings
         for string in self.values.iter() {
