@@ -6,6 +6,7 @@ use crate::headers::section::header::{
 };
 use crate::tables::symbol::Symbol;
 use crate::tables::common::ByteIter;
+use crate::tables::common::Table;
 
 pub struct SymbolTable {
     offset: usize,
@@ -82,40 +83,31 @@ impl SymbolTable {
         Ok(self.values.len())
     }
 
-    // the number of symbols in the table
-    pub fn len(&self) -> usize {
+}
+
+impl Table<Symbol> for SymbolTable {
+
+    fn len(&self) -> usize {
         self.values.len()
     }
 
-    // the current calculated size of the table
-    pub fn size(&self) -> usize {
+    fn size(&self) -> usize {
         self.len() * self.entity_size
     }
 
-    // the size when the section was parsed
-    pub fn original_size(&self) -> usize {
-        self.section_size
-    }
-
-    pub fn get(&self, index: usize) -> Option<&Symbol> {
+    fn get(&self, index: usize) -> Option<&Symbol> {
         self.values.get(index)
     }
 
-    pub fn add(&mut self, symbol: Symbol) -> Option<&Symbol> {
+    fn set(&mut self, index: usize, item: Symbol) {
+        self.values[index] = item;
+    }
+
+    fn add(&mut self, symbol: Symbol) {
         self.values.push(symbol);
-        self.values.last()
     }
 
-    pub fn insert(&mut self, index: usize, symbol: Symbol) -> Option<&Symbol> {
-        if self.values.len() > index {
-            self.values.insert(index,symbol);
-            self.get(index)
-        } else {
-            None
-        }
-    }
-
-    pub fn remove(&mut self, index: usize) -> Option<Symbol> {
+    fn del(&mut self, index: usize) -> Option<Symbol> {
         if self.values.len() > index {
             Some(self.values.remove(index))
         } else {

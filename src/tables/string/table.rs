@@ -7,6 +7,7 @@ use crate::headers::common::constants::{
     SHType
 };
 use crate::tables::common::ByteIter;
+use crate::tables::common::Table;
 use std::ffi::CString;
 
 pub struct StringTable {
@@ -70,12 +71,39 @@ impl StringTable {
 
         Ok(self.values.len())
     }
+}
 
-    pub fn size(&self) -> usize {
+impl Table<String> for StringTable {
+
+    fn len(&self) -> usize {
+        self.values.len()
+    }
+
+    fn size(&self) -> usize {
         // +1 for null terminator
         self.values
             .iter()
             .fold(0,|a,v| a + v.len() + 1)
+    }
+
+    fn get(&self, index: usize) -> Option<&String> {
+        self.values.get(index)
+    }
+
+    fn set(&mut self, index: usize, item: String) {
+        self.values[index] = item;
+    }
+
+    fn add(&mut self, item: String) {
+        self.values.push(item);
+    }
+
+    fn del(&mut self, index: usize) -> Option<String> {
+        if self.values.len() > index {
+            Some(self.values.remove(index))
+        } else {
+            None
+        }
     }
 
 }
