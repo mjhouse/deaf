@@ -54,18 +54,21 @@ impl StringTable {
 
         // iterate all contained strings
         for string in self.values.iter() {
+            
+            // convert to nul-terminated c-string representation
+            let cstring = CString::new(string.as_bytes())?;
+            let data = cstring.as_bytes_with_nul();
+
             // calculate end position in the output buffer
-            let string_end = string_start + string.len();
+            let string_end = string_start + data.len();
 
             // get a constrained, mutable slice of bytes to write to
             let buffer = &mut bytes[string_start..string_end];
 
-            // convert to nul-terminated c-string representation
-            let cstr = CString::new(string.as_bytes())?;
-
             // copy the string to the byte slice
-            buffer.clone_from_slice(cstr.as_bytes_with_nul());
+            buffer.clone_from_slice(data);
 
+            // update the starting position for the next string
             string_start = string_end;
         }
 
