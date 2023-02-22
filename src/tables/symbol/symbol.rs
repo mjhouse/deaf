@@ -16,7 +16,7 @@ pub struct SymbolValues {
 }
 
 // https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter6-79797.html
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct Symbol {
     layout: Layout,
     width: Width,

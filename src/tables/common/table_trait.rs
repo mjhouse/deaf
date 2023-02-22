@@ -5,7 +5,7 @@ pub trait Table<T> {
 
     fn size(&self) -> usize;
 
-    fn get(&self, index: usize) -> Option<&T>;
+    fn get(&self, index: usize) -> Option<T>;
 
     fn set(&mut self, index: usize, item: T);
 

@@ -22,6 +22,9 @@ pub enum Error {
     #[error("Could not convert from primitive value")]
     FromPrimitiveError(String),
 
+    #[error("Could not parse bytes into CStr representation")]
+    FromBytesWithNulError(#[from] std::ffi::FromBytesWithNulError),
+
     #[error("Could not convert String to CString")]
     StringConvertError(#[from] std::ffi::NulError),
 

@@ -8,39 +8,43 @@ use crate::headers::common::constants::{
 };
 use crate::tables::common::ByteIter;
 use crate::tables::common::Table;
-use std::ffi::CString;
+use std::ffi::{CString,CStr};
 
 pub struct StringTable {
     offset: usize,
-    entity_size: usize,
     section_size: usize,
-    values: Vec<String>
+    values: Vec<CString>
 }
 
 impl StringTable {
 
-    pub fn new(header: SectionHeader) -> Result<Self> {
-        match header.values.sh_type {
-            SHType::SHT_STRTAB => Ok(Self {
-                offset: header.values.sh_offset,
-                entity_size: header.values.sh_entsize,
-                section_size: header.values.sh_size,
-                values: vec![],
-            }),
-            _ => Err(Error::WrongSectionError)
+    pub fn new(offset: usize, size: usize) -> Self {
+        Self {
+            offset: offset,
+            section_size: size,
+            values: vec![]
         }
     }
 
-    pub fn read(&mut self, b: &[u8]) -> Vec<String> {
+    pub fn read(&mut self, b: &[u8]) -> Result<usize> {
         let start = self.offset;
         let end = start + self.section_size;
 
-        self.values = ByteIter::value(&b[start..end],b'\0')
-            .filter_map(|d| std::str::from_utf8(d).ok())
-            .map(|s| s.into())
-            .collect();
+        let bytes = &b[start..end];
+        let mut values = vec![];
 
-        self.values.clone()
+        for data in ByteIter::value(bytes,b'\0') {
+            // parse as c-style string from byte slice
+            let cstr = CStr::from_bytes_with_nul(data)?;
+
+            // add to vector of String values
+            values.push(cstr.into());
+        }
+
+        // don't update self until successful read
+        self.values = values;
+
+        Ok(self.values.len())
     }
 
     pub fn write(&self, bytes: &mut [u8]) -> Result<usize> {
@@ -83,32 +87,53 @@ impl Table<String> for StringTable {
     }
 
     fn size(&self) -> usize {
-        // +1 for null terminator
         self.values
             .iter()
-            .fold(0,|a,v| a + v.len() + 1)
+            .fold(0,|a,v| a + v.as_bytes_with_nul().len())
     }
 
-    fn get(&self, index: usize) -> Option<&String> {
-        self.values.get(index)
+    fn get(&self, index: usize) -> Option<String> {
+        let cstring = self.values.get(index)?.clone();
+        cstring.into_string().ok()
     }
 
     fn set(&mut self, index: usize, item: String) {
-        self.values[index] = item;
+        let cstring = CString::new(item.as_bytes()).unwrap();
+        self.values[index] = cstring;
     }
 
     fn add(&mut self, item: String) {
-        self.values.push(item);
+        let cstring = CString::new(item.as_bytes()).unwrap();
+        self.values.push(cstring);
     }
 
     fn del(&mut self, index: usize) -> Option<String> {
         if self.values.len() > index {
-            Some(self.values.remove(index))
+            Some(self
+                .values
+                .remove(index)
+                .into_string()
+                .ok()?)
         } else {
             None
         }
     }
 
+}
+
+impl TryFrom<SectionHeader> for StringTable {
+    type Error = Error;
+
+    fn try_from(header: SectionHeader) -> Result<Self> {
+        match header.values.sh_type {
+            SHType::SHT_STRTAB => Ok(Self {
+                offset: header.values.sh_offset,
+                section_size: header.values.sh_size,
+                values: vec![],
+            }),
+            _ => Err(Error::WrongSectionError)
+        }
+    }
 }
 
 #[cfg(test)]
@@ -118,6 +143,29 @@ mod tests {
     use std::io::Read;
     use crate::headers::file::header::FileHeader;
     use crate::headers::section::header::SectionHeader;
+
+    const TEST_TABLE: &[u8] = &[
+        0x00, 0x2e, 0x73, 0x68, 0x73, 0x74, 0x72, 0x74, 0x61, 0x62, 0x00, 0x2e, 0x6e, 0x6f, 0x74, 0x65, 0x2e, 0x67, 0x6e, 0x75, 0x2e, 0x70, 0x72, 0x6f,
+        0x70, 0x65, 0x72, 0x74, 0x79, 0x00, 0x2e, 0x6e, 0x6f, 0x74, 0x65, 0x2e, 0x67, 0x6e, 0x75, 0x2e, 0x62, 0x75, 0x69, 0x6c, 0x64, 0x2d, 0x69, 0x64,
+        0x00, 0x2e, 0x67, 0x6e, 0x75, 0x2e, 0x68, 0x61, 0x73, 0x68, 0x00, 0x2e, 0x64, 0x79, 0x6e, 0x73, 0x79, 0x6d, 0x00, 0x2e, 0x64, 0x79, 0x6e, 0x73,
+        0x74, 0x72, 0x00, 0x2e, 0x67, 0x6e, 0x75, 0x2e, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x00, 0x2e, 0x67, 0x6e, 0x75, 0x2e, 0x76, 0x65, 0x72,
+        0x73, 0x69, 0x6f, 0x6e, 0x5f, 0x72, 0x00, 0x2e, 0x72, 0x65, 0x6c, 0x61, 0x2e, 0x64, 0x79, 0x6e, 0x00, 0x2e, 0x72, 0x65, 0x6c, 0x61, 0x2e, 0x70,
+        0x6c, 0x74, 0x00, 0x2e, 0x69, 0x6e, 0x69, 0x74, 0x00, 0x2e, 0x70, 0x6c, 0x74, 0x2e, 0x67, 0x6f, 0x74, 0x00, 0x2e, 0x70, 0x6c, 0x74, 0x2e, 0x73,
+        0x65, 0x63, 0x00, 0x2e, 0x74, 0x65, 0x78, 0x74, 0x00, 0x2e, 0x66, 0x69, 0x6e, 0x69, 0x00, 0x2e, 0x72, 0x6f, 0x64, 0x61, 0x74, 0x61, 0x00, 0x2e,
+        0x65, 0x68, 0x5f, 0x66, 0x72, 0x61, 0x6d, 0x65, 0x5f, 0x68, 0x64, 0x72, 0x00, 0x2e, 0x65, 0x68, 0x5f, 0x66, 0x72, 0x61, 0x6d, 0x65, 0x00, 0x2e,
+        0x69, 0x6e, 0x69, 0x74, 0x5f, 0x61, 0x72, 0x72, 0x61, 0x79, 0x00, 0x2e, 0x66, 0x69, 0x6e, 0x69, 0x5f, 0x61, 0x72, 0x72, 0x61, 0x79, 0x00, 0x2e,
+        0x64, 0x61, 0x74, 0x61, 0x2e, 0x72, 0x65, 0x6c, 0x2e, 0x72, 0x6f, 0x00, 0x2e, 0x64, 0x79, 0x6e, 0x61, 0x6d, 0x69, 0x63, 0x00, 0x2e, 0x64, 0x61,
+        0x74, 0x61, 0x00, 0x2e, 0x62, 0x73, 0x73, 0x00, 0x2e, 0x67, 0x6e, 0x75, 0x5f, 0x64, 0x65, 0x62, 0x75, 0x67, 0x6c, 0x69, 0x6e, 0x6b, 0x00,
+    ];
+
+    // the starting byte of the libvpf string table
+    const TEST_TABLE_OFFSET: usize = 0;
+
+    // the length in bytes of the libvpf string table
+    const TEST_TABLE_LENGTH: usize = 263;
+
+    // the number of strings in the libvpf string table
+    const TEST_TABLE_COUNT: usize = 26;
 
     #[test]
     fn test_extract_shstrtab_section_as_table() {
@@ -151,12 +199,28 @@ mod tests {
 
         for (i,section) in headers.into_iter().enumerate() {
             if i == index {
-                let mut table = StringTable::new(section).unwrap();
-                let result = table.read(&b);
-                assert_eq!(result.len(),STR_COUNT);
+                let mut table = StringTable::new(
+                    section.offset(),
+                    section.size());
+
+                assert!(table.read(&b).is_ok());
+                assert_eq!(table.len(),TEST_TABLE_COUNT);
+
                 break;
             }
         }
+    }
 
+    #[test]
+    fn test_read_string_table() {
+        let mut table = StringTable::new(TEST_TABLE_OFFSET,TEST_TABLE_LENGTH);
+        let result = table.read(TEST_TABLE);
+
+        assert!(result.is_ok());
+        assert_eq!(table.len(),TEST_TABLE_COUNT);
+    }
+
+    #[test]
+    fn test_write_string_table() {
     }
 }

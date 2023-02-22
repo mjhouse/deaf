@@ -7,7 +7,7 @@ use crate::headers::common::constants::{Layout, Width};
 use crate::errors::{Error, Result};
 use crate::headers::common::ranges::Ranges;
 
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct Field<T32 = u8, T64 = T32, Out = T64>
 where
     T32: FromBytes + IntoBytes,

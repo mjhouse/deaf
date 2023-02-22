@@ -71,6 +71,7 @@ impl SymbolTable {
 
         // iterate all contained symbols
         for (i,symbol) in self.values.iter().enumerate() {
+            
             // calculate symbol position in the output buffer
             let symbol_start = i * size;
             let symbol_end = symbol_start + size;
@@ -95,8 +96,8 @@ impl Table<Symbol> for SymbolTable {
         self.len() * self.entity_size
     }
 
-    fn get(&self, index: usize) -> Option<&Symbol> {
-        self.values.get(index)
+    fn get(&self, index: usize) -> Option<Symbol> {
+        self.values.get(index).cloned()
     }
 
     fn set(&mut self, index: usize, item: Symbol) {
