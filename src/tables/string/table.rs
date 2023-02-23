@@ -127,11 +127,9 @@ impl TryFrom<SectionHeader> for StringTable {
 
     fn try_from(header: SectionHeader) -> Result<Self> {
         match header.values.sh_type {
-            SHType::SHT_STRTAB => Ok(Self {
-                offset: header.values.sh_offset,
-                section_size: header.values.sh_size,
-                values: vec![],
-            }),
+            SHType::SHT_STRTAB => Ok(Self::new(
+                header.offset(),
+                header.size())),
             _ => Err(Error::WrongSectionError)
         }
     }
@@ -200,11 +198,10 @@ mod tests {
         // find the first string table header
         for (i,section) in headers.into_iter().enumerate() {
             if i == index {
-
                 // build a string table from the section
-                let mut table = StringTable::new(
-                    section.offset(),
-                    section.size());
+                let result = StringTable::try_from(section);
+                assert!(result.is_ok());
+                let mut table = result.unwrap();
 
                 // read the string table from the buffer
                 assert!(table.read(&b).is_ok());
@@ -258,13 +255,16 @@ mod tests {
         let result = table.read(TEST_TABLE);
         assert!(result.is_ok());
 
+        // get a string from the table
         let result = table.get(1);
         assert!(result.is_some());
 
+        // append a test value to the string
         let mut string = result.unwrap();
         string += TEST_STR;
         assert_eq!(string.as_str(),".shstrtab-test");
 
+        // update the string table with the modified string
         let result = table.set(1,string);
         assert!(result.is_ok());
 

@@ -12,7 +12,7 @@ pub struct SymbolTable {
     offset: usize,
     layout: Layout,
     width: Width,
-    is_parsed: bool,
+    parsed: bool,
     entity_size: usize,
     section_size: usize,
     values: Vec<Symbol>
@@ -20,30 +20,19 @@ pub struct SymbolTable {
 
 impl SymbolTable {
 
-    pub fn new(header: SectionHeader) -> Result<Self> {
-        match header.values.sh_type {
-            SHType::SHT_SYMTAB => Ok(Self {
-                offset: header.values.sh_offset,
-                layout: header.layout(),
-                width: header.width(),
-                is_parsed: false,
-                entity_size: header.values.sh_entsize,
-                section_size: header.values.sh_size,
-                values: vec![],
-            }),
-            _ => Err(Error::WrongSectionError)
+    pub fn new(offset: usize, size: usize, layout: Layout, width: Width, entity_size: usize) -> Self {
+        Self {
+            offset: offset,
+            layout: layout,
+            width: width,
+            parsed: false,
+            entity_size: entity_size,
+            section_size: size,
+            values: vec![],
         }
     }
 
-    pub fn parse(header: SectionHeader, bytes: &[u8]) -> Result<Self> {
-        let mut table = Self::new(header)?;
-        table.read(bytes)?;
-        Ok(table)
-    }
-
-    pub fn read(&mut self, bytes: &[u8]) -> Result<&Vec<Symbol>> {
-        self.values.clear();
-
+    pub fn read(&mut self, bytes: &[u8]) -> Result<usize> {
         let start = self.offset;
         let end = self.offset + self.section_size;
 
@@ -51,12 +40,38 @@ impl SymbolTable {
         let layout = self.layout;
         let width = self.width;
 
-        self.values = ByteIter::length(&bytes[start..end],size)
-            .map(|s| Symbol::parse(s,layout,width))
-            .collect::<Result<Vec<Symbol>>>()?;
+        // check that the entity size is > 0
+        if size == 0 {
+            return Err(Error::MalformedDataError);
+        }
 
-        self.is_parsed = true;
-        Ok(&self.values)
+        // check that the section has data
+        if self.section_size == 0 {
+            return Err(Error::MalformedDataError);
+        }
+
+        // check that entities fit cleanly into section
+        if self.section_size % size != 0 {
+            return Err(Error::MalformedDataError);
+        }
+
+        // reserve a temporary buffer for symbols
+        let mut values = vec![];
+        values.reserve(self.section_size / size);
+
+        for data in ByteIter::length(&bytes[start..end],size) {
+            // parse a symbol from the byte range
+            let symbol = Symbol::parse(data,layout,width)?;
+
+            // add to vector of Symbol objects
+            values.push(symbol);
+        }
+
+        // don't update self until successful read
+        self.values = values;
+        self.parsed = true;
+
+        Ok(self.values.len())
     }
 
     pub fn write(&self, bytes: &mut [u8]) -> Result<usize> {
@@ -76,8 +91,10 @@ impl SymbolTable {
             let symbol_start = i * size;
             let symbol_end = symbol_start + size;
 
-            // write each symbol to the symbol table
+            // get a constrained, mutable slice of bytes to write to
             let buffer = &mut bytes[symbol_start..symbol_end];
+
+            // write the symbol to the byte slice
             symbol.write(buffer)?;
         }
 
@@ -120,6 +137,23 @@ impl Table<Symbol> for SymbolTable {
 
 }
 
+impl TryFrom<SectionHeader> for SymbolTable {
+    type Error = Error;
+
+    fn try_from(header: SectionHeader) -> Result<Self> {
+        match header.values.sh_type {
+            SHType::SHT_SYMTAB => Ok(Self::new(
+                header.offset(),
+                header.size(),
+                header.layout(),
+                header.width(),
+                header.entsize()
+            )),
+            _ => Err(Error::WrongSectionError)
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -158,11 +192,15 @@ mod tests {
 
         for section in headers.into_iter() {
             if section.section_type() == SHType::SHT_SYMTAB {
-                let mut result = SymbolTable::parse(section,&b);
-                
+                // build a string table from the section
+                let result = SymbolTable::try_from(section);
                 assert!(result.is_ok());
-                let table = result.unwrap();
+                let mut table = result.unwrap();
 
+                // read the string table from the buffer
+                assert!(table.read(&b).is_ok());
+
+                // verify that the string table has expected length
                 assert_eq!(table.len(),SYMBOL_COUNT);
             }
         }

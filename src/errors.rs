@@ -16,6 +16,9 @@ pub enum Error {
     #[error("Slice or access is out of bounds")]
     OutOfBoundsError,
 
+    #[error("Given data has the wrong shape for operation")]
+    MalformedDataError,
+
     #[error("Given section is of the wrong type")]
     WrongSectionError,
 
