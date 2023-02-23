@@ -100,12 +100,14 @@ impl Table<Symbol> for SymbolTable {
         self.values.get(index).cloned()
     }
 
-    fn set(&mut self, index: usize, item: Symbol) {
+    fn set(&mut self, index: usize, item: Symbol) -> Result<usize> {
         self.values[index] = item;
+        Ok(index)
     }
 
-    fn add(&mut self, symbol: Symbol) {
+    fn add(&mut self, symbol: Symbol) -> Result<usize> {
         self.values.push(symbol);
+        Ok(self.len().saturating_sub(1))
     }
 
     fn del(&mut self, index: usize) -> Option<Symbol> {

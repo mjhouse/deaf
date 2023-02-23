@@ -97,23 +97,24 @@ impl Table<String> for StringTable {
         cstring.into_string().ok()
     }
 
-    fn set(&mut self, index: usize, item: String) {
-        let cstring = CString::new(item.as_bytes()).unwrap();
+    fn set(&mut self, index: usize, item: String) -> Result<usize> {
+        let cstring = CString::new(item.as_bytes())?;
         self.values[index] = cstring;
+        Ok(index)
     }
 
-    fn add(&mut self, item: String) {
-        let cstring = CString::new(item.as_bytes()).unwrap();
+    fn add(&mut self, item: String) -> Result<usize> {
+        let cstring = CString::new(item.as_bytes())?;
         self.values.push(cstring);
+        Ok(self.len().saturating_sub(1))
     }
 
     fn del(&mut self, index: usize) -> Option<String> {
         if self.values.len() > index {
-            Some(self
-                .values
+            self.values
                 .remove(index)
                 .into_string()
-                .ok()?)
+                .ok()
         } else {
             None
         }
@@ -168,16 +169,14 @@ mod tests {
     const TEST_TABLE_COUNT: usize = 26;
 
     #[test]
-    fn test_extract_shstrtab_section_as_table() {
+    fn test_extract_real_shstrtab_section_as_table() {
         let mut f = File::open("assets/libvpf.so.4.1").unwrap();
         let mut b = Vec::new();
-
-        // the number of strings in the string table
-        const STR_COUNT: usize = 26;
         
         f.read_to_end(&mut b)
             .unwrap();
 
+        // get the fileheader and use it to find section headers
         let file_header = FileHeader::parse(&b)
             .unwrap();
 
@@ -187,6 +186,7 @@ mod tests {
         let width = file_header.class();
         let index = file_header.shstrndx();
         
+        // parse all section headers from the buffer
         let section_headers = SectionHeader::parse_all(
             &b,
             count,
@@ -197,15 +197,22 @@ mod tests {
         assert!(section_headers.is_ok());
         let headers = section_headers.unwrap();
 
+        // find the first string table header
         for (i,section) in headers.into_iter().enumerate() {
             if i == index {
+
+                // build a string table from the section
                 let mut table = StringTable::new(
                     section.offset(),
                     section.size());
 
+                // read the string table from the buffer
                 assert!(table.read(&b).is_ok());
+
+                // verify that the string table has expected length
                 assert_eq!(table.len(),TEST_TABLE_COUNT);
 
+                // don't process any more section headers
                 break;
             }
         }
@@ -213,14 +220,65 @@ mod tests {
 
     #[test]
     fn test_read_string_table() {
+        // read the test table data
         let mut table = StringTable::new(TEST_TABLE_OFFSET,TEST_TABLE_LENGTH);
         let result = table.read(TEST_TABLE);
-
         assert!(result.is_ok());
+
+        // verify that the table has the expected number of elements
         assert_eq!(table.len(),TEST_TABLE_COUNT);
     }
 
     #[test]
-    fn test_write_string_table() {
+    fn test_write_string_table_with_no_changes() {
+        // read the test table data
+        let mut table = StringTable::new(TEST_TABLE_OFFSET,TEST_TABLE_LENGTH);
+        let mut result = table.read(TEST_TABLE);
+        assert!(result.is_ok());
+
+        // initialize a buffer big enough for table data
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(table.size(),0x00);
+
+        // write to the new table
+        result = table.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
+
+        // verify that the written table is the same as original
+        assert_eq!(buffer.as_slice(),TEST_TABLE);
     }
+
+    #[test]
+    fn test_write_string_table_with_changes() {
+        const TEST_STR: &str  = "-test";
+        const TEST_LEN: usize = 5;
+
+        // read the test table data
+        let mut table = StringTable::new(TEST_TABLE_OFFSET,TEST_TABLE_LENGTH);
+        let result = table.read(TEST_TABLE);
+        assert!(result.is_ok());
+
+        let result = table.get(1);
+        assert!(result.is_some());
+
+        let mut string = result.unwrap();
+        string += TEST_STR;
+        assert_eq!(string.as_str(),".shstrtab-test");
+
+        let result = table.set(1,string);
+        assert!(result.is_ok());
+
+        // initialize a buffer big enough for modified table data
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(table.size(),0x00);
+
+        // write to the new table
+        let result = table.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
+
+        // verify that the written table is not the same as original
+        assert_ne!(buffer.as_slice(),TEST_TABLE);
+        assert_eq!(buffer.len(),TEST_TABLE_LENGTH + TEST_LEN);
+    }
+
 }
