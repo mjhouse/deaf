@@ -12,7 +12,6 @@ pub struct SymbolTable {
     offset: usize,
     layout: Layout,
     width: Width,
-    parsed: bool,
     entity_size: usize,
     section_size: usize,
     values: Vec<Symbol>
@@ -25,13 +24,13 @@ impl SymbolTable {
             offset: offset,
             layout: layout,
             width: width,
-            parsed: false,
             entity_size: entity_size,
             section_size: size,
             values: vec![],
         }
     }
 
+    // reads from an offset to offset + section_size
     pub fn read(&mut self, bytes: &[u8]) -> Result<usize> {
         let start = self.offset;
         let end = self.offset + self.section_size;
@@ -69,12 +68,12 @@ impl SymbolTable {
 
         // don't update self until successful read
         self.values = values;
-        self.parsed = true;
-
         Ok(self.values.len())
     }
 
+    // writes from the beginning of the given byte slice
     pub fn write(&self, bytes: &mut [u8]) -> Result<usize> {
+
         // check buffer is big enough
         if bytes.len() > self.size() {
             return Err(Error::OutOfBoundsError);
@@ -162,8 +161,19 @@ mod tests {
     use crate::headers::file::header::FileHeader;
     use crate::headers::section::header::SectionHeader;
 
+    const TEST_TABLE: &[u8] = include!("../../../assets/bytes/libvpf_symtab.in");
+
+    // the starting byte of the test table
+    const TEST_TABLE_OFFSET: usize = 0;
+
+    // the length in bytes of the test table
+    const TEST_TABLE_LENGTH: usize = 7056;
+
+    // the number of elements in the test table
+    const TEST_TABLE_COUNT: usize = 294;
+
     #[test]
-    fn test_extract_symtab_section_as_table() {
+    fn test_extract_real_symtab_section_as_table() {
         const SYMBOL_COUNT: usize = 525;
 
         let mut f = File::open("assets/libjpeg.so.9").unwrap();
@@ -205,4 +215,15 @@ mod tests {
             }
         }
     }
+
+    // #[test]
+    // fn test_read_symbol_table() {
+    //     // read the test table data
+    //     let mut table = SymbolTable::new(TEST_TABLE_OFFSET,TEST_TABLE_LENGTH);
+    //     let result = table.read(TEST_TABLE);
+    //     assert!(result.is_ok());
+
+    //     // verify that the table has the expected number of elements
+    //     assert_eq!(table.len(),TEST_TABLE_COUNT);
+    // }
 }
