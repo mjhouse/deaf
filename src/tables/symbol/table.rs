@@ -172,6 +172,9 @@ mod tests {
     // the number of elements in the test table
     const TEST_TABLE_COUNT: usize = 294;
 
+    // the size of an element in the test table
+    const TEST_TABLE_ENTITY: usize = 24;
+
     #[test]
     fn test_extract_real_symtab_section_as_table() {
         const SYMBOL_COUNT: usize = 525;
@@ -216,14 +219,103 @@ mod tests {
         }
     }
 
-    // #[test]
-    // fn test_read_symbol_table() {
-    //     // read the test table data
-    //     let mut table = SymbolTable::new(TEST_TABLE_OFFSET,TEST_TABLE_LENGTH);
-    //     let result = table.read(TEST_TABLE);
-    //     assert!(result.is_ok());
+    #[test]
+    fn test_read_symbol_table() {
+        
+        // directly initialize a symbol table
+        let mut table = SymbolTable::new(
+            TEST_TABLE_OFFSET,
+            TEST_TABLE_LENGTH,
+            Layout::Little,
+            Width::X64,
+            TEST_TABLE_ENTITY
+        );
 
-    //     // verify that the table has the expected number of elements
-    //     assert_eq!(table.len(),TEST_TABLE_COUNT);
-    // }
+        // read the test table and verify success
+        let result = table.read(TEST_TABLE);
+        assert!(result.is_ok());
+
+        // verify that the table has the expected number of elements
+        assert_eq!(table.len(),TEST_TABLE_COUNT);
+    }
+
+    #[test]
+    fn test_write_symbol_table_with_no_changes() {
+
+        // directly initialize a symbol table
+        let mut table = SymbolTable::new(
+            TEST_TABLE_OFFSET,
+            TEST_TABLE_LENGTH,
+            Layout::Little,
+            Width::X64,
+            TEST_TABLE_ENTITY
+        );
+
+        // read the test table and verify success
+        let mut result = table.read(TEST_TABLE);
+        assert!(result.is_ok());
+
+        // initialize a buffer big enough for table data
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(table.size(),0x00);
+
+        // write to the new table
+        result = table.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
+
+        // verify that the written table is the same as original
+        assert_eq!(buffer.as_slice(),TEST_TABLE);
+    }
+
+    #[test]
+    fn test_write_symbol_table_with_changes() {
+
+        // directly initialize a symbol table
+        let mut table = SymbolTable::new(
+            TEST_TABLE_OFFSET,
+            TEST_TABLE_LENGTH,
+            Layout::Little,
+            Width::X64,
+            TEST_TABLE_ENTITY
+        );
+
+        // read the test table and verify success
+        let mut result = table.read(TEST_TABLE);
+        assert!(result.is_ok());
+
+        // get a symbol from the table
+        let result = table.get(1);
+        assert!(result.is_some());
+
+        // modify the symbol attributes
+        let mut symbol = result.unwrap();
+        symbol.set_value(20);
+
+        // update the string table with the modified string
+        let result = table.set(1,symbol);
+        assert!(result.is_ok());
+
+        // initialize a buffer big enough for modified table data
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(table.size(),0x00);
+
+        // write to the new table
+        let result = table.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
+
+        // verify that the written table is not the same as original
+        assert_ne!(buffer.as_slice(),TEST_TABLE);
+
+        // read the buffer and verify success
+        let mut result = table.read(&buffer);
+        assert!(result.is_ok());
+
+        // get a symbol from the table
+        let result = table.get(1);
+        assert!(result.is_some());
+
+        // check the symbol attribute is changed
+        let mut symbol = result.unwrap();
+        assert_eq!(symbol.value(),20);
+    }
 }

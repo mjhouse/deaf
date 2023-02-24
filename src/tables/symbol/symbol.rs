@@ -1,5 +1,5 @@
 use crate::errors::{Error, Result};
-use crate::headers::common::constants::{Width,Layout};
+use crate::headers::common::constants::{Width,Layout,STType};
 use crate::headers::common::field::Field;
 use crate::headers::common::ranges::*;
 use crate::tables::symbol::info::SymbolInfo;
@@ -104,6 +104,18 @@ impl Symbol {
         self.st_other.set(b,self.values.st_other)?;
         self.st_shndx.set(b,self.values.st_shndx)?;
         Ok(())
+    }
+
+    pub fn is_object(&self) -> bool {
+        self.info().typing() == STType::STT_OBJECT
+    }
+
+    pub fn is_function(&self) -> bool {
+        self.info().typing() == STType::STT_FUNC
+    }
+
+    pub fn is_section(&self) -> bool {
+        self.info().typing() == STType::STT_SECTION
     }
 
     impl_property!(name,st_name,u32);

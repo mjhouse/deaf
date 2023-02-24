@@ -29,15 +29,13 @@ macro_rules! impl_property {
             pub fn $n(&self) -> $v< $( $N ),* > {
                 self.values.$f.clone()
             }
-        
-            pub fn [< get_ $n >](&self, b: &[u8]) -> Result<$v< $( $N ),* >> {
-                self.$f.get(b)
+
+            pub fn [< get_ $n >](&self) -> $v< $( $N ),* > {
+                self.values.$f.clone()
             }
-        
-            pub fn [< set_ $n >](&mut self, b: &mut [u8], v: $v< $( $N ),* >) -> Result<()> {
-                self.$f.set(b,v.clone())?;
+
+            pub fn [< set_ $n >](&mut self, v: $v< $( $N ),* >) {
                 self.values.$f = v;
-                Ok(())
             }
         }
     };
