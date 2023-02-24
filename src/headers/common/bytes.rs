@@ -3,22 +3,120 @@ use crate::errors::{Error, Result};
 use num_enum::{TryFromPrimitive,FromPrimitive};
 use enumflags2::BitFlags;
 
+/// Parse an object from bytes
+///
+/// # Arguments
+///
+/// * `b` - A slice of bytes to parse
+/// * `l` - The endianness of the bytes
+///
+/// # Examples
+///
+/// ```
+/// # use deaf::headers::common::bytes::FromBytes;
+/// # use deaf::headers::common::constants::*;
+///
+/// // layout doesn't matter for strings
+/// let layout = Layout::Little;
+/// let bytes = &[ b'E', b'L', b'F' ];
+///
+/// let string = String::from_bytes(
+///     bytes,
+///     layout
+/// ).unwrap();
+///
+/// assert_eq!(string,"ELF");
+/// ```
 pub trait FromBytes {
     fn from_bytes(b: &[u8], l: Layout) -> Result<Self>
     where
         Self: Sized;
 }
 
+/// Convert an object into bytes
+///
+/// # Arguments
+///
+/// * `b` - A slice of bytes to write to
+/// * `l` - The endianness to use during write
+///
+/// # Examples
+///
+/// ```
+/// # use deaf::headers::common::bytes::IntoBytes;
+/// # use deaf::headers::common::constants::*;
+///
+/// // layout doesn't matter for strings
+/// let layout = Layout::Little;
+/// let expected = &[ b'E', b'L', b'F' ];
+/// let found = &mut [ 0x00, 0x00, 0x00 ];
+///
+/// let string = String::from("ELF");
+///
+/// string.to_bytes(
+///     found,
+///     layout
+/// ).unwrap();
+///
+/// assert_eq!(found,expected);
+/// ```
 pub trait IntoBytes {
     fn to_bytes(&self, b: &mut [u8], l: Layout) -> Result<()>;
 }
 
-// convert A into Self
+/// Convert an intermediate value into a complex value
+///
+/// Intermediate values are parsed directly from binary
+/// data, while more complex (and user-friendly) types like
+/// enums or structs are presented to users of this library.
+///
+/// # Arguments
+///
+/// * `v` - An intermediate type
+///
+/// # Examples
+///
+/// ```
+/// # use deaf::headers::common::bytes::AsOutput;
+/// # use deaf::headers::common::constants::*;
+///
+/// let initial = 9_u32;
+/// let found = SHType::SHT_REL;
+///
+/// let result = SHType::as_output(initial);
+///
+/// assert!(result.is_ok());
+/// assert_eq!(result.unwrap(),found);
+/// ```
 pub trait AsOutput<A> {
     fn as_output(v: A) -> Result<Self> where Self: Sized;
 }
 
-// convert self into A
+/// Convert a complex value into an intermediate value
+///
+/// Intermediate values are parsed directly from binary
+/// data, while more complex (and user-friendly) types like
+/// enums or structs are presented to users of this library.
+///
+/// # Arguments
+///
+/// * `self` - A complex value to convert
+///
+/// # Examples
+///
+/// ```
+/// # use deaf::headers::common::bytes::AsInput;
+/// # use deaf::headers::common::constants::*;
+/// # use deaf::errors::{Error,Result};
+///
+/// let found = 9_u32;
+/// let initial = SHType::SHT_REL;
+///
+/// let result: Result<u32> = initial.as_input();
+///
+/// assert!(result.is_ok());
+/// assert_eq!(result.unwrap(),found);
+/// ```
 pub trait AsInput<A> {
     fn as_input(self) -> Result<A> where A: Sized;
 }

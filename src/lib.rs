@@ -1,5 +1,5 @@
 #![allow(dead_code)]
 
-mod errors;
-mod headers;
-mod tables;
+pub mod errors;
+pub mod headers;
+pub mod tables;
