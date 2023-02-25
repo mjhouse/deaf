@@ -1,5 +1,5 @@
 use crate::errors::{Error, Result};
-use crate::headers::common::bytes::{AsOutput,AsInput};
+use crate::headers::common::bytes::Transmute;
 use crate::headers::common::constants::{STBind,STType};
 
 #[derive(Debug,Clone,Copy)]
@@ -39,12 +39,12 @@ impl SymbolInfo {
 
 }
 
-impl AsInput<u8> for SymbolInfo {
-    fn as_input(self) -> Result<u8> { Ok(self.value()) }
+impl Transmute<u8> for SymbolInfo {
+    fn transmute(self) -> Result<u8> { Ok(self.value()) }
 }
 
-impl AsOutput<u8> for SymbolInfo {
-    fn as_output(a: u8) -> Result<Self> { Self::new(a) }
+impl Transmute<SymbolInfo> for u8 {
+    fn transmute(self) -> Result<SymbolInfo> { SymbolInfo::new(self) }
 }
 
 #[cfg(test)]
@@ -79,7 +79,7 @@ mod tests {
     fn test_symbol_info_back_to_zeroes() {
         let value = 0x00; // STB_LOCAL + STT_NOTYPE
         let info = SymbolInfo::new(value).unwrap();
-        let result = info.as_input();
+        let result: Result<u8> = info.transmute();
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(),value);
@@ -89,7 +89,7 @@ mod tests {
     fn test_symbol_info_back_to_value() {
         let value = 0x21; // STB_WEAK + STT_OBJECT
         let info = SymbolInfo::new(value).unwrap();
-        let result = info.as_input();
+        let result: Result<u8> = info.transmute();
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(),value);
