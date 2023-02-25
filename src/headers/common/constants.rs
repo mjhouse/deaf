@@ -51,14 +51,22 @@ pub mod sizes {
 
 }
 
+/// The mode of the ELF file
+///
+/// This enum is generally parsed from the file header (ei_class) and then 
+/// passed to all of the other sections for parsing addresses etc.
 #[repr(u8)]
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
 pub enum Width {
-    X32 = 0x01, // Little endian (e.g. 0xABCD is represented as 'CD AB')
-    X64 = 0x02  // Big endian (e.g. 0xABCD is represented as 'AB CD' )
+    X32 = 0x01, // Mode of the ELF file is 32-bit
+    X64 = 0x02  // Mode of the ELF file is 64-bit
 }
 
+/// The endianness of the ELF file
+///
+/// This enum is generally parsed from the file header (ei_data) and then 
+/// passed to all of the other sections for parsing integers etc.
 #[repr(u8)]
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
@@ -67,6 +75,9 @@ pub enum Layout {
     Big = 0x02     // Big endian (e.g. 0xABCD is represented as 'AB CD' )
 }
 
+/// The type of a program header
+///
+/// This enum is generally parsed from the program headers (p_type).
 #[repr(u32)]
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
@@ -97,6 +108,9 @@ pub enum PHType {
     Unknown(u32)
 }
 
+/// The type of a section header
+///
+/// This enum is generally parsed from the section headers (sh_type).
 #[repr(u32)]
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, FromPrimitive)]
@@ -124,6 +138,9 @@ pub enum SHType {
     Unknown(u32),
 }
 
+/// The flags of a particular section header
+///
+/// This enum is generally parsed from the section headers (sh_flags).
 #[bitflags]
 #[repr(u64)]
 #[allow(non_camel_case_types)]
@@ -145,6 +162,9 @@ pub enum SHFlags {
     // SHF_MASKPROC         = 0xf0000000, //   Reserved for processor-specific semantics. 
 }
 
+/// The binding of a symbol entry from a static or dynamic symbol table
+///
+/// This enum is parsed from symbol table entities (st_info).
 #[repr(u8)]
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
@@ -154,6 +174,9 @@ pub enum STBind {
     STB_WEAK    = 0x02,
 }
 
+/// The type of a symbol entry from a static or dynamic symbol table
+///
+/// This enum is parsed from symbol table entities (st_info).
 #[repr(u8)]
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]

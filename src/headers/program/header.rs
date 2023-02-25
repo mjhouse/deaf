@@ -12,7 +12,7 @@ use crate::errors::{Error, Result};
 
 #[derive(Debug,Clone)]
 pub struct ProgramHeaderValues {
-    p_size: usize,   // TODO: change this to just be 'size'
+    size: usize,  
     p_type: PHType,
     p_flags: u32,
     p_offset: u64,
@@ -29,7 +29,7 @@ pub struct ProgramHeader {
     layout: Layout,
     width: Width,
 
-    p_size: usize, // TODO: change this to just be 'size'
+    size: usize,
     p_type: Field<u32,u32,PHType>,
     p_flags: Field<u32>,
     p_offset: Field<u32,u64>,
@@ -46,7 +46,7 @@ impl ProgramHeaderValues {
 
     pub fn new() -> Self {
         Self {
-            p_size: 0, 
+            size: 0, 
             p_type: PHType::PT_NULL,
             p_flags: 0,
             p_offset: 0,
@@ -66,7 +66,7 @@ impl ProgramHeader {
             offset,
             layout,
             width,
-            p_size: 0,  // TODO: change this to just be 'size'
+            size: 0,
             p_type: Field::new(P_TYPE),
             p_flags: Field::new(P_FLAGS),
             p_offset: Field::new(P_OFFSET),
