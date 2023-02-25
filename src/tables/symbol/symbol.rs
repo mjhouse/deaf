@@ -16,7 +16,7 @@ pub struct SymbolValues {
 }
 
 // https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter6-79797.html
-#[derive(Debug,Clone)]
+#[derive(Clone)]
 pub struct Symbol {
     layout: Layout,
     width: Width,
@@ -107,15 +107,15 @@ impl Symbol {
     }
 
     pub fn is_object(&self) -> bool {
-        self.info().typing() == STType::STT_OBJECT
+        self.info().kind() == STType::STT_OBJECT
     }
 
     pub fn is_function(&self) -> bool {
-        self.info().typing() == STType::STT_FUNC
+        self.info().kind() == STType::STT_FUNC
     }
 
     pub fn is_section(&self) -> bool {
-        self.info().typing() == STType::STT_SECTION
+        self.info().kind() == STType::STT_SECTION
     }
 
     impl_property!(name,st_name,u32);
@@ -125,6 +125,19 @@ impl Symbol {
     impl_property!(other,st_other,u8);
     impl_property!(shndx,st_shndx,u16);
 
+}
+
+impl std::fmt::Debug for Symbol {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Symbol")
+         .field("name", &self.name())
+         .field("value", &self.value())
+         .field("size", &self.size())
+         .field("info", &self.info())
+         .field("other", &self.other())
+         .field("shndx", &self.shndx())
+         .finish()
+    }
 }
 
 #[cfg(test)]
@@ -164,7 +177,7 @@ mod tests {
         assert!(result.is_ok());
 
         let symbol = result.unwrap();
-        assert!(symbol.value() == 0x4298)
+        assert!(symbol.value() == 0x4298);
     }
 
     #[test]
@@ -179,8 +192,8 @@ mod tests {
         let symbol = result.unwrap();
         
         let info = symbol.info();
-        assert_eq!(info.typing(),STType::STT_SECTION);
-        assert_eq!(info.binding(),STBind::STB_LOCAL);
+        assert_eq!(info.kind(),STType::STT_SECTION);
+        assert_eq!(info.bind(),STBind::STB_LOCAL);
     }
 
     #[test]
@@ -196,8 +209,8 @@ mod tests {
         
         let info = symbol.info();
 
-        assert_eq!(info.typing(),STType::STT_FUNC);
-        assert_eq!(info.binding(),STBind::STB_GLOBAL);
+        assert_eq!(info.kind(),STType::STT_FUNC);
+        assert_eq!(info.bind(),STBind::STB_GLOBAL);
     }
 
     #[test]

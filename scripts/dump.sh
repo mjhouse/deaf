@@ -6,6 +6,9 @@
 #       ./scripts/dump.sh "assets/libvpf.so.4.1" "000461c4" "107" 24 > assets/bytes/libvpf_strtab.in
 #       ./scripts/dump.sh "assets/libvpf.so.4.1" "ab8" "1b90" 24 > assets/bytes/libvpf_symtab.in
 
+#       ./scripts/dump.sh "assets/libvpf.so.4.1" "3940" "4c8" 24 > assets/bytes/libvpf_rela.dyn.in
+#       ./scripts/dump.sh "assets/libvpf.so.4.1" "3e08" "540" 24 > assets/bytes/libvpf_rela.plt.in
+
 FILE=$1;
 OFFSET=$(echo "ibase=16; ${2^^}" | bc);
 LENGTH=$(echo "ibase=16; ${3^^}" | bc);

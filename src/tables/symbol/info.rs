@@ -2,39 +2,39 @@ use crate::errors::{Error, Result};
 use crate::headers::common::bytes::Transmute;
 use crate::headers::common::constants::{STBind,STType};
 
-#[derive(Debug,Clone,Copy)]
+#[derive(Clone,Copy)]
 pub struct SymbolInfo {
-    binding: STBind,
-    typing: STType,
+    bind: STBind,
+    kind: STType,
 }
 
 impl SymbolInfo {
 
     pub fn empty() -> Self {
         Self { 
-            binding: STBind::STB_LOCAL,
-            typing: STType::STT_NOTYPE
+            bind: STBind::STB_LOCAL,
+            kind: STType::STT_NOTYPE
         }
     }
 
     pub fn new(v: u8) -> Result<Self> {
-        let binding = STBind::try_from(v >> 4)?;
-        let typing = STType::try_from(v & 0xf)?;
-        Ok(Self { binding, typing })
+        let bind = STBind::try_from(v >> 4)?;
+        let kind = STType::try_from(v & 0xf)?;
+        Ok(Self { bind, kind })
     }
 
     pub fn value(&self) -> u8 {
-        let b: u8 = self.binding.into();
-        let t: u8 = self.typing.into();
+        let b: u8 = self.bind.into();
+        let t: u8 = self.kind.into();
         (b << 4) | t
     }
 
-    pub fn typing(&self) -> STType {
-        self.typing.clone()
+    pub fn kind(&self) -> STType {
+        self.kind.clone()
     }
 
-    pub fn binding(&self) -> STBind {
-        self.binding.clone()
+    pub fn bind(&self) -> STBind {
+        self.bind.clone()
     }
 
 }
@@ -45,6 +45,15 @@ impl Transmute<u8> for SymbolInfo {
 
 impl Transmute<SymbolInfo> for u8 {
     fn transmute(self) -> Result<SymbolInfo> { SymbolInfo::new(self) }
+}
+
+impl std::fmt::Debug for SymbolInfo {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SymbolInfo")
+         .field("kind", &self.kind())
+         .field("bind", &self.bind())
+         .finish()
+    }
 }
 
 #[cfg(test)]
@@ -59,8 +68,8 @@ mod tests {
         assert!(result.is_ok());
         let info = result.unwrap();
 
-        assert_eq!(info.binding,STBind::STB_WEAK);
-        assert_eq!(info.typing,STType::STT_OBJECT);
+        assert_eq!(info.bind,STBind::STB_WEAK);
+        assert_eq!(info.kind,STType::STT_OBJECT);
     }
 
     #[test]
@@ -71,8 +80,8 @@ mod tests {
         assert!(result.is_ok());
         let info = result.unwrap();
 
-        assert_eq!(info.binding,STBind::STB_LOCAL);
-        assert_eq!(info.typing,STType::STT_NOTYPE);
+        assert_eq!(info.bind,STBind::STB_LOCAL);
+        assert_eq!(info.kind,STType::STT_NOTYPE);
     }
 
     #[test]

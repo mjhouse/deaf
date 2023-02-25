@@ -12,7 +12,7 @@ pub struct RelocationValues {
 }
 
 // https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter6-54839.html
-#[derive(Debug,Clone)]
+#[derive(Clone)]
 pub struct Relocation {
     layout: Layout,
     width: Width,
@@ -94,21 +94,45 @@ impl Relocation {
 
 }
 
+impl std::fmt::Debug for Relocation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Relocation")
+         .field("offset", &self.values.r_offset)
+         .field("info", &self.values.r_info)
+         .field("addend", &self.values.r_addend)
+         .finish()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    const TEST_TABLE: &[u8] = include!("../../../assets/bytes/libvpf_rela.dyn.in");
+
+    // the starting byte of the test table
+    const TEST_TABLE_OFFSET: usize = 0;
+
+    // the length in bytes of the test table
+    const TEST_TABLE_LENGTH: usize = 1200;
+
+    // the number of elements in the test table
+    const TEST_TABLE_COUNT: usize = 50;
+
+    // the size of an element in the test table
+    const TEST_TABLE_ENTITY: usize = 24;
+
     #[test]
     fn test_relocation_parse_value() {
-        // let start = ST_SIZE_64 * 1;
-        // let end = start + ST_SIZE_64;
+        let start = TEST_TABLE_ENTITY * 1;
+        let end = start + TEST_TABLE_ENTITY;
 
-        // let bytes = &TEST_BYTES1[start..end];
-        // let result = Symbol::parse(bytes,Layout::Little,Width::X64);
+        let bytes = &TEST_TABLE[start..end];
+        let result = Relocation::parse(bytes,Layout::Little,Width::X64);
 
-        // assert!(result.is_ok());
+        assert!(result.is_ok());
 
-        // let symbol = result.unwrap();
-        // assert!(symbol.value() == 0x4298)
+        let relocation = result.unwrap();
+        assert!(relocation.offset() == 0x46b38);
     }
 }
