@@ -126,32 +126,40 @@ mod tests {
 
     #[test]
     fn test_relocation_parse_offset() {
+        // calculate table offset
         let start = TEST_TABLE_ENTITY * 1;
         let end = start + TEST_TABLE_ENTITY;
 
+        // get a constrained slice and parse
         let bytes = &TEST_TABLE[start..end];
         let result = Relocation::parse(bytes,Layout::Little,Width::X64);
 
+        // unwrap the resulting relocation
         assert!(result.is_ok());
-
         let relocation = result.unwrap();
+
+        // verify that symbol and kind have expected values
         assert!(relocation.offset() == 0x46b38);
     }
 
     #[test]
     fn test_relocation_parse_info() {
+        // calculate table offset
         let start = TEST_TABLE_ENTITY * 38;
         let end = start + TEST_TABLE_ENTITY;
 
+        // get a constrained slice and parse
         let bytes = &TEST_TABLE[start..end];
         let result = Relocation::parse(bytes,Layout::Little,Width::X64);
 
+        // unwrap the resulting relocation
         assert!(result.is_ok());
         let relocation = result.unwrap();
 
         let info = relocation.info();
 
-        // readelf -r assets/libvpf.so.4.1 ('fieldcol' in .rela.dyn)
+        // verify that symbol and kind have expected values
+        //      manually check: readelf -r assets/libvpf.so.4.1 ('fieldcol' in .rela.dyn)
         assert!(info.symbol() == 0xfe000000);
         assert!(info.kind() == 0x06); // R_X86_64_GLOB_DAT
     }
