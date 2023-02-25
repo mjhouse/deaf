@@ -105,8 +105,6 @@ macro_rules! into {
     };
 }
 
-// =============================================================
-// FromBytes / IntoBytes
 impl FromBytes for u8 {
     fn from_bytes(b: &[u8], l: Layout) -> Result<Self> {
         Ok(from!(Self, l, b))

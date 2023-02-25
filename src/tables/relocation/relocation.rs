@@ -2,12 +2,13 @@ use crate::errors::{Error, Result};
 use crate::headers::common::constants::{Width,Layout};
 use crate::headers::common::field::Field;
 use crate::headers::common::ranges::*;
+use crate::tables::relocation::RelocationInfo;
 use crate::impl_property;
 
 #[derive(Debug,Clone)]
 pub struct RelocationValues {
     r_offset: u64, 
-    r_info: u64,
+    r_info: RelocationInfo,
     r_addend: Option<i64>,
 }
 
@@ -17,7 +18,7 @@ pub struct Relocation {
     layout: Layout,
     width: Width,
     r_offset: Field<u32,u64>, 
-    r_info: Field<u32,u64>,
+    r_info: Field<u32,u64,RelocationInfo>,
     r_addend: Field<i32,i64>,
     values: RelocationValues,
 }
@@ -27,7 +28,7 @@ impl RelocationValues {
     pub fn new() -> Self {
         Self {
             r_offset: 0, 
-            r_info: 0,
+            r_info: RelocationInfo::empty(),
             r_addend: None,
         }
     }
@@ -89,7 +90,7 @@ impl Relocation {
     }
 
     impl_property!(offset,r_offset,u64);
-    impl_property!(info,r_info,u64);
+    impl_property!(info,r_info,RelocationInfo);
     impl_property!(addend,r_addend,Option<i64>);
 
 }
@@ -107,6 +108,7 @@ impl std::fmt::Debug for Relocation {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::headers::common::constants::{RT_SIZE_64};
 
     const TEST_TABLE: &[u8] = include!("../../../assets/bytes/libvpf_rela.dyn.in");
 
@@ -123,7 +125,7 @@ mod tests {
     const TEST_TABLE_ENTITY: usize = 24;
 
     #[test]
-    fn test_relocation_parse_value() {
+    fn test_relocation_parse_offset() {
         let start = TEST_TABLE_ENTITY * 1;
         let end = start + TEST_TABLE_ENTITY;
 
@@ -134,5 +136,105 @@ mod tests {
 
         let relocation = result.unwrap();
         assert!(relocation.offset() == 0x46b38);
+    }
+
+    #[test]
+    fn test_relocation_parse_info() {
+        let start = TEST_TABLE_ENTITY * 38;
+        let end = start + TEST_TABLE_ENTITY;
+
+        let bytes = &TEST_TABLE[start..end];
+        let result = Relocation::parse(bytes,Layout::Little,Width::X64);
+
+        assert!(result.is_ok());
+        let relocation = result.unwrap();
+
+        let info = relocation.info();
+
+        // readelf -r assets/libvpf.so.4.1 ('fieldcol' in .rela.dyn)
+        assert!(info.symbol() == 0xfe000000);
+        assert!(info.kind() == 0x06); // R_X86_64_GLOB_DAT
+    }
+
+    #[test]
+    fn test_relocation_parse_addend_rela() {
+        // calculate table offset
+        let start = TEST_TABLE_ENTITY * 1;
+        let end = start + TEST_TABLE_ENTITY;
+
+        // get a constrained slice and parse
+        let bytes = &TEST_TABLE[start..end];
+        let result = Relocation::parse(bytes,Layout::Little,Width::X64);
+
+        // unwrap the resulting relocation
+        assert!(result.is_ok());
+        let relocation = result.unwrap();
+
+        // verify that addend is expected value
+        assert!(relocation.addend() == Some(0x57b0));
+    }
+
+    #[test]
+    fn test_relocation_parse_addend_rel() {
+        // the length of a 64-bit relocation with no addend
+        let length = 16;
+
+        // calculate table offset (using addend lengths)
+        let start = TEST_TABLE_ENTITY * 1;
+        let end = start + length; // leave off the addend
+
+        // get a constrained slice and parse
+        let bytes = &TEST_TABLE[start..end];
+        let result = Relocation::parse(bytes,Layout::Little,Width::X64);
+
+        // unwrap the resulting relocation
+        assert!(result.is_ok());
+        let relocation = result.unwrap();
+
+        // verify that addend is none
+        assert!(relocation.addend().is_none());
+    }
+
+    #[test]
+    fn test_relocation_write_no_change() {
+        // calculate table offset
+        let mut result = [0;RT_SIZE_64];
+        let bytes = &TEST_TABLE[..RT_SIZE_64];
+        
+        // parse the relocation from the buffer
+        let parsed = Relocation::parse(bytes,Layout::Little,Width::X64);
+        assert!(parsed.is_ok());
+
+        let relocation = parsed.unwrap();
+        
+        // write the relocation back to the buffer
+        relocation.write(&mut result);
+        assert_eq!(&result,bytes);
+    }
+
+    #[test]
+    fn test_relocation_write_change() {
+        let mut result = [0;RT_SIZE_64];
+        let bytes = &TEST_TABLE[..RT_SIZE_64];
+        
+        // parse a relocation record from the relocation table
+        let parsed = Relocation::parse(bytes,Layout::Little,Width::X64);
+        assert!(parsed.is_ok());
+
+        // change the addend of the relocation
+        let mut relocation = parsed.unwrap();
+        relocation.set_addend(Some(-20));
+        
+        // write the relocation to a buffer
+        relocation.write(&mut result);
+        assert_ne!(&result,bytes);
+
+        // re-parse the written data
+        let parsed = Relocation::parse(&result,Layout::Little,Width::X64);
+        assert!(parsed.is_ok());
+
+        // verify that the re-parsed relocation has correct addend
+        let relocation = parsed.unwrap();
+        assert_eq!(relocation.addend(),Some(-20));
     }
 }

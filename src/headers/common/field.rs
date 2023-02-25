@@ -36,28 +36,48 @@ where
         }
     }
 
+    /// Get a constrained slice of bytes using the appropriate range
+    pub fn slice<'a>(&self, b: &'a [u8]) -> Result<&'a [u8]> {
+        let range = self.ranges.get();
+        if range.end > b.len() {
+            Err(Error::OutOfBoundsError)
+        } else {
+            Ok(&b[range])
+        }
+    }
+
+    /// Get a constrained slice of mutable bytes using the appropriate range
+    pub fn slice_mut<'a>(&self, b: &'a mut [u8]) -> Result<&'a mut [u8]> {
+        let range = self.ranges.get();
+        if range.end > b.len() {
+            Err(Error::OutOfBoundsError)
+        } else {
+            Ok(&mut b[range])
+        }
+    }
+
     pub fn get_x32(&self, b: &[u8]) -> Result<Out> {
-        let bytes = &b[self.ranges.get()];
+        let bytes = self.slice(b)?;
         let layout = self.layout.clone();
         T32::from_bytes(bytes, layout)
             .and_then(|v| v.convert())
     }
 
     pub fn get_x64(&self, b: &[u8]) -> Result<Out> {
-        let bytes = &b[self.ranges.get()];
+        let bytes = self.slice(b)?;
         let layout = self.layout.clone();
         T64::from_bytes(bytes, layout)
             .and_then(|v| v.convert())
     }
 
     pub fn set_x32(&self, b: &mut [u8], v: Out) -> Result<()> {
-        let bytes = &mut b[self.ranges.get()];
+        let bytes = self.slice_mut(b)?;
         let layout = self.layout.clone();
         <Out as Convert<T32>>::convert(v)?.to_bytes(bytes,layout)
     }
 
     pub fn set_x64(&self, b: &mut [u8], v: Out) -> Result<()> {
-        let bytes = &mut b[self.ranges.get()];
+        let bytes = self.slice_mut(b)?;
         let layout = self.layout.clone();
         <Out as Convert<T64>>::convert(v)?.to_bytes(bytes,layout)
     }

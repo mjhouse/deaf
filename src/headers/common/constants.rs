@@ -15,6 +15,9 @@ pub const SH_SIZE_64: usize = 64;
 pub const ST_SIZE_32: usize = 16;
 pub const ST_SIZE_64: usize = 24;
 
+pub const RT_SIZE_32: usize = 16;
+pub const RT_SIZE_64: usize = 24;
+
 pub mod sizes {
     use super::*;
 

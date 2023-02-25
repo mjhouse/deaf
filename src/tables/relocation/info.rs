@@ -2,6 +2,7 @@ use crate::errors::{Error, Result};
 use crate::headers::common::bytes::Convert;
 // use crate::headers::common::constants::{STBind,STType};
 
+#[derive(Clone,Copy)]
 pub struct RelocationInfo {
     symbol: u64,
     kind: u8,
