@@ -1,12 +1,11 @@
 # DEAF: the **D**efinitive **E**lf **A**nalysis **F**ramework
 
 This is a library for parsing *and modifying* ELF-format applications and libraries. There are many other 
-libraries out there for parsing the ELF-format, like the appropriately-named [elf](https://crates.io/crates/elf)
-crate, [elfy](https://crates.io/crates/elfy), and [elfkit](https://crates.io/crates/elfkit), but they are either 
-not designed with modification in mind (elf/elfy) or are limited and unsupported (elfkit). To fix this situation, 
-I'm writing DEAF with the explicit and primary goal of making it possible to *change anything you can see*. This 
-means that if you load an ELF-format shared library and iterate through the functions defined in the dynamic symbol 
-table, you should be able to- 
+libraries out there for parsing the ELF format, like the appropriately-named [elf](https://crates.io/crates/elf), 
+[elfy](https://crates.io/crates/elfy), and [elfkit](https://crates.io/crates/elfkit) crates, but they are either 
+not designed with modification in mind (elf/elfy) or are very limited (and now unmaintained) (elfkit). To fix this 
+situation, I'm writing DEAF with the explicit and primary goal of making it possible to *change anything you can 
+see*. This means that if you load a shared library and parse the dynamic symbol table, you should be able to- 
 
 * Reorder
 * Remove
@@ -22,8 +21,11 @@ references, you just *can't*. DEAF exists specifically to make things like this 
 
 # Notes
 
+* The name "DEAF" is a back-ronym- it doesn't mean anything. It's just a short word that reminded me of 
+  the DEADBEEF test value used in a lot of hex examples. A friend suggested "Definitive Elf Analysis Framework"
+  as the meaning after I already had the name, and I couldn't think of anything better.
 * Any time you see an attribute/method named `kind`, it's a synonym for `type` (e.g. Relocation::kind)
-  which is a reserved keyword in the rust language.
+  which is a reserved keyword in the rust language, but is used for a lot of fields in the ELF format.
 
 # References
 

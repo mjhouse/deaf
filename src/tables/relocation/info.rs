@@ -1,5 +1,5 @@
 use crate::errors::{Error, Result};
-use crate::headers::common::bytes::Transmute;
+use crate::headers::common::bytes::Convert;
 // use crate::headers::common::constants::{STBind,STType};
 
 pub struct RelocationInfo {
@@ -37,20 +37,20 @@ impl RelocationInfo {
 
 }
 
-impl Transmute<u64> for RelocationInfo {
-    fn transmute(self) -> Result<u64> { Ok(self.value()) }
+impl Convert<u64> for RelocationInfo {
+    fn convert(self) -> Result<u64> { Ok(self.value()) }
 }
 
-impl Transmute<u32> for RelocationInfo {
-    fn transmute(self) -> Result<u32> { Ok(self.value().try_into()?) }
+impl Convert<u32> for RelocationInfo {
+    fn convert(self) -> Result<u32> { Ok(self.value().try_into()?) }
 }
 
-impl Transmute<RelocationInfo> for u64 {
-    fn transmute(self) -> Result<RelocationInfo> { RelocationInfo::new(self) }
+impl Convert<RelocationInfo> for u64 {
+    fn convert(self) -> Result<RelocationInfo> { RelocationInfo::new(self) }
 }
 
-impl Transmute<RelocationInfo> for u32 {
-    fn transmute(self) -> Result<RelocationInfo> { RelocationInfo::new(self.into()) }
+impl Convert<RelocationInfo> for u32 {
+    fn convert(self) -> Result<RelocationInfo> { RelocationInfo::new(self.into()) }
 }
 
 impl std::fmt::Debug for RelocationInfo {

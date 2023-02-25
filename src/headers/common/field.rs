@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 
-use crate::headers::common::bytes::{FromBytes, IntoBytes, Transmute};
+use crate::headers::common::bytes::{FromBytes, IntoBytes, Convert};
 use crate::headers::common::constants::{Layout, Width};
 use crate::errors::{Error, Result};
 use crate::headers::common::ranges::Ranges;
@@ -9,9 +9,9 @@ use crate::headers::common::ranges::Ranges;
 #[derive(Debug,Clone)]
 pub struct Field<T32 = u8, T64 = T32, Out = T64>
 where
-    T32: FromBytes + IntoBytes + Transmute<Out>,
-    T64: FromBytes + IntoBytes + Transmute<Out>,
-    Out: Transmute<T32> + Transmute<T64> + std::fmt::Debug,
+    T32: FromBytes + IntoBytes + Convert<Out>,
+    T64: FromBytes + IntoBytes + Convert<Out>,
+    Out: Convert<T32> + Convert<T64> + std::fmt::Debug,
 {
     a: PhantomData<T32>,
     b: PhantomData<T64>,
@@ -22,9 +22,9 @@ where
 
 impl<T32, T64, Out> Field<T32, T64, Out>
 where
-    T32: FromBytes + IntoBytes + Transmute<Out>,
-    T64: FromBytes + IntoBytes + Transmute<Out>,
-    Out: Transmute<T32> + Transmute<T64> + std::fmt::Debug,
+    T32: FromBytes + IntoBytes + Convert<Out>,
+    T64: FromBytes + IntoBytes + Convert<Out>,
+    Out: Convert<T32> + Convert<T64> + std::fmt::Debug,
 {
     pub const fn new(ranges: Ranges) -> Self {
         Self {
@@ -40,26 +40,26 @@ where
         let bytes = &b[self.ranges.get()];
         let layout = self.layout.clone();
         T32::from_bytes(bytes, layout)
-            .and_then(|v| v.transmute())
+            .and_then(|v| v.convert())
     }
 
     pub fn get_x64(&self, b: &[u8]) -> Result<Out> {
         let bytes = &b[self.ranges.get()];
         let layout = self.layout.clone();
         T64::from_bytes(bytes, layout)
-            .and_then(|v| v.transmute())
+            .and_then(|v| v.convert())
     }
 
     pub fn set_x32(&self, b: &mut [u8], v: Out) -> Result<()> {
         let bytes = &mut b[self.ranges.get()];
         let layout = self.layout.clone();
-        <Out as Transmute<T32>>::transmute(v)?.to_bytes(bytes,layout)
+        <Out as Convert<T32>>::convert(v)?.to_bytes(bytes,layout)
     }
 
     pub fn set_x64(&self, b: &mut [u8], v: Out) -> Result<()> {
         let bytes = &mut b[self.ranges.get()];
         let layout = self.layout.clone();
-        <Out as Transmute<T64>>::transmute(v)?.to_bytes(bytes,layout)
+        <Out as Convert<T64>>::convert(v)?.to_bytes(bytes,layout)
     }
 
     pub fn get(&self, b: &[u8]) -> Result<Out> {

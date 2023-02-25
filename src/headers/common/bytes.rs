@@ -69,22 +69,22 @@ pub trait IntoBytes {
 /// # Examples
 ///
 /// ```
-/// # use deaf::headers::common::bytes::Transmute;
+/// # use deaf::headers::common::bytes::Convert;
 /// # use deaf::headers::common::constants::*;
 /// # use deaf::errors::Result;
 ///
 /// let expected = Width::X64;
-/// let found: Result<Width> = 2_u8.transmute();
+/// let found: Result<Width> = 2_u8.convert();
 ///
 /// assert_eq!(found.unwrap(),expected);
 /// ```
-pub trait Transmute<A> {
-    fn transmute(self) -> Result<A> where A: Sized;
+pub trait Convert<A> {
+    fn convert(self) -> Result<A> where A: Sized;
 }
 
 /// Blanket implementation for NOP conversions to self
-impl<A> Transmute<A> for A {
-    fn transmute(self) -> Result<Self> { Ok(self) }
+impl<A> Convert<A> for A {
+    fn convert(self) -> Result<Self> { Ok(self) }
 }
 
 macro_rules! from {
@@ -191,110 +191,110 @@ impl IntoBytes for String {
     }
 }
 
-impl Transmute<u8> for u16 {
-    fn transmute(self) -> Result<u8> { Ok(self.try_into()?) }
+impl Convert<u8> for u16 {
+    fn convert(self) -> Result<u8> { Ok(self.try_into()?) }
 }
 
-impl Transmute<u32> for u64 {
-    fn transmute(self) -> Result<u32> { Ok(self.try_into()?) }
+impl Convert<u32> for u64 {
+    fn convert(self) -> Result<u32> { Ok(self.try_into()?) }
 }
 
-impl Transmute<u16> for usize {
-    fn transmute(self) -> Result<u16> { Ok(self.try_into()?) }
+impl Convert<u16> for usize {
+    fn convert(self) -> Result<u16> { Ok(self.try_into()?) }
 }
 
-impl Transmute<u32> for usize {
-    fn transmute(self) -> Result<u32> { Ok(self.try_into()?) }
+impl Convert<u32> for usize {
+    fn convert(self) -> Result<u32> { Ok(self.try_into()?) }
 }
 
-impl Transmute<u64> for usize {
-    fn transmute(self) -> Result<u64> { Ok(self.try_into()?) }
+impl Convert<u64> for usize {
+    fn convert(self) -> Result<u64> { Ok(self.try_into()?) }
 }
 
-impl Transmute<u8> for Width {
-    fn transmute(self) -> Result<u8> { Ok(self.try_into()?) }
+impl Convert<u8> for Width {
+    fn convert(self) -> Result<u8> { Ok(self.try_into()?) }
 }
 
-impl Transmute<u8> for Layout {
-    fn transmute(self) -> Result<u8> { Ok(self.try_into()?) }
+impl Convert<u8> for Layout {
+    fn convert(self) -> Result<u8> { Ok(self.try_into()?) }
 }
 
-impl Transmute<u32> for PHType {
-    fn transmute(self) -> Result<u32> { Ok(self.try_into()?) }
+impl Convert<u32> for PHType {
+    fn convert(self) -> Result<u32> { Ok(self.try_into()?) }
 }
 
-impl Transmute<u32> for SHType {
-    fn transmute(self) -> Result<u32> { Ok(self.try_into()?) }
+impl Convert<u32> for SHType {
+    fn convert(self) -> Result<u32> { Ok(self.try_into()?) }
 }
 
-impl Transmute<u32> for BitFlags<SHFlags> {
-    fn transmute(self) -> Result<u32> { Ok(self.bits().try_into()?) }
+impl Convert<u32> for BitFlags<SHFlags> {
+    fn convert(self) -> Result<u32> { Ok(self.bits().try_into()?) }
 }
 
-impl Transmute<u64> for BitFlags<SHFlags> {
-    fn transmute(self) -> Result<u64> { Ok(self.bits().try_into()?) }
+impl Convert<u64> for BitFlags<SHFlags> {
+    fn convert(self) -> Result<u64> { Ok(self.bits().try_into()?) }
 }
 
-impl Transmute<u16> for u8 {
-    fn transmute(self) -> Result<u16> { Ok(self.try_into()?) }
+impl Convert<u16> for u8 {
+    fn convert(self) -> Result<u16> { Ok(self.try_into()?) }
 }
 
-impl Transmute<u64> for u32 {
-    fn transmute(self) -> Result<u64> { Ok(self.try_into()?) }
+impl Convert<u64> for u32 {
+    fn convert(self) -> Result<u64> { Ok(self.try_into()?) }
 }
 
-impl Transmute<usize> for u16 {
-    fn transmute(self) -> Result<usize> { Ok(self.try_into()?) }
+impl Convert<usize> for u16 {
+    fn convert(self) -> Result<usize> { Ok(self.try_into()?) }
 }
 
-impl Transmute<usize> for u32 {
-    fn transmute(self) -> Result<usize> { Ok(self.try_into()?) }
+impl Convert<usize> for u32 {
+    fn convert(self) -> Result<usize> { Ok(self.try_into()?) }
 }
 
-impl Transmute<usize> for u64 {
-    fn transmute(self) -> Result<usize> { Ok(self.try_into()?) }
+impl Convert<usize> for u64 {
+    fn convert(self) -> Result<usize> { Ok(self.try_into()?) }
 }
 
-impl Transmute<i64> for i32 {
-    fn transmute(self) -> Result<i64> { Ok(self.try_into()?) }
+impl Convert<i64> for i32 {
+    fn convert(self) -> Result<i64> { Ok(self.try_into()?) }
 }
 
-impl Transmute<i32> for i64 {
-    fn transmute(self) -> Result<i32> { Ok(self.try_into()?) }
+impl Convert<i32> for i64 {
+    fn convert(self) -> Result<i32> { Ok(self.try_into()?) }
 }
 
-impl Transmute<Width> for u8 {
-    fn transmute(self) -> Result<Width> { 
+impl Convert<Width> for u8 {
+    fn convert(self) -> Result<Width> { 
         Ok(Width::try_from_primitive(self)?)
     }
 }
 
-impl Transmute<Layout> for u8 {
-    fn transmute(self) -> Result<Layout> { 
+impl Convert<Layout> for u8 {
+    fn convert(self) -> Result<Layout> { 
         Ok(Layout::try_from_primitive(self)?)
     }
 }
 
-impl Transmute<PHType> for u32 {
-    fn transmute(self) -> Result<PHType> { 
+impl Convert<PHType> for u32 {
+    fn convert(self) -> Result<PHType> { 
         Ok(PHType::try_from_primitive(self)?)
     }
 }
 
-impl Transmute<SHType> for u32 {
-    fn transmute(self) -> Result<SHType> { 
+impl Convert<SHType> for u32 {
+    fn convert(self) -> Result<SHType> { 
         Ok(SHType::try_from_primitive(self)?)
     }
 }
 
-impl Transmute<BitFlags<SHFlags>> for u64 {
-    fn transmute(self) -> Result<BitFlags<SHFlags>> { 
+impl Convert<BitFlags<SHFlags>> for u64 {
+    fn convert(self) -> Result<BitFlags<SHFlags>> { 
         Ok(BitFlags::from_bits(self)?)
     }
 }
 
-impl Transmute<BitFlags<SHFlags>> for u32 {
-    fn transmute(self) -> Result<BitFlags<SHFlags>> { 
+impl Convert<BitFlags<SHFlags>> for u32 {
+    fn convert(self) -> Result<BitFlags<SHFlags>> { 
         Ok(BitFlags::from_bits(self.try_into()?)?)
     }
 }

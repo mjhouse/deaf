@@ -1,5 +1,5 @@
 use crate::errors::{Error, Result};
-use crate::headers::common::bytes::Transmute;
+use crate::headers::common::bytes::Convert;
 use crate::headers::common::constants::{STBind,STType};
 
 #[derive(Clone,Copy)]
@@ -39,12 +39,12 @@ impl SymbolInfo {
 
 }
 
-impl Transmute<u8> for SymbolInfo {
-    fn transmute(self) -> Result<u8> { Ok(self.value()) }
+impl Convert<u8> for SymbolInfo {
+    fn convert(self) -> Result<u8> { Ok(self.value()) }
 }
 
-impl Transmute<SymbolInfo> for u8 {
-    fn transmute(self) -> Result<SymbolInfo> { SymbolInfo::new(self) }
+impl Convert<SymbolInfo> for u8 {
+    fn convert(self) -> Result<SymbolInfo> { SymbolInfo::new(self) }
 }
 
 impl std::fmt::Debug for SymbolInfo {
@@ -88,7 +88,7 @@ mod tests {
     fn test_symbol_info_back_to_zeroes() {
         let value = 0x00; // STB_LOCAL + STT_NOTYPE
         let info = SymbolInfo::new(value).unwrap();
-        let result: Result<u8> = info.transmute();
+        let result: Result<u8> = info.convert();
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(),value);
@@ -98,7 +98,7 @@ mod tests {
     fn test_symbol_info_back_to_value() {
         let value = 0x21; // STB_WEAK + STT_OBJECT
         let info = SymbolInfo::new(value).unwrap();
-        let result: Result<u8> = info.transmute();
+        let result: Result<u8> = info.convert();
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(),value);
