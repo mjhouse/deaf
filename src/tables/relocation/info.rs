@@ -62,3 +62,71 @@ impl std::fmt::Debug for RelocationInfo {
          .finish()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_relocation_info_parse_pair() {
+        // original value (0xfe000000 + 0x06)
+        let value = 0xfe00000006;
+
+        // parse the relocation info from value
+        let result = RelocationInfo::new(value);
+
+        // unwrap the relocation result
+        assert!(result.is_ok());
+        let info = result.unwrap();
+
+        // verify that fields have expected value
+        assert_eq!(info.symbol,0xfe000000);
+        assert_eq!(info.kind,0x06);
+    }
+
+    #[test]
+    fn test_relocation_info_parse_zeroes() {
+        // original value
+        let value = 0x0000000000;
+
+        // parse the relocation info from value
+        let result = RelocationInfo::new(value);
+
+        // unwrap the relocation result
+        assert!(result.is_ok());
+        let info = result.unwrap();
+
+        // verify that both fields are zero
+        assert_eq!(info.symbol,0x00);
+        assert_eq!(info.kind,0x00);
+    }
+
+    #[test]
+    fn test_relocation_info_back_to_zeroes() {
+        // original value
+        let value = 0x0000000000;
+
+        // parse the relocation info and then convert back
+        let info = RelocationInfo::new(value).unwrap();
+        let result: Result<u64> = info.convert();
+
+        // verify that the result matches the original
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(),value);
+    }
+
+    #[test]
+    fn test_relocation_info_back_to_value() {
+        // original value
+        let value = 0xfe00000006;
+
+        // parse the relocation info and then convert back
+        let info = RelocationInfo::new(value).unwrap();
+        let result: Result<u64> = info.convert();
+
+        // verify that the result matches the original
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(),value);
+    }
+
+}
