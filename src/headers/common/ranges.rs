@@ -52,6 +52,10 @@ pub const ST_INFO:        Ranges = Ranges::new(0x10..0x11,0x04..0x05); // u8  / 
 pub const ST_OTHER:       Ranges = Ranges::new(0x11..0x12,0x05..0x06); // u8  / u8
 pub const ST_SHNDX:       Ranges = Ranges::new(0x12..0x14,0x06..0x08); // u16 / u16
 
+pub const RT_OFFSET:      Ranges = Ranges::new(0x00..0x04,0x00..0x08); // u32 / u64
+pub const RT_INFO:        Ranges = Ranges::new(0x04..0x08,0x08..0x10); // u32 / u64
+pub const RT_ADDEND:      Ranges = Ranges::new(0x08..0x0C,0x10..0x18); // i32 / i64
+
 // This struct maintains several ranges and returns
 // them depending on the current width.
 #[derive(Debug,Clone)]
@@ -77,8 +81,7 @@ impl Ranges {
     }
 }
 
-// so that we can use &Ranges directly rather than
-// calling get()
+/// Implementation of Into<Range> for easy slicing 
 impl Into<Range<usize>> for &Ranges {
     fn into(self) -> Range<usize> {
         self.get()

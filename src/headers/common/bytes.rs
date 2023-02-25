@@ -143,6 +143,18 @@ impl IntoBytes for u32 {
     }
 }
 
+impl FromBytes for i32 {
+    fn from_bytes(b: &[u8], l: Layout) -> Result<Self> {
+        Ok(from!(Self, l, b))
+    }
+}
+
+impl IntoBytes for i32 {
+    fn to_bytes(&self, b: &mut [u8], l: Layout) -> Result<()> {
+        Ok(into!(self, l, b))
+    }
+}
+
 impl FromBytes for u64 {
     fn from_bytes(b: &[u8], l: Layout) -> Result<Self> {
         Ok(from!(Self, l, b))
@@ -150,6 +162,18 @@ impl FromBytes for u64 {
 }
 
 impl IntoBytes for u64 {
+    fn to_bytes(&self, b: &mut [u8], l: Layout) -> Result<()> {
+        Ok(into!(self, l, b))
+    }
+}
+
+impl FromBytes for i64 {
+    fn from_bytes(b: &[u8], l: Layout) -> Result<Self> {
+        Ok(from!(Self, l, b))
+    }
+}
+
+impl IntoBytes for i64 {
     fn to_bytes(&self, b: &mut [u8], l: Layout) -> Result<()> {
         Ok(into!(self, l, b))
     }
@@ -229,6 +253,14 @@ impl Transmute<usize> for u32 {
 
 impl Transmute<usize> for u64 {
     fn transmute(self) -> Result<usize> { Ok(self.try_into()?) }
+}
+
+impl Transmute<i64> for i32 {
+    fn transmute(self) -> Result<i64> { Ok(self.try_into()?) }
+}
+
+impl Transmute<i32> for i64 {
+    fn transmute(self) -> Result<i32> { Ok(self.try_into()?) }
 }
 
 impl Transmute<Width> for u8 {
