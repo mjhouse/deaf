@@ -116,10 +116,10 @@ mod tests {
     const TEST_TABLE_OFFSET: usize = 0;
 
     // the length in bytes of the test table
-    const TEST_TABLE_LENGTH: usize = 1200;
+    const TEST_TABLE_LENGTH: usize = 1224;
 
     // the number of elements in the test table
-    const TEST_TABLE_COUNT: usize = 50;
+    const TEST_TABLE_COUNT: usize = 51;
 
     // the size of an element in the test table
     const TEST_TABLE_ENTITY: usize = 24;
