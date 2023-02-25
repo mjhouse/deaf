@@ -17,7 +17,9 @@ see*. This means that if you load a shared library and parse the dynamic symbol 
 have this capability, or it's very limited and oriented toward cybersecurity tasks like injecting telemetry or 
 redirecting relocations. If you want remove the body, symbol and relocation records of a particular function from 
 a library, then shift all following functions forward, then update any relocation/init or preinit array
-references, you just *can't*. DEAF exists specifically to make things like this possible.
+references, you just *can't*.  
+
+DEAF exists specifically to make things like this possible.
 
 # Notes
 

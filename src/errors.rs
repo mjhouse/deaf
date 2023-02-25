@@ -13,6 +13,9 @@ pub enum Error {
     #[error("Binary is not an ELF file")]
     FileTypeError,
 
+    #[error("I can't let you do that, Dave")]
+    NotAllowedError,
+
     #[error("Slice or access is out of bounds")]
     OutOfBoundsError,
 

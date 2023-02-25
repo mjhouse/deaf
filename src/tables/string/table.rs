@@ -31,10 +31,13 @@ impl StringTable {
         let start = self.offset;
         let end = start + self.section_size;
 
+        // get a constrained slice of bytes to read
         let bytes = &b[start..end];
         let mut values = vec![];
 
-        for data in ByteIter::value(bytes,b'\0') {
+        // skip the first element because it's empty
+        for data in ByteIter::value(bytes,b'\0').skip(1) {
+
             // parse as c-style string from byte slice
             let cstr = CStr::from_bytes_with_nul(data)?;
 
@@ -52,18 +55,21 @@ impl StringTable {
     pub fn write(&self, bytes: &mut [u8]) -> Result<usize> {
 
         // check buffer is big enough
-        if bytes.len() > self.size() {
+        if bytes.len() != self.size() {
             return Err(Error::OutOfBoundsError);
         }
 
         let mut string_start = 0;
 
+        // initial empty string required by ELF format
+        let initial = CString::default();
+        let iter = std::iter::once(&initial);
+
         // iterate all contained strings
-        for string in self.values.iter() {
+        for string in iter.chain(self.values.iter()) {
             
             // convert to nul-terminated c-string representation
-            let cstring = CString::new(string.as_bytes())?;
-            let data = cstring.as_bytes_with_nul();
+            let data = string.as_bytes_with_nul();
 
             // calculate end position in the output buffer
             let string_end = string_start + data.len();
@@ -89,7 +95,8 @@ impl Table<String> for StringTable {
     }
 
     fn size(&self) -> usize {
-        self.values
+        // add one for the empty first string
+        1 + self.values
             .iter()
             .fold(0,|a,v| a + v.as_bytes_with_nul().len())
     }
@@ -154,7 +161,7 @@ mod tests {
     const TEST_TABLE_LENGTH: usize = 263;
 
     // the number of elements in the test table
-    const TEST_TABLE_COUNT: usize = 26;
+    const TEST_TABLE_COUNT: usize = 25;
 
     #[test]
     fn test_extract_real_shstrtab_section_as_table() {
@@ -246,7 +253,7 @@ mod tests {
         assert!(result.is_ok());
 
         // get a string from the table
-        let result = table.get(1);
+        let result = table.get(0);
         assert!(result.is_some());
 
         // append a test value to the string
@@ -255,7 +262,7 @@ mod tests {
         assert_eq!(string.as_str(),".shstrtab-test");
 
         // update the string table with the modified string
-        let result = table.set(1,string);
+        let result = table.set(0,string);
         assert!(result.is_ok());
 
         // initialize a buffer big enough for modified table data
