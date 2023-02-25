@@ -143,87 +143,140 @@ impl std::fmt::Debug for Symbol {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    use std::fs::File;
-    use std::io::Read;
-
     use crate::headers::common::constants::{ST_SIZE_32,ST_SIZE_64};
-    use crate::headers::file::header::FileHeader;
-    use crate::headers::section::header::SectionHeader;
     use crate::headers::common::constants::{STBind,STType};
 
-    const TEST_BYTES1: &[u8] = &[
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-        0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x0a, 0x00, 0x98, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-        0x6a, 0x0c, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    ];
+    const TEST_TABLE: &[u8] = include!("../../../assets/bytes/libvpf_symtab.in");
 
-    const TEST_BYTES2: &[u8] = &[
-        0xd4, 0x00, 0x00, 0x00, 0x12, 0x00, 0x0c, 0x00, 0x80, 0x4a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x6a, 0x08, 0x00, 0x00, 0x12, 0x00, 0x0c, 0x00, 0x40, 0x7f, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2f, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0xa7, 0x06, 0x00, 0x00, 0x12, 0x00, 0x0c, 0x00, 0x80, 0x14, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0xee, 0x08, 0x00, 0x00, 0x12, 0x00, 0x0c, 0x00, 0x80, 0xb5, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x78, 0x08, 0x00, 0x00, 0x12, 0x00, 0x0c, 0x00, 0x70, 0xc4, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc4, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    ];
+    // the starting byte of the test table
+    const TEST_TABLE_OFFSET: usize = 0;
+
+    // the length in bytes of the test table
+    const TEST_TABLE_LENGTH: usize = 7056;
+
+    // the number of elements in the test table
+    const TEST_TABLE_COUNT: usize = 294;
+
+    // the size of an element in the test table
+    const TEST_TABLE_ENTITY: usize = 24;
+
+    // dump symbols:
+    //      readelf --symbols assets/libvpf.so.4.1
 
     #[test]
     fn test_symbol_parse_value() {
-        let start = ST_SIZE_64 * 1;
+        // calculate the element size and position
+        let index = 150;
+        let start = ST_SIZE_64 * index;
         let end = start + ST_SIZE_64;
 
-        let bytes = &TEST_BYTES1[start..end];
+        // parse the Symbol from the byte buffer
+        let bytes = &TEST_TABLE[start..end];
         let result = Symbol::parse(bytes,Layout::Little,Width::X64);
 
+        // unwrap the resulting symbol
         assert!(result.is_ok());
-
         let symbol = result.unwrap();
-        assert!(symbol.value() == 0x4298);
+
+        // verify that the value is expected (line 152)
+        assert!(symbol.value() == 0x013530);
     }
 
     #[test]
-    fn test_symbol_parse_info_section() {
-        let start = ST_SIZE_64 * 1;
+    fn test_symbol_parse_info_object() {
+        // calculate the element size and position
+        let index = 99;
+        let start = ST_SIZE_64 * index;
         let end = start + ST_SIZE_64;
 
-        let bytes = &TEST_BYTES1[start..end];
+        // parse the Symbol from the byte buffer
+        let bytes = &TEST_TABLE[start..end];
         let result = Symbol::parse(bytes,Layout::Little,Width::X64);
 
+        // unwrap the resulting symbol
         assert!(result.is_ok());
         let symbol = result.unwrap();
         
+        // verify that the symbol info has expected values
         let info = symbol.info();
-        assert_eq!(info.kind(),STType::STT_SECTION);
-        assert_eq!(info.bind(),STBind::STB_LOCAL);
+        assert_eq!(info.kind(),STType::STT_OBJECT);
+        assert_eq!(info.bind(),STBind::STB_GLOBAL);
     }
 
     #[test]
     fn test_symbol_parse_info_symbol() {
-        let start = ST_SIZE_64 * 0;
+        // calculate the element size and position
+        let index = 150;
+        let start = ST_SIZE_64 * index;
         let end = start + ST_SIZE_64;
 
-        let bytes = &TEST_BYTES2[start..end];
+        // parse the Symbol from the byte buffer
+        let bytes = &TEST_TABLE[start..end];
         let result = Symbol::parse(bytes,Layout::Little,Width::X64);
 
+        // unwrap the resulting symbol
         assert!(result.is_ok());
         let symbol = result.unwrap();
         
+        // verify that the symbol info has expected values
         let info = symbol.info();
-
         assert_eq!(info.kind(),STType::STT_FUNC);
         assert_eq!(info.bind(),STBind::STB_GLOBAL);
     }
 
     #[test]
-    fn test_symbol_write() {
+    fn test_symbol_write_no_change() {
+        // calculate the element size and position
+        let index = 150;
+        let start = ST_SIZE_64 * index;
+        let end = start + ST_SIZE_64;
+
+        // parse the Symbol from the byte buffer
         let mut result = [0;ST_SIZE_64];
-        let bytes = &TEST_BYTES2[..ST_SIZE_64];
+        let bytes = &TEST_TABLE[start..end];
         let parsed = Symbol::parse(bytes,Layout::Little,Width::X64);
 
+        // unwrap the resulting symbol
         assert!(parsed.is_ok());
         let symbol = parsed.unwrap();
         
+        // write the symbol back to the buffer
         symbol.write(&mut result);
-        assert_eq!(result,bytes);
+        assert_eq!(&result,bytes);
+    }
+
+    #[test]
+    fn test_symbol_write_with_change() {
+        // calculate the element size and position
+        let index = 150;
+        let start = ST_SIZE_64 * index;
+        let end = start + ST_SIZE_64;
+
+        // parse the Symbol from the byte buffer
+        let mut result = [0;ST_SIZE_64];
+        let bytes = &TEST_TABLE[start..end];
+        let parsed = Symbol::parse(bytes,Layout::Little,Width::X64);
+
+        // unwrap the resulting symbol
+        assert!(parsed.is_ok());
+        let mut symbol = parsed.unwrap();
+
+        // change the value of the symbol
+        symbol.set_value(123);
+        
+        // write the symbol back to the buffer
+        symbol.write(&mut result);
+        assert_ne!(&result,bytes);
+
+        // re-parse the symbol from the result buffer
+        let parsed = Symbol::parse(&result,Layout::Little,Width::X64);
+
+        // unwrap the resulting symbol
+        assert!(parsed.is_ok());
+        let symbol = parsed.unwrap();
+
+        // verify that the re-parsed symbol has the set value
+        assert_eq!(symbol.value(),123);
     }
 
 }
