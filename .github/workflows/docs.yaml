@@ -2,7 +2,7 @@ name: Docs
 
 on:
   push:
-    branches: [ master ]
+    branches: [ documentation ]
 
 jobs:
   test:
@@ -13,21 +13,12 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: Merge
-        run: |
-          git checkout documentation
-          git merge master
-      - name: Push
-        uses: ad-m/github-push-action@master
+      - name: Build
+        uses: actions-rs/cargo@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: documentation
-      # - name: Build
-      #   uses: actions-rs/cargo@v1
-      #   with:
-      #     command: doc
-      #     args: --no-deps
-      # - name: Configure
-      #   run: |
-      #     echo "<meta http-equiv=\"refresh\" content=\"0; url=deaf/index.html\">" > target/doc/index.html
-      #     cp -r target/doc ./docs
+          command: doc
+          args: --no-deps
+      - name: Configure
+        run: |
+          echo "<meta http-equiv=\"refresh\" content=\"0; url=deaf/index.html\">" > target/doc/index.html
+          cp -r target/doc ./docs
