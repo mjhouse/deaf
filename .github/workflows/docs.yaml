@@ -2,23 +2,39 @@ name: Docs
 
 on:
   push:
-    branches: [ documentation ]
+    branches: [ master ]
 
 jobs:
-  test:
-    name: Generate
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - name: Build
+      - name: Build Documentation
         uses: actions-rs/cargo@v1
         with:
           command: doc
-          args: --no-deps
-      - name: Configure
-        run: |
-          echo "<meta http-equiv=\"refresh\" content=\"0; url=deaf/index.html\">" > target/doc/index.html
-          cp -r target/doc ./docs
+          args: --all --no-deps
+      - name: Deploy Documentation
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          personal_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: documentation
+          publish_dir: ./target/doc
+          keep_files: true
+
+
+
+      # - uses: actions/checkout@v2
+      # - uses: actions-rs/toolchain@v1
+      #   with:
+      #     toolchain: stable
+      # - name: Build
+      #   uses: actions-rs/cargo@v1
+      #   with:
+      #     command: doc
+      #     args: --no-deps
+      # - name: Configure
+      #   run: |
+      #     echo "<meta http-equiv=\"refresh\" content=\"0; url=deaf/index.html\">" > target/doc/index.html
+      #     cp -r target/doc ./docs
