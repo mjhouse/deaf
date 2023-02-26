@@ -1,5 +1,5 @@
 
-# Code of Conduct
+# Code of Conduct for DEAF
 
 ## Our Pledge
 
