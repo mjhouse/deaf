@@ -1,0 +1,43 @@
+name: Test
+
+on:
+  push:
+    branches: [ testing ]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+      - name: Test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+  # merge:
+  #   name: Merge
+  #   needs: [ test ]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
+  #       with:
+  #         persist-credentials: false
+  #         fetch-depth: '0'
+  #     - name: Merge
+  #       run: |
+  #         git config --local user.email "action@github.com"
+  #         git config --local user.name "GitHub Action"
+  #         git checkout master
+  #         git merge testing
+  #     - name: Push
+  #       uses: ad-m/github-push-action@master
+  #       with:
+  #         github_token: ${{ secrets.ScriptToken }}
