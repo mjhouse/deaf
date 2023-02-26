@@ -33,6 +33,6 @@ DEAF exists specifically to make things like this possible.
 
 | Topic       | Url                                                                    |
 |--           |--                                                                      |
-| ELF Format  | http://www.skyfree.org/linux/references/ELF_Format.pdf                 |
-| Symbols     | https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter6-79797.html |
-| Relocations | https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter6-79797.html |
+| ELF Format  | [ELF_Format.pdf](http://www.skyfree.org/linux/references/ELF_Format.pdf)                 |
+| Symbols     | [Oracle Docs: Symbols](https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter6-79797.html) |
+| Relocations | [Oracle Docs: Relocations](https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter6-54839.html) |

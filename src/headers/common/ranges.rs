@@ -81,7 +81,7 @@ impl Ranges {
     }
 }
 
-/// Implementation of Into<Range> for easy slicing 
+/// Implementation of Into so we can use Ranges to slice
 impl Into<Range<usize>> for &Ranges {
     fn into(self) -> Range<usize> {
         self.get()

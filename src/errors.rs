@@ -1,3 +1,6 @@
+//! A custom error type that aggregates internal errors
+//!
+
 use thiserror::Error as ThisError;
 
 use num_enum::{TryFromPrimitiveError,TryFromPrimitive};
