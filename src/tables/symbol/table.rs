@@ -170,8 +170,7 @@ mod tests {
     const TEST_TABLE_LENGTH: usize = 7056;
 
     // the number of elements in the test table
-    const TEST_TABLE_COUNT: usize = 100; //294;
-    // TEST: MAKING TESTS FAIL FOR CI/CD PIPELINE
+    const TEST_TABLE_COUNT: usize = 294;
 
     // the size of an element in the test table
     const TEST_TABLE_ENTITY: usize = 24;
