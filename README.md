@@ -1,5 +1,11 @@
 # DEAF: the **D**efinitive **E**lf **A**nalysis **F**ramework
 
+[![Test](https://github.com/mjhouse/deaf/actions/workflows/test.yaml/badge.svg?branch=testing)](https://github.com/mjhouse/deaf/actions/workflows/test.yaml)
+[![Docs](https://github.com/mjhouse/deaf/actions/workflows/docs.yaml/badge.svg?branch=documentation)](https://mjhouse.github.io/deaf/)
+[![GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
+[Documentation](https://mjhouse.github.io/deaf/)
+
 This is a library for parsing *and modifying* ELF-format applications and libraries. There are many other 
 libraries out there for parsing the ELF format, like the appropriately-named [elf](https://crates.io/crates/elf), 
 [elfy](https://crates.io/crates/elfy), and [elfkit](https://crates.io/crates/elfkit) crates, but they are either 
