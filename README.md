@@ -1,10 +1,8 @@
 # DEAF: the **D**efinitive **E**lf **A**nalysis **F**ramework
 
-[![Test](https://github.com/mjhouse/deaf/actions/workflows/test.yaml/badge.svg?branch=testing)](https://github.com/mjhouse/deaf/actions/workflows/test.yaml)
+[![Tests](https://github.com/mjhouse/deaf/actions/workflows/test.yaml/badge.svg?branch=testing)](https://github.com/mjhouse/deaf/actions/workflows/test.yaml)
 [![Docs](https://github.com/mjhouse/deaf/actions/workflows/docs.yaml/badge.svg?branch=documentation)](https://mjhouse.github.io/deaf/)
 [![GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-
-[Documentation](https://mjhouse.github.io/deaf/)
 
 This is a library for parsing *and modifying* ELF-format applications and libraries. There are many other 
 libraries out there for parsing the ELF format, like the appropriately-named [elf](https://crates.io/crates/elf), 
@@ -21,9 +19,9 @@ see*. This means that if you load a shared library and parse the dynamic symbol 
 
 -symbols and then write the resulting symbol table back into a file. Existing toolkits generally don't
 have this capability, or it's very limited and oriented toward cybersecurity tasks like injecting telemetry or 
-redirecting relocations. If you want remove the body, symbol and relocation records of a particular function from 
-a library, then shift all following functions forward, then update any relocation/init or preinit array
-references, you just *can't*.  
+inserting malicious relocation records. If you want remove the body, symbol and relocation records of a 
+particular function from a library, then shift all following functions forward, then update any relocation/init 
+or preinit array references, you just *can't*.  
 
 DEAF exists specifically to make things like this possible.
 
