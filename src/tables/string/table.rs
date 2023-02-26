@@ -221,7 +221,7 @@ mod tests {
 
         // verify that the table has the expected number of elements
         assert_eq!(table.len(),TEST_TABLE_COUNT);
-    }  
+    }
 
     #[test]
     fn test_write_string_table_with_no_changes() {
@@ -253,7 +253,7 @@ mod tests {
         assert!(result.is_ok());
 
         // get a string from the table
-        let result = table.get(0);
+        let result = table.get(0);  
         assert!(result.is_some());
 
         // append a test value to the string
