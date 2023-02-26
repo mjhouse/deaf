@@ -221,7 +221,7 @@ mod tests {
 
         // verify that the table has the expected number of elements
         assert_eq!(table.len(),TEST_TABLE_COUNT);
-    }
+    }  
 
     #[test]
     fn test_write_string_table_with_no_changes() {
