@@ -6,7 +6,6 @@ use crate::impl_property;
 
 #[derive(Debug,Clone)]
 pub struct FileHeaderValues {
-    ei_size: usize,
     ei_magic: String,
     ei_class: Width,
     ei_data: Layout,
@@ -30,7 +29,6 @@ pub struct FileHeaderValues {
 
 #[derive(Debug)]
 pub struct FileHeader {
-    ei_size: usize,
     ei_magic: Field<String>,
     ei_class: Field<u8,u8,Width>,
     ei_data: Field<u8,u8,Layout>,
@@ -57,7 +55,6 @@ impl FileHeaderValues {
 
     pub fn new() -> Self {
         Self {
-            ei_size: 0,
             ei_magic: "".into(),
             ei_class: Width::X32,
             ei_data: Layout::Little,
@@ -86,7 +83,6 @@ impl FileHeader {
 
     pub fn new() -> Self {
         Self {
-            ei_size: 0,
             ei_magic: Field::new(EI_MAGIC),
             ei_class: Field::new(EI_CLASS),
             ei_data: Field::new(EI_DATA),
@@ -116,7 +112,11 @@ impl FileHeader {
         Ok(h)
     }
 
-    fn set_layout(&mut self, layout: Layout) {
+    pub fn set_layout(&mut self, layout: Layout) {
+        // set internel layout value
+        self.values.ei_data = layout;
+
+        // set layout for all other fields
         self.e_type.layout = layout;
         self.e_machine.layout = layout;
         self.e_version.layout = layout;
@@ -132,7 +132,11 @@ impl FileHeader {
         self.e_shstrndx.layout = layout;
     }
 
-    fn set_width(&mut self, width: Width) {
+    pub fn set_width(&mut self, width: Width) {
+        // set internal width value
+        self.values.ei_class = width;
+
+        // set width for all other fields
         self.e_entry.ranges.width = width;
         self.e_phoff.ranges.width = width;
         self.e_shoff.ranges.width = width;
@@ -156,7 +160,6 @@ impl FileHeader {
         self.set_layout(self.values.ei_data);
         self.set_width(self.values.ei_class);
 
-        self.values.ei_size       = self.get_size();
         self.values.e_type        = self.e_type.get(b)?;
         self.values.e_machine     = self.e_machine.get(b)?;
         self.values.e_version     = self.e_version.get(b)?;
@@ -173,16 +176,28 @@ impl FileHeader {
 
         Ok(self.values.clone())
     }
-    
-    pub fn size(&self) -> usize {
-        self.values.ei_size.clone()
-    }
 
-    pub fn get_size(&self) -> usize {
-        match self.values.ei_class {
-            Width::X64 => FH_SIZE_64,
-            Width::X32 => FH_SIZE_32,
-        } 
+    pub fn write(&mut self, b: &mut [u8]) -> Result<()> {
+        self.ei_magic.set(b,self.values.ei_magic.clone())?;
+        self.ei_class.set(b,self.values.ei_class)?;
+        self.ei_data.set(b,self.values.ei_data)?;
+        self.ei_version.set(b,self.values.ei_version)?;
+        self.ei_osabi.set(b,self.values.ei_osabi)?;
+        self.ei_abiversion.set(b,self.values.ei_abiversion)?;
+        self.e_type.set(b,self.values.e_type)?;
+        self.e_machine.set(b,self.values.e_machine)?;
+        self.e_version.set(b,self.values.e_version)?;
+        self.e_entry.set(b,self.values.e_entry)?;
+        self.e_phoff.set(b,self.values.e_phoff)?;
+        self.e_shoff.set(b,self.values.e_shoff)?;
+        self.e_flags.set(b,self.values.e_flags)?;
+        self.e_ehsize.set(b,self.values.e_ehsize)?;
+        self.e_phentsize.set(b,self.values.e_phentsize)?;
+        self.e_phnum.set(b,self.values.e_phnum)?;
+        self.e_shentsize.set(b,self.values.e_shentsize)?;
+        self.e_shnum.set(b,self.values.e_shnum)?;
+        self.e_shstrndx.set(b,self.values.e_shstrndx)?;
+        Ok(())
     }
 
     impl_property!(magic, ei_magic,String);

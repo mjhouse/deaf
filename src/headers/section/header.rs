@@ -118,6 +118,7 @@ impl SectionHeader {
     }
 
     pub fn set_width(&mut self, width: Width) {
+        self.width = width;
         self.sh_name.ranges.width = width;
         self.sh_type.ranges.width = width;
         self.sh_flags.ranges.width = width;
@@ -131,6 +132,7 @@ impl SectionHeader {
     }
 
     pub fn set_layout(&mut self, layout: Layout) {
+        self.layout = layout;
         self.sh_name.layout = layout;
         self.sh_type.layout = layout;
         self.sh_flags.layout = layout;
@@ -161,6 +163,21 @@ impl SectionHeader {
         self.values.sh_entsize   = self.sh_entsize.get(s)?;
 
         Ok(self.values.clone())
+    }
+
+    pub fn write(&self, b: &mut [u8]) -> Result<()> {
+        let s = &mut b[self.offset..];
+        self.sh_name.set(s,self.values.sh_name)?;
+        self.sh_type.set(s,self.values.sh_type)?;
+        self.sh_flags.set(s,self.values.sh_flags)?;
+        self.sh_address.set(s,self.values.sh_address)?;
+        self.sh_offset.set(s,self.values.sh_offset)?;
+        self.sh_size.set(s,self.values.sh_size)?;
+        self.sh_link.set(s,self.values.sh_link)?;
+        self.sh_info.set(s,self.values.sh_info)?;
+        self.sh_addralign.set(s,self.values.sh_addralign)?;
+        self.sh_entsize.set(s,self.values.sh_entsize)?;
+        Ok(())
     }
 
     pub fn body<'a>(&self, b: &'a [u8]) -> Result<&'a [u8]> {

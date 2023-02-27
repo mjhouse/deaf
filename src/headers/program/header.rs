@@ -109,6 +109,7 @@ impl ProgramHeader {
     }
 
     pub fn set_width(&mut self, width: Width) {
+        self.width = width;
         self.p_type.ranges.width = width;
         self.p_flags.ranges.width = width;
         self.p_offset.ranges.width = width;
@@ -120,6 +121,7 @@ impl ProgramHeader {
     }
 
     pub fn set_layout(&mut self, layout: Layout) {
+        self.layout = layout;
         self.p_type.layout = layout;
         self.p_flags.layout = layout;
         self.p_offset.layout = layout;
@@ -146,6 +148,19 @@ impl ProgramHeader {
         self.values.p_align  = self.p_align.get(s)?;
 
         Ok(self.values.clone())
+    }
+
+    pub fn write(&self, b: &mut [u8]) -> Result<()> {
+        let s = &mut b[self.offset..];
+        self.p_type.set(s,self.values.p_type)?;
+        self.p_flags.set(s,self.values.p_flags)?;
+        self.p_offset.set(s,self.values.p_offset)?;
+        self.p_vaddr.set(s,self.values.p_vaddr)?;
+        self.p_paddr.set(s,self.values.p_paddr)?;
+        self.p_filesz.set(s,self.values.p_filesz)?;
+        self.p_memsz.set(s,self.values.p_memsz)?;
+        self.p_align.set(s,self.values.p_align)?;
+        Ok(())
     }
 
 }
