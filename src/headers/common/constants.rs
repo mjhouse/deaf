@@ -18,39 +18,6 @@ pub const ST_SIZE_64: usize = 24;
 pub const RT_SIZE_32: usize = 16;
 pub const RT_SIZE_64: usize = 24;
 
-pub mod sizes {
-    use super::*;
-
-    pub fn file_header(width: Width) -> usize {
-        match width {
-            Width::X32 => FH_SIZE_32,
-            Width::X64 => FH_SIZE_64,
-        }
-    }
-
-    pub fn program_header(width: Width) -> usize {
-        match width {
-            Width::X32 => PH_SIZE_32,
-            Width::X64 => PH_SIZE_64,
-        }
-    }
-
-    pub fn section_header(width: Width) -> usize {
-        match width {
-            Width::X32 => SH_SIZE_32,
-            Width::X64 => SH_SIZE_64,
-        }
-    }
-
-    pub fn symbol_table(width: Width) -> usize {
-        match width {
-            Width::X32 => ST_SIZE_32,
-            Width::X64 => ST_SIZE_64,
-        }
-    }
-
-}
-
 /// The mode of the ELF file
 ///
 /// This enum is generally parsed from the file header (ei_class) and then 

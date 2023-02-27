@@ -24,7 +24,7 @@ pub struct FileHeaderValues {
     e_ehsize: u16,
     e_phentsize: u16,
     e_phnum: usize,
-    e_shentsize: u16,
+    e_shentsize: usize,
     e_shnum: usize,
     e_shstrndx: usize,
 }
@@ -49,7 +49,7 @@ pub struct FileHeader {
     e_ehsize: Field<u16>,
     e_phentsize: Field<u16>,
     e_phnum: Field<u16,u16,usize>,
-    e_shentsize: Field<u16>,
+    e_shentsize: Field<u16,u16,usize>,
     e_shnum: Field<u16,u16,usize>,
     e_shstrndx: Field<u16,u16,usize>,
     values: FileHeaderValues,
@@ -251,7 +251,7 @@ impl FileHeader {
     impl_property!(ehsize,e_ehsize,u16);
     impl_property!(phentsize,e_phentsize,u16);
     impl_property!(phnum,e_phnum,usize);
-    impl_property!(shentsize,e_shentsize,u16);
+    impl_property!(shentsize,e_shentsize,usize);
     impl_property!(shnum,e_shnum,usize);
     impl_property!(shstrndx,e_shstrndx,usize);
 

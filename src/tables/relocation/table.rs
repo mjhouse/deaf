@@ -1,5 +1,5 @@
 use crate::errors::{Error, Result};
-use crate::headers::common::constants::{Width,Layout,SHType,sizes};
+use crate::headers::common::constants::{Width,Layout,SHType};
 use crate::headers::section::header::{
     SectionHeader,
     SectionHeaderValues
@@ -190,6 +190,7 @@ mod tests {
 
         let count = file_header.shnum();
         let offset = file_header.shoff();
+        let size = file_header.shentsize();
         let layout = file_header.data();
         let width = file_header.class();
         
@@ -197,6 +198,7 @@ mod tests {
             &b,
             count,
             offset,
+            size,
             layout,
             width);
 

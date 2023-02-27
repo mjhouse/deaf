@@ -177,6 +177,7 @@ mod tests {
 
         let count = file_header.shnum();
         let offset = file_header.shoff();
+        let size = file_header.shentsize();
         let layout = file_header.data();
         let width = file_header.class();
         let index = file_header.shstrndx();
@@ -186,6 +187,7 @@ mod tests {
             &b,
             count,
             offset,
+            size,
             layout,
             width);
 

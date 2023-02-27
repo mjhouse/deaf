@@ -2,8 +2,7 @@ use crate::headers::common::constants::{
     Width,
     Layout,
     SHType,
-    SHFlags,
-    sizes
+    SHFlags
 };
 use enumflags2::BitFlags;
 
@@ -70,15 +69,12 @@ impl SectionHeaderValues {
 
 impl SectionHeader {
 
-    pub fn new(offset: usize, layout: Layout, width: Width) -> Self {
-        let size = sizes::section_header(width);
-
+    pub fn new(offset: usize, size: usize, layout: Layout, width: Width) -> Self {
         Self {
             offset,
             layout,
             width,
             size,
-
             sh_name: Field::new(SH_NAME),
             sh_type: Field::new(SH_TYPE),
             sh_flags: Field::new(SH_FLAGS),
@@ -94,22 +90,21 @@ impl SectionHeader {
         }
     }
 
-    pub fn parse(b: &[u8], offset: usize, layout: Layout, width: Width) -> Result<Self> {
-        let mut header = Self::new(offset,layout,width);
+    pub fn parse(b: &[u8], offset: usize, size: usize, layout: Layout, width: Width) -> Result<Self> {
+        let mut header = Self::new(offset,size,layout,width);
         header.read(b)?;
         Ok(header)
     }
 
-    pub fn parse_all(b: &[u8], count: usize, offset: usize, layout: Layout, width: Width) -> Result<Vec<Self>> {
+    pub fn parse_all(b: &[u8], count: usize, offset: usize, size: usize, layout: Layout, width: Width) -> Result<Vec<Self>> {
         let mut result = vec![];
         result.reserve_exact(count);
-
-        let size = sizes::section_header(width);
 
         for i in 0..count {
             result.push(Self::parse(
                 b,
                 offset + i * size,
+                size,
                 layout,
                 width)?);
         }
@@ -191,6 +186,10 @@ impl SectionHeader {
         }
     }
 
+    pub fn header_size(&self) -> usize {
+        self.size.clone()
+    }
+
     pub fn layout(&self) -> Layout {
         self.layout.clone()
     }
@@ -232,6 +231,7 @@ mod tests {
 
         let count = file_header.shnum();
         let offset = file_header.shoff();
+        let size = file_header.shentsize();
         let layout = file_header.data();
         let width = file_header.class();
         
@@ -239,6 +239,7 @@ mod tests {
             &b,
             count,
             offset,
+            size,
             layout,
             width);
 
@@ -258,6 +259,7 @@ mod tests {
 
         let count = file_header.shnum();
         let offset = file_header.shoff();
+        let size = file_header.shentsize();
         let layout = file_header.data();
         let width = file_header.class();
         
@@ -265,6 +267,7 @@ mod tests {
             &b,
             count,
             offset,
+            size,
             layout,
             width).unwrap();
 

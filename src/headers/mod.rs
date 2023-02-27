@@ -5,6 +5,11 @@
 //! and Ranges structs).
 
 pub mod common;
-pub mod file;
-pub mod program;
-pub mod section;
+
+pub(crate) mod file;
+pub(crate) mod program;
+pub(crate) mod section;
+
+pub use file::header::FileHeader;
+pub use program::header::ProgramHeader;
+pub use section::header::SectionHeader;
