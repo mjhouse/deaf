@@ -163,7 +163,7 @@ impl ProgramHeader {
         Ok(())
     }
 
-    pub fn size(&self) -> usize {
+    pub fn header_size(&self) -> usize {
         self.p_type.size() +
         self.p_flags.size() +
         self.p_offset.size() +

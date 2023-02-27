@@ -212,7 +212,7 @@ impl FileHeader {
         Ok(())
     }
 
-    pub fn size(&self) -> usize {
+    pub fn header_size(&self) -> usize {
         self.ei_key.size() +
         self.ei_magic.size() +
         self.ei_class.size() +
@@ -283,7 +283,7 @@ mod tests {
         assert_eq!(header.shoff(),287440);
 
         // check calculated size matches known x64 ELF size
-        assert_eq!(header.size(),FH_SIZE_64);
+        assert_eq!(header.header_size(),FH_SIZE_64);
     }
 
     #[test]
@@ -301,14 +301,14 @@ mod tests {
 
         // initialize a buffer big enough for the header
         let mut buffer: Vec<u8> = vec![];
-        buffer.resize(header.size(),0x00);        
+        buffer.resize(header.header_size(),0x00);        
 
         // write to the new buffer
         let result = header.write(buffer.as_mut_slice());
         assert!(result.is_ok());
 
         // verify that the written header is the same as original
-        assert_eq!(buffer.as_slice(),&b[..header.size()]);
+        assert_eq!(buffer.as_slice(),&b[..header.header_size()]);
     }
 
     #[test]
@@ -326,7 +326,7 @@ mod tests {
 
         // initialize a buffer big enough for the header
         let mut buffer: Vec<u8> = vec![];
-        buffer.resize(header.size(),0x00);        
+        buffer.resize(header.header_size(),0x00);        
 
         // change the section header entity size
         header.set_shentsize(123);
@@ -336,7 +336,7 @@ mod tests {
         assert!(result.is_ok());
 
         // verify that the written header is different
-        assert_ne!(buffer.as_slice(),&b[..header.size()]);
+        assert_ne!(buffer.as_slice(),&b[..header.header_size()]);
 
         // re-parse the file header from the buffer
         let result = FileHeader::parse(&buffer);
