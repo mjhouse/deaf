@@ -95,6 +95,10 @@ where
             Width::X64 => self.set_x64(b,v)?,
         })
     }
+
+    pub fn size(&self) -> usize {
+        self.ranges.size()
+    }
 }
 
 #[cfg(test)]

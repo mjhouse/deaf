@@ -1,13 +1,14 @@
 use std::ops::Range;
 use crate::headers::common::constants::Width;
 
+pub const EI_KEY:         Ranges = Ranges::new(0x00..0x01,0x00..0x01); // u8
 pub const EI_MAGIC:       Ranges = Ranges::new(0x01..0x04,0x01..0x04); // String
 pub const EI_CLASS:       Ranges = Ranges::new(0x04..0x05,0x04..0x05); // u8
 pub const EI_DATA:        Ranges = Ranges::new(0x05..0x06,0x05..0x06); // u8
 pub const EI_VERSION:     Ranges = Ranges::new(0x06..0x07,0x06..0x07); // u8
 pub const EI_OSABI:       Ranges = Ranges::new(0x07..0x08,0x07..0x08); // u8
 pub const EI_ABIVERSION:  Ranges = Ranges::new(0x08..0x09,0x08..0x09); // u8
-pub const EI_PAD:         Ranges = Ranges::new(0x09..0x10,0x09..0x10); // u8
+pub const EI_PAD:         Ranges = Ranges::new(0x09..0x10,0x09..0x10); // u64
 
 pub const E_TYPE:         Ranges = Ranges::new(0x10..0x12,0x10..0x12); // u16
 pub const E_MACHINE:      Ranges = Ranges::new(0x12..0x14,0x12..0x14); // u16
@@ -56,8 +57,8 @@ pub const RT_OFFSET:      Ranges = Ranges::new(0x00..0x04,0x00..0x08); // u32 / 
 pub const RT_INFO:        Ranges = Ranges::new(0x04..0x08,0x08..0x10); // u32 / u64
 pub const RT_ADDEND:      Ranges = Ranges::new(0x08..0x0C,0x10..0x18); // i32 / i64
 
-// This struct maintains several ranges and returns
-// them depending on the current width.
+/// This struct maintains several ranges and returns
+/// them depending on the current width.
 #[derive(Debug,Clone)]
 pub struct Ranges {
     pub width: Width,
@@ -66,6 +67,7 @@ pub struct Ranges {
 }
 
 impl Ranges {
+
     pub const fn new(a: Range<usize>, b: Range<usize>) -> Self {
         Self {
             width: Width::X32,
@@ -73,12 +75,18 @@ impl Ranges {
             x64: b,
         }
     }
+    
     pub fn get(&self) -> Range<usize> {
         match self.width {
             Width::X32 => self.x32.clone(),
             Width::X64 => self.x64.clone(),
         }
     }
+
+    pub fn size(&self) -> usize {
+        self.get().len()
+    }
+
 }
 
 /// Implementation of Into so we can use Ranges to slice

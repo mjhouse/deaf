@@ -163,6 +163,17 @@ impl ProgramHeader {
         Ok(())
     }
 
+    pub fn size(&self) -> usize {
+        self.p_type.size() +
+        self.p_flags.size() +
+        self.p_offset.size() +
+        self.p_vaddr.size() +
+        self.p_paddr.size() +
+        self.p_filesz.size() +
+        self.p_memsz.size() +
+        self.p_align.size()
+    }
+
 }
 
 #[cfg(test)]

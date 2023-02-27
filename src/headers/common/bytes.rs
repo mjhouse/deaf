@@ -105,6 +105,18 @@ macro_rules! into {
     };
 }
 
+impl FromBytes for [u8;7] {
+    fn from_bytes(b: &[u8], _: Layout) -> Result<Self> {
+        Ok(b.try_into()?)
+    }
+}
+
+impl IntoBytes for [u8;7] {
+    fn to_bytes(&self, b: &mut [u8], _: Layout) -> Result<()> {
+        Ok(b.copy_from_slice(self))
+    }
+}
+
 impl FromBytes for u8 {
     fn from_bytes(b: &[u8], l: Layout) -> Result<Self> {
         Ok(from!(Self, l, b))
