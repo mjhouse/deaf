@@ -257,12 +257,31 @@
 <a href="#257" id="257">257</a>
 <a href="#258" id="258">258</a>
 <a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::headers::common::constants::{
     Width,
     Layout,
     SHType,
-    SHFlags,
-    sizes
+    SHFlags
 };
 <span class="kw">use </span>enumflags2::BitFlags;
 
@@ -329,15 +348,12 @@
 
 <span class="kw">impl </span>SectionHeader {
 
-    <span class="kw">pub fn </span>new(offset: usize, layout: Layout, width: Width) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>size = sizes::section_header(width);
-
+    <span class="kw">pub fn </span>new(offset: usize, size: usize, layout: Layout, width: Width) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             offset,
             layout,
             width,
             size,
-
             sh_name: Field::new(SH_NAME),
             sh_type: Field::new(SH_TYPE),
             sh_flags: Field::new(SH_FLAGS),
@@ -353,22 +369,21 @@
         }
     }
 
-    <span class="kw">pub fn </span>parse(b: <span class="kw-2">&amp;</span>[u8], offset: usize, layout: Layout, width: Width) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>header = <span class="self">Self</span>::new(offset,layout,width);
+    <span class="kw">pub fn </span>parse(b: <span class="kw-2">&amp;</span>[u8], offset: usize, size: usize, layout: Layout, width: Width) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>header = <span class="self">Self</span>::new(offset,size,layout,width);
         header.read(b)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(header)
     }
 
-    <span class="kw">pub fn </span>parse_all(b: <span class="kw-2">&amp;</span>[u8], count: usize, offset: usize, layout: Layout, width: Width) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;&gt; {
+    <span class="kw">pub fn </span>parse_all(b: <span class="kw-2">&amp;</span>[u8], count: usize, offset: usize, size: usize, layout: Layout, width: Width) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>result = <span class="macro">vec!</span>[];
         result.reserve_exact(count);
-
-        <span class="kw">let </span>size = sizes::section_header(width);
 
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..count {
             result.push(<span class="self">Self</span>::parse(
                 b,
                 offset + i * size,
+                size,
                 layout,
                 width)<span class="question-mark">?</span>);
         }
@@ -377,6 +392,7 @@
     }
 
     <span class="kw">pub fn </span>set_width(<span class="kw-2">&amp;mut </span><span class="self">self</span>, width: Width) {
+        <span class="self">self</span>.width = width;
         <span class="self">self</span>.sh_name.ranges.width = width;
         <span class="self">self</span>.sh_type.ranges.width = width;
         <span class="self">self</span>.sh_flags.ranges.width = width;
@@ -390,6 +406,7 @@
     }
 
     <span class="kw">pub fn </span>set_layout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, layout: Layout) {
+        <span class="self">self</span>.layout = layout;
         <span class="self">self</span>.sh_name.layout = layout;
         <span class="self">self</span>.sh_type.layout = layout;
         <span class="self">self</span>.sh_flags.layout = layout;
@@ -422,6 +439,21 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.values.clone())
     }
 
+    <span class="kw">pub fn </span>write(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>s = <span class="kw-2">&amp;mut </span>b[<span class="self">self</span>.offset..];
+        <span class="self">self</span>.sh_name.set(s,<span class="self">self</span>.values.sh_name)<span class="question-mark">?</span>;
+        <span class="self">self</span>.sh_type.set(s,<span class="self">self</span>.values.sh_type)<span class="question-mark">?</span>;
+        <span class="self">self</span>.sh_flags.set(s,<span class="self">self</span>.values.sh_flags)<span class="question-mark">?</span>;
+        <span class="self">self</span>.sh_address.set(s,<span class="self">self</span>.values.sh_address)<span class="question-mark">?</span>;
+        <span class="self">self</span>.sh_offset.set(s,<span class="self">self</span>.values.sh_offset)<span class="question-mark">?</span>;
+        <span class="self">self</span>.sh_size.set(s,<span class="self">self</span>.values.sh_size)<span class="question-mark">?</span>;
+        <span class="self">self</span>.sh_link.set(s,<span class="self">self</span>.values.sh_link)<span class="question-mark">?</span>;
+        <span class="self">self</span>.sh_info.set(s,<span class="self">self</span>.values.sh_info)<span class="question-mark">?</span>;
+        <span class="self">self</span>.sh_addralign.set(s,<span class="self">self</span>.values.sh_addralign)<span class="question-mark">?</span>;
+        <span class="self">self</span>.sh_entsize.set(s,<span class="self">self</span>.values.sh_entsize)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
+    }
+
     <span class="kw">pub fn </span>body&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt; {
         <span class="kw">let </span>start = <span class="self">self</span>.offset;
         <span class="kw">let </span>end = start + <span class="self">self</span>.values.sh_size;
@@ -431,6 +463,10 @@
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(Error::OutOfBoundsError)
         }
+    }
+
+    <span class="kw">pub fn </span>header_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.size.clone()
     }
 
     <span class="kw">pub fn </span>layout(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Layout {
@@ -474,6 +510,7 @@
 
         <span class="kw">let </span>count = file_header.shnum();
         <span class="kw">let </span>offset = file_header.shoff();
+        <span class="kw">let </span>size = file_header.shentsize();
         <span class="kw">let </span>layout = file_header.data();
         <span class="kw">let </span>width = file_header.class();
         
@@ -481,6 +518,7 @@
             <span class="kw-2">&amp;</span>b,
             count,
             offset,
+            size,
             layout,
             width);
 
@@ -500,6 +538,7 @@
 
         <span class="kw">let </span>count = file_header.shnum();
         <span class="kw">let </span>offset = file_header.shoff();
+        <span class="kw">let </span>size = file_header.shentsize();
         <span class="kw">let </span>layout = file_header.data();
         <span class="kw">let </span>width = file_header.class();
         
@@ -507,6 +546,7 @@
             <span class="kw-2">&amp;</span>b,
             count,
             offset,
+            size,
             layout,
             width).unwrap();
 

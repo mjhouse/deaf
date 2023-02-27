@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["common",""],["file",""],["program",""],["section",""]]};
+window.SIDEBAR_ITEMS = {"mod":[["common",""]],"struct":[["FileHeader",""],["ProgramHeader",""],["SectionHeader",""]]};

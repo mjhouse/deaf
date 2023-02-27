@@ -319,8 +319,11 @@
 <a href="#319" id="319">319</a>
 <a href="#320" id="320">320</a>
 <a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{Error, <span class="prelude-ty">Result</span>};
-<span class="kw">use </span><span class="kw">crate</span>::headers::common::constants::{Width,Layout,SHType,sizes};
+<span class="kw">use </span><span class="kw">crate</span>::headers::common::constants::{Width,Layout,SHType};
 <span class="kw">use </span><span class="kw">crate</span>::headers::section::header::{
     SectionHeader,
     SectionHeaderValues
@@ -511,13 +514,16 @@
 
         <span class="kw">let </span>count = file_header.shnum();
         <span class="kw">let </span>offset = file_header.shoff();
+        <span class="kw">let </span>size = file_header.shentsize();
         <span class="kw">let </span>layout = file_header.data();
         <span class="kw">let </span>width = file_header.class();
         
-        <span class="kw">let </span>section_headers = SectionHeader::parse_all(
+        <span class="comment">// parse all section headers from the buffer
+        </span><span class="kw">let </span>section_headers = SectionHeader::parse_all(
             <span class="kw-2">&amp;</span>b,
             count,
             offset,
+            size,
             layout,
             width);
 
