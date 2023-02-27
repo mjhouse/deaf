@@ -1,4 +1,4 @@
-# DEAF: the **D**efinitive **E**lf **A**nalysis **F**ramework
+# DEAF: The **D**efinitive **E**lf **A**nalysis **F**ramework
 
 [![Tests](https://github.com/mjhouse/deaf/actions/workflows/test.yaml/badge.svg?branch=testing)](https://github.com/mjhouse/deaf/actions/workflows/test.yaml)
 [![Docs](https://github.com/mjhouse/deaf/actions/workflows/docs.yaml/badge.svg?branch=documentation)](https://mjhouse.github.io/deaf/)
