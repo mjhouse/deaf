@@ -54,7 +54,7 @@ impl RelocationTable {
             return Err(Error::MalformedDataError);
         }
 
-        // reserve a temporary buffer for relocations
+        // reserve a temporary buffer for entities
         let mut values = vec![];
         values.reserve(self.section_size / size);
 

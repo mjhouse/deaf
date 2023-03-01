@@ -57,6 +57,8 @@ pub const RT_OFFSET:      Ranges = Ranges::new(0x00..0x04,0x00..0x08); // u32 / 
 pub const RT_INFO:        Ranges = Ranges::new(0x04..0x08,0x08..0x10); // u32 / u64
 pub const RT_ADDEND:      Ranges = Ranges::new(0x08..0x0C,0x10..0x18); // i32 / i64
 
+pub const INIT_ADDRESS:   Ranges = Ranges::new(0x00..0x04,0x00..0x08); // i32 / i64
+
 /// This struct maintains several ranges and returns
 /// them depending on the current width.
 #[derive(Debug,Clone)]
