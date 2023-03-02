@@ -406,6 +406,22 @@ mod tests {
     }
 
     #[test]
+    fn test_to_bytes_i64_little_endian_fitting() {
+        let v: i64 = 0x0807060504030201;
+        let mut b = [0; 8];
+        v.to_bytes(&mut b, Layout::Little).unwrap();
+        assert_eq!(&b, &[0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08]);
+    }
+
+    // #[test]
+    // fn test_to_bytes_i64_little_endian_unfitting() {
+    //     let v: i64 = 0x0807060504030201;
+    //     let mut b = [0; 4];
+    //     let result = v.to_bytes(&mut b, Layout::Little);
+    //     assert!(result.is_err());
+    // }
+
+    #[test]
     fn test_from_bytes_u64_big_endian() {
         let d = &[0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08];
         let v: u64 = u64::from_bytes(d, Layout::Big).unwrap();

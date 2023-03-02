@@ -1,6 +1,4 @@
 
-mod initialization;
-mod table;
+mod array;
 
-pub use initialization::Initialization;
-pub use table::InitializationTable;
+pub use array::InitArray;

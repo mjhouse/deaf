@@ -4,20 +4,20 @@ use crate::headers::section::header::{
     SectionHeader,
     SectionHeaderValues
 };
-use crate::tables::initialization::Initialization;
+use crate::headers::common::bytes::{FromBytes,IntoBytes};
 use crate::tables::common::ByteIter;
-use crate::tables::common::Table;
+use crate::tables::common::Array;
 
-pub struct InitializationTable {
+pub struct InitArray {
     offset: usize,
     layout: Layout,
     width: Width,
     entity_size: usize,
     section_size: usize,
-    values: Vec<Initialization>
+    values: Vec<i64>
 }
 
-impl InitializationTable {
+impl InitArray {
 
     pub fn new(offset: usize, size: usize, layout: Layout, width: Width, entity_size: usize) -> Self {
         Self {
@@ -59,11 +59,14 @@ impl InitializationTable {
         values.reserve(self.section_size / size);
 
         for data in ByteIter::length(&bytes[start..end],size) {
-            // parse an entity from the byte range
-            let initialization = Initialization::parse(data,layout,width)?;
+            // parse an address from the byte range
+            let address = match size {
+                4 => i32::from_bytes(data,layout)? as i64,
+                _ => i64::from_bytes(data,layout)?
+            };
 
-            // add to vector of Initialization objects
-            values.push(initialization);
+            // add to vector of addresses
+            values.push(address);
         }
 
         // don't update self until successful read
@@ -83,60 +86,33 @@ impl InitializationTable {
         let layout = self.layout;
         let width = self.width;
 
-        // iterate all contained initializations
-        for (i,initialization) in self.values.iter().enumerate() {
+        // iterate all contained addresses
+        for (i,address) in self.values.iter().enumerate() {
             
-            // calculate initialization position in the output buffer
-            let reloc_start = i * size;
-            let reloc_end = reloc_start + size;
+            // calculate address position in the output buffer
+            let start = i * size;
+            let end = start + size;
 
             // get a constrained, mutable slice of bytes to write to
-            let buffer = &mut bytes[reloc_start..reloc_end];
+            let buffer = &mut bytes[start..end];
 
-            // write the initialization to the byte slice
-            initialization.write(buffer)?;
+            // write the address to the byte slice
+            match size {
+                4 => (*address as i32).to_bytes(buffer,layout)?,
+                _ => address.to_bytes(buffer,layout)?
+            };
         }
 
         Ok(self.values.len())
     }
 
-}
-
-impl Table<Initialization> for InitializationTable {
-
-    fn len(&self) -> usize {
-        self.values.len()
-    }
-
-    fn size(&self) -> usize {
-        self.len() * self.entity_size
-    }
-
-    fn get(&self, index: usize) -> Option<Initialization> {
-        self.values.get(index).cloned()
-    }
-
-    fn set(&mut self, index: usize, item: Initialization) -> Result<usize> {
-        self.values[index] = item;
-        Ok(index)
-    }
-
-    fn add(&mut self, item: Initialization) -> Result<usize> {
-        self.values.push(item);
-        Ok(self.len().saturating_sub(1))
-    }
-
-    fn del(&mut self, index: usize) -> Option<Initialization> {
-        if self.values.len() > index {
-            Some(self.values.remove(index))
-        } else {
-            None
-        }
+    pub fn size(&self) -> usize {
+        self.entity_size * self.values.len()
     }
 
 }
 
-impl TryFrom<SectionHeader> for InitializationTable {
+impl TryFrom<SectionHeader> for InitArray {
     type Error = Error;
 
     fn try_from(header: SectionHeader) -> Result<Self> {
