@@ -4,3 +4,4 @@
 pub mod errors;
 pub mod headers;
 pub mod tables;
+pub mod arrays;

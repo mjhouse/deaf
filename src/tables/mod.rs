@@ -6,7 +6,6 @@
 
 pub mod common;
 
-pub mod initialization;
 pub mod relocation;
 pub mod string;
 pub mod symbol;

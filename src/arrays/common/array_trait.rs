@@ -1,6 +1,7 @@
 use crate::errors::Result;
 use std::ops::{Index,IndexMut};
 
+/// Trait for ELF Array sections that mimics the API of Vec
 pub trait Array<T> {
 
     /// The number of elements in the array
@@ -26,6 +27,7 @@ pub trait Array<T> {
 
 }
 
+/// Implementation for indexing of Array
 impl<T> Index<usize> for dyn Array<T> {
     type Output = T;
 
@@ -34,6 +36,7 @@ impl<T> Index<usize> for dyn Array<T> {
     }
 }
 
+/// Implementation for mutable indexing of Array
 impl<T> IndexMut<usize> for dyn Array<T> {
 
     fn index_mut(&mut self, index: usize) -> &mut T {

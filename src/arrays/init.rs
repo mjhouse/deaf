@@ -6,7 +6,11 @@ use crate::headers::section::header::{
 };
 use crate::headers::common::bytes::{FromBytes,IntoBytes};
 use crate::tables::common::ByteIter;
-use crate::tables::common::Array;
+
+use crate::arrays::common::{
+    Array,
+    constants::*
+};
 
 pub struct InitArray {
     offset: usize,
@@ -28,6 +32,20 @@ impl InitArray {
             section_size: size,
             values: vec![],
         }
+    }
+
+    fn read_one(&self, bytes: &[u8]) -> Result<i64> {
+        Ok(match self.width {
+            Width::X32 => i32::from_bytes(bytes,self.layout)? as i64,
+            Width::X64 => i64::from_bytes(bytes,self.layout)?,
+        })
+    }
+
+    fn write_one(&self, bytes: &mut [u8], value: i64) -> Result<()> {
+        Ok(match self.width {
+            Width::X32 => (value as i32).to_bytes(bytes,self.layout)?,
+            Width::X64 => (value as i64).to_bytes(bytes,self.layout)?,
+        })
     }
 
     // reads from an offset to offset + section_size
@@ -58,15 +76,12 @@ impl InitArray {
         let mut values = vec![];
         values.reserve(self.section_size / size);
 
-        for data in ByteIter::length(&bytes[start..end],size) {
-            // parse an address from the byte range
-            let address = match size {
-                4 => i32::from_bytes(data,layout)? as i64,
-                _ => i64::from_bytes(data,layout)?
-            };
+        for data in ByteIter::length(&bytes[start..end],size) {            
+            // parse an address from the byte slice
+            let value = self.read_one(data)?;
 
-            // add to vector of addresses
-            values.push(address);
+            // add the address to values
+            values.push(value);
         }
 
         // don't update self until successful read
@@ -87,20 +102,17 @@ impl InitArray {
         let width = self.width;
 
         // iterate all contained addresses
-        for (i,address) in self.values.iter().enumerate() {
+        for (i,&value) in self.values.iter().enumerate() {
             
-            // calculate address position in the output buffer
+            // calculate item position in the output buffer
             let start = i * size;
             let end = start + size;
 
             // get a constrained, mutable slice of bytes to write to
             let buffer = &mut bytes[start..end];
 
-            // write the address to the byte slice
-            match size {
-                4 => (*address as i32).to_bytes(buffer,layout)?,
-                _ => address.to_bytes(buffer,layout)?
-            };
+            // write the item to the byte slice
+            self.write_one(buffer,value);
         }
 
         Ok(self.values.len())
@@ -108,6 +120,38 @@ impl InitArray {
 
     pub fn size(&self) -> usize {
         self.entity_size * self.values.len()
+    }
+
+}
+
+impl Array<i64> for InitArray {
+
+    fn len(&self) -> usize {
+        self.values.len()
+    }
+
+    fn size(&self) -> usize {
+        self.len() * self.entity_size
+    }
+
+    fn get(&self, index: usize) -> Option<&i64> {
+        self.values.get(index)
+    }
+
+    fn get_mut(&mut self, index: usize) -> Option<&mut i64> {
+        self.values.get_mut(index)
+    }
+
+    fn insert(&mut self, index: usize, item: i64) {
+        self.values.insert(index,item);
+    }
+
+    fn push(&mut self, item: i64) {
+        self.values.push(item);
+    }
+
+    fn remove(&mut self, index: usize) -> i64 {
+        self.values.remove(index)
     }
 
 }
@@ -137,7 +181,7 @@ mod tests {
     use crate::headers::file::header::FileHeader;
     use crate::headers::section::header::SectionHeader;
 
-    const TEST_TABLE: &[u8] = include!("../../../assets/bytes/libqscintilla_init_array.in");
+    const TEST_TABLE: &[u8] = include!("../../assets/bytes/libqscintilla_init_array.in");
 
     // the starting byte of the test table
     const TEST_TABLE_OFFSET: usize = 0;
