@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/tables/relocation/table.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>table.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../deaf/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/arrays/init.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>init.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../deaf/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -322,26 +322,50 @@
 <a href="#322" id="322">322</a>
 <a href="#323" id="323">323</a>
 <a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span><span class="kw">crate</span>::headers::common::constants::{Width,Layout,SHType};
 <span class="kw">use </span><span class="kw">crate</span>::headers::section::header::{
     SectionHeader,
     SectionHeaderValues
 };
-<span class="kw">use </span><span class="kw">crate</span>::tables::relocation::Relocation;
+<span class="kw">use </span><span class="kw">crate</span>::headers::common::bytes::{FromBytes,IntoBytes};
 <span class="kw">use </span><span class="kw">crate</span>::tables::common::ByteIter;
-<span class="kw">use </span><span class="kw">crate</span>::tables::common::Table;
 
-<span class="kw">pub struct </span>RelocationTable {
+<span class="kw">use </span><span class="kw">crate</span>::arrays::common::{
+    Array,
+    constants::*
+};
+
+<span class="kw">pub struct </span>InitArray {
     offset: usize,
     layout: Layout,
     width: Width,
     entity_size: usize,
     section_size: usize,
-    values: Vec&lt;Relocation&gt;
+    values: Vec&lt;i64&gt;
 }
 
-<span class="kw">impl </span>RelocationTable {
+<span class="kw">impl </span>InitArray {
 
     <span class="kw">pub fn </span>new(offset: usize, size: usize, layout: Layout, width: Width, entity_size: usize) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -352,6 +376,20 @@
             section_size: size,
             values: <span class="macro">vec!</span>[],
         }
+    }
+
+    <span class="kw">fn </span>read_one(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;i64&gt; {
+        <span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="self">self</span>.width {
+            Width::X32 =&gt; i32::from_bytes(bytes,<span class="self">self</span>.layout)<span class="question-mark">? </span><span class="kw">as </span>i64,
+            Width::X64 =&gt; i64::from_bytes(bytes,<span class="self">self</span>.layout)<span class="question-mark">?</span>,
+        })
+    }
+
+    <span class="kw">fn </span>write_one(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>[u8], value: i64) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="self">self</span>.width {
+            Width::X32 =&gt; (value <span class="kw">as </span>i32).to_bytes(bytes,<span class="self">self</span>.layout)<span class="question-mark">?</span>,
+            Width::X64 =&gt; (value <span class="kw">as </span>i64).to_bytes(bytes,<span class="self">self</span>.layout)<span class="question-mark">?</span>,
+        })
     }
 
     <span class="comment">// reads from an offset to offset + section_size
@@ -382,12 +420,12 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>values = <span class="macro">vec!</span>[];
         values.reserve(<span class="self">self</span>.section_size / size);
 
-        <span class="kw">for </span>data <span class="kw">in </span>ByteIter::length(<span class="kw-2">&amp;</span>bytes[start..end],size) {
-            <span class="comment">// parse a relocation from the byte range
-            </span><span class="kw">let </span>relocation = Relocation::parse(data,layout,width)<span class="question-mark">?</span>;
+        <span class="kw">for </span>data <span class="kw">in </span>ByteIter::length(<span class="kw-2">&amp;</span>bytes[start..end],size) {            
+            <span class="comment">// parse an address from the byte slice
+            </span><span class="kw">let </span>value = <span class="self">self</span>.read_one(data)<span class="question-mark">?</span>;
 
-            <span class="comment">// add to vector of Relocation objects
-            </span>values.push(relocation);
+            <span class="comment">// add the address to values
+            </span>values.push(value);
         }
 
         <span class="comment">// don&#39;t update self until successful read
@@ -407,26 +445,30 @@
         <span class="kw">let </span>layout = <span class="self">self</span>.layout;
         <span class="kw">let </span>width = <span class="self">self</span>.width;
 
-        <span class="comment">// iterate all contained relocations
-        </span><span class="kw">for </span>(i,relocation) <span class="kw">in </span><span class="self">self</span>.values.iter().enumerate() {
+        <span class="comment">// iterate all contained addresses
+        </span><span class="kw">for </span>(i,<span class="kw-2">&amp;</span>value) <span class="kw">in </span><span class="self">self</span>.values.iter().enumerate() {
             
-            <span class="comment">// calculate relocation position in the output buffer
-            </span><span class="kw">let </span>reloc_start = i * size;
-            <span class="kw">let </span>reloc_end = reloc_start + size;
+            <span class="comment">// calculate item position in the output buffer
+            </span><span class="kw">let </span>start = i * size;
+            <span class="kw">let </span>end = start + size;
 
             <span class="comment">// get a constrained, mutable slice of bytes to write to
-            </span><span class="kw">let </span>buffer = <span class="kw-2">&amp;mut </span>bytes[reloc_start..reloc_end];
+            </span><span class="kw">let </span>buffer = <span class="kw-2">&amp;mut </span>bytes[start..end];
 
-            <span class="comment">// write the relocation to the byte slice
-            </span>relocation.write(buffer)<span class="question-mark">?</span>;
+            <span class="comment">// write the item to the byte slice
+            </span><span class="self">self</span>.write_one(buffer,value);
         }
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.values.len())
     }
 
+    <span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.entity_size * <span class="self">self</span>.values.len()
+    }
+
 }
 
-<span class="kw">impl </span>Table&lt;Relocation&gt; <span class="kw">for </span>RelocationTable {
+<span class="kw">impl </span>Array&lt;i64&gt; <span class="kw">for </span>InitArray {
 
     <span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.values.len()
@@ -436,36 +478,34 @@
         <span class="self">self</span>.len() * <span class="self">self</span>.entity_size
     }
 
-    <span class="kw">fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;Relocation&gt; {
-        <span class="self">self</span>.values.get(index).cloned()
+    <span class="kw">fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>i64&gt; {
+        <span class="self">self</span>.values.get(index)
     }
 
-    <span class="kw">fn </span>set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize, item: Relocation) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
-        <span class="self">self</span>.values[index] = item;
-        <span class="prelude-val">Ok</span>(index)
+    <span class="kw">fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>i64&gt; {
+        <span class="self">self</span>.values.get_mut(index)
     }
 
-    <span class="kw">fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: Relocation) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
+    <span class="kw">fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize, item: i64) {
+        <span class="self">self</span>.values.insert(index,item);
+    }
+
+    <span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: i64) {
         <span class="self">self</span>.values.push(item);
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.len().saturating_sub(<span class="number">1</span>))
     }
 
-    <span class="kw">fn </span>del(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;Relocation&gt; {
-        <span class="kw">if </span><span class="self">self</span>.values.len() &gt; index {
-            <span class="prelude-val">Some</span>(<span class="self">self</span>.values.remove(index))
-        } <span class="kw">else </span>{
-            <span class="prelude-val">None
-        </span>}
+    <span class="kw">fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) -&gt; i64 {
+        <span class="self">self</span>.values.remove(index)
     }
 
 }
 
-<span class="kw">impl </span>TryFrom&lt;SectionHeader&gt; <span class="kw">for </span>RelocationTable {
+<span class="kw">impl </span>TryFrom&lt;SectionHeader&gt; <span class="kw">for </span>InitArray {
     <span class="kw">type </span>Error = Error;
 
     <span class="kw">fn </span>try_from(header: SectionHeader) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>header.values.sh_type {
-            SHType::SHT_RELA | SHType::SHT_REL =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(
+            SHType::SHT_INIT_ARRAY =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(
                 header.offset(),
                 header.size(),
                 header.layout(),
@@ -485,165 +525,165 @@
     <span class="kw">use </span><span class="kw">crate</span>::headers::file::header::FileHeader;
     <span class="kw">use </span><span class="kw">crate</span>::headers::section::header::SectionHeader;
 
-    <span class="kw">const </span>TEST_TABLE: <span class="kw-2">&amp;</span>[u8] = <span class="macro">include!</span>(<span class="string">&quot;../../../assets/bytes/libvpf_rela.dyn.in&quot;</span>);
+    <span class="kw">const </span>TEST_TABLE: <span class="kw-2">&amp;</span>[u8] = <span class="macro">include!</span>(<span class="string">&quot;../../assets/bytes/libqscintilla_init_array.in&quot;</span>);
 
     <span class="comment">// the starting byte of the test table
     </span><span class="kw">const </span>TEST_TABLE_OFFSET: usize = <span class="number">0</span>;
 
     <span class="comment">// the length in bytes of the test table
-    </span><span class="kw">const </span>TEST_TABLE_LENGTH: usize = <span class="number">1224</span>;
+    </span><span class="kw">const </span>TEST_TABLE_LENGTH: usize = <span class="number">912</span>;
 
     <span class="comment">// the number of elements in the test table
-    </span><span class="kw">const </span>TEST_TABLE_COUNT: usize = <span class="number">51</span>;
+    </span><span class="kw">const </span>TEST_TABLE_COUNT: usize = <span class="number">114</span>;
 
     <span class="comment">// the size of an element in the test table
-    </span><span class="kw">const </span>TEST_TABLE_ENTITY: usize = <span class="number">24</span>;
+    </span><span class="kw">const </span>TEST_TABLE_ENTITY: usize = <span class="number">8</span>;
 
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_extract_real_relocation_section_as_table() {
-        <span class="kw">const </span>SYMBOL_COUNT: usize = <span class="number">210</span>;
+    <span class="comment">// #[test]
+    // fn test_extract_real_relocation_section_as_table() {
+    //     const SYMBOL_COUNT: usize = 210;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>f = File::open(<span class="string">&quot;assets/libjpeg.so.9&quot;</span>).unwrap();
-        <span class="kw">let </span><span class="kw-2">mut </span>b = Vec::new();
+    //     let mut f = File::open(&quot;assets/libjpeg.so.9&quot;).unwrap();
+    //     let mut b = Vec::new();
         
-        f.read_to_end(<span class="kw-2">&amp;mut </span>b)
-            .unwrap();
+    //     f.read_to_end(&amp;mut b)
+    //         .unwrap();
 
-        <span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
-            .unwrap();
+    //     let file_header = FileHeader::parse(&amp;b)
+    //         .unwrap();
 
-        <span class="kw">let </span>count = file_header.shnum();
-        <span class="kw">let </span>offset = file_header.shoff();
-        <span class="kw">let </span>size = file_header.shentsize();
-        <span class="kw">let </span>layout = file_header.data();
-        <span class="kw">let </span>width = file_header.class();
+    //     let count = file_header.shnum();
+    //     let offset = file_header.shoff();
+    //     let size = file_header.shentsize();
+    //     let layout = file_header.data();
+    //     let width = file_header.class();
         
-        <span class="kw">let </span>section_headers = SectionHeader::parse_all(
-            <span class="kw-2">&amp;</span>b,
-            count,
-            offset,
-            size,
-            layout,
-            width);
+    //     let section_headers = SectionHeader::parse_all(
+    //         &amp;b,
+    //         count,
+    //         offset,
+    //         size,
+    //         layout,
+    //         width);
 
-        <span class="macro">assert!</span>(section_headers.is_ok());
-        <span class="kw">let </span>headers = section_headers.unwrap();
+    //     assert!(section_headers.is_ok());
+    //     let headers = section_headers.unwrap();
 
-        <span class="kw">for </span>section <span class="kw">in </span>headers.into_iter() {
-            <span class="kw">if </span>section.section_type() == SHType::SHT_RELA {
-                <span class="comment">// build a table from the section
-                </span><span class="kw">let </span>result = RelocationTable::try_from(section);
-                <span class="macro">assert!</span>(result.is_ok());
-                <span class="kw">let </span><span class="kw-2">mut </span>table = result.unwrap();
+    //     for section in headers.into_iter() {
+    //         if section.section_type() == SHType::SHT_RELA {
+    //             // build a table from the section
+    //             let result = RelocationTable::try_from(section);
+    //             assert!(result.is_ok());
+    //             let mut table = result.unwrap();
 
-                <span class="comment">// read the table from the buffer
-                </span><span class="macro">assert!</span>(table.read(<span class="kw-2">&amp;</span>b).is_ok());
+    //             // read the table from the buffer
+    //             assert!(table.read(&amp;b).is_ok());
 
-                <span class="comment">// verify that the table has expected length
-                </span><span class="macro">assert_eq!</span>(table.len(),SYMBOL_COUNT);
-                <span class="kw">break</span>;
-            }
-        }
-    }
+    //             // verify that the table has expected length
+    //             assert_eq!(table.len(),SYMBOL_COUNT);
+    //             break;
+    //         }
+    //     }
+    // }
 
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_read_relocation_table() {
+    // #[test]
+    // fn test_read_relocation_table() {
         
-        <span class="comment">// directly initialize a relocation table
-        </span><span class="kw">let </span><span class="kw-2">mut </span>table = RelocationTable::new(
-            TEST_TABLE_OFFSET,
-            TEST_TABLE_LENGTH,
-            Layout::Little,
-            Width::X64,
-            TEST_TABLE_ENTITY
-        );
+    //     // directly initialize a relocation table
+    //     let mut table = RelocationTable::new(
+    //         TEST_TABLE_OFFSET,
+    //         TEST_TABLE_LENGTH,
+    //         Layout::Little,
+    //         Width::X64,
+    //         TEST_TABLE_ENTITY
+    //     );
 
-        <span class="comment">// read the test table and verify success
-        </span><span class="kw">let </span>result = table.read(TEST_TABLE);
-        <span class="macro">assert!</span>(result.is_ok());
+    //     // read the test table and verify success
+    //     let result = table.read(TEST_TABLE);
+    //     assert!(result.is_ok());
 
-        <span class="comment">// verify that the table has the expected number of elements
-        </span><span class="macro">assert_eq!</span>(table.len(),TEST_TABLE_COUNT);
-    }
+    //     // verify that the table has the expected number of elements
+    //     assert_eq!(table.len(),TEST_TABLE_COUNT);
+    // }
 
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_write_relocation_table_with_no_changes() {
+    // #[test]
+    // fn test_write_relocation_table_with_no_changes() {
 
-        <span class="comment">// directly initialize a symbol table
-        </span><span class="kw">let </span><span class="kw-2">mut </span>table = RelocationTable::new(
-            TEST_TABLE_OFFSET,
-            TEST_TABLE_LENGTH,
-            Layout::Little,
-            Width::X64,
-            TEST_TABLE_ENTITY
-        );
+    //     // directly initialize a symbol table
+    //     let mut table = RelocationTable::new(
+    //         TEST_TABLE_OFFSET,
+    //         TEST_TABLE_LENGTH,
+    //         Layout::Little,
+    //         Width::X64,
+    //         TEST_TABLE_ENTITY
+    //     );
 
-        <span class="comment">// read the test table and verify success
-        </span><span class="kw">let </span><span class="kw-2">mut </span>result = table.read(TEST_TABLE);
-        <span class="macro">assert!</span>(result.is_ok());
+    //     // read the test table and verify success
+    //     let mut result = table.read(TEST_TABLE);
+    //     assert!(result.is_ok());
 
-        <span class="comment">// initialize a buffer big enough for table data
-        </span><span class="kw">let </span><span class="kw-2">mut </span>buffer: Vec&lt;u8&gt; = <span class="macro">vec!</span>[];
-        buffer.resize(table.size(),<span class="number">0x00</span>);
+    //     // initialize a buffer big enough for table data
+    //     let mut buffer: Vec&lt;u8&gt; = vec![];
+    //     buffer.resize(table.size(),0x00);
 
-        <span class="comment">// write to the new table
-        </span>result = table.write(buffer.as_mut_slice());
-        <span class="macro">assert!</span>(result.is_ok());
+    //     // write to the new table
+    //     result = table.write(buffer.as_mut_slice());
+    //     assert!(result.is_ok());
 
-        <span class="comment">// verify that the written table is the same as original
-        </span><span class="macro">assert_eq!</span>(buffer.as_slice(),TEST_TABLE);
-    }
+    //     // verify that the written table is the same as original
+    //     assert_eq!(buffer.as_slice(),TEST_TABLE);
+    // }
 
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_write_relocation_table_with_changes() {
+    // #[test]
+    // fn test_write_relocation_table_with_changes() {
 
-        <span class="comment">// directly initialize a relocation table
-        </span><span class="kw">let </span><span class="kw-2">mut </span>table = RelocationTable::new(
-            TEST_TABLE_OFFSET,
-            TEST_TABLE_LENGTH,
-            Layout::Little,
-            Width::X64,
-            TEST_TABLE_ENTITY
-        );
+    //     // directly initialize a relocation table
+    //     let mut table = RelocationTable::new(
+    //         TEST_TABLE_OFFSET,
+    //         TEST_TABLE_LENGTH,
+    //         Layout::Little,
+    //         Width::X64,
+    //         TEST_TABLE_ENTITY
+    //     );
 
-        <span class="comment">// read the test table and verify success
-        </span><span class="kw">let </span><span class="kw-2">mut </span>result = table.read(TEST_TABLE);
-        <span class="macro">assert!</span>(result.is_ok());
+    //     // read the test table and verify success
+    //     let mut result = table.read(TEST_TABLE);
+    //     assert!(result.is_ok());
 
-        <span class="comment">// get a relocation from the table
-        </span><span class="kw">let </span>result = table.get(<span class="number">1</span>);
-        <span class="macro">assert!</span>(result.is_some());
+    //     // get a relocation from the table
+    //     let result = table.get(1);
+    //     assert!(result.is_some());
 
-        <span class="comment">// modify the relocation attributes
-        </span><span class="kw">let </span><span class="kw-2">mut </span>relocation = result.unwrap();
-        relocation.set_addend(<span class="prelude-val">Some</span>(<span class="number">20</span>));
+    //     // modify the relocation attributes
+    //     let mut relocation = result.unwrap();
+    //     relocation.set_addend(Some(20));
 
-        <span class="comment">// update the string table with the modified string
-        </span><span class="kw">let </span>result = table.set(<span class="number">1</span>,relocation);
-        <span class="macro">assert!</span>(result.is_ok());
+    //     // update the string table with the modified string
+    //     let result = table.set(1,relocation);
+    //     assert!(result.is_ok());
 
-        <span class="comment">// initialize a buffer big enough for modified table data
-        </span><span class="kw">let </span><span class="kw-2">mut </span>buffer: Vec&lt;u8&gt; = <span class="macro">vec!</span>[];
-        buffer.resize(table.size(),<span class="number">0x00</span>);
+    //     // initialize a buffer big enough for modified table data
+    //     let mut buffer: Vec&lt;u8&gt; = vec![];
+    //     buffer.resize(table.size(),0x00);
 
-        <span class="comment">// write to the new table
-        </span><span class="kw">let </span>result = table.write(buffer.as_mut_slice());
-        <span class="macro">assert!</span>(result.is_ok());
+    //     // write to the new table
+    //     let result = table.write(buffer.as_mut_slice());
+    //     assert!(result.is_ok());
 
-        <span class="comment">// verify that the written table is not the same as original
-        </span><span class="macro">assert_ne!</span>(buffer.as_slice(),TEST_TABLE);
+    //     // verify that the written table is not the same as original
+    //     assert_ne!(buffer.as_slice(),TEST_TABLE);
 
-        <span class="comment">// read the buffer and verify success
-        </span><span class="kw">let </span><span class="kw-2">mut </span>result = table.read(<span class="kw-2">&amp;</span>buffer);
-        <span class="macro">assert!</span>(result.is_ok());
+    //     // read the buffer and verify success
+    //     let mut result = table.read(&amp;buffer);
+    //     assert!(result.is_ok());
 
-        <span class="comment">// get a relocation from the table
-        </span><span class="kw">let </span>result = table.get(<span class="number">1</span>);
-        <span class="macro">assert!</span>(result.is_some());
+    //     // get a relocation from the table
+    //     let result = table.get(1);
+    //     assert!(result.is_some());
 
-        <span class="comment">// check the relocation attribute is changed
-        </span><span class="kw">let </span><span class="kw-2">mut </span>relocation = result.unwrap();
-        <span class="macro">assert_eq!</span>(relocation.addend(),<span class="prelude-val">Some</span>(<span class="number">20</span>));
-    }
-}</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+    //     // check the relocation attribute is changed
+    //     let mut relocation = result.unwrap();
+    //     assert_eq!(relocation.addend(),Some(20));
+    // }
+</span>}</code></pre></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>

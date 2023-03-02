@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":[["impl_property",""]],"mod":[["errors","A custom error type that aggregates internal errors"],["headers","Module that defines headers and associated items"],["tables","Module that defines tables and associated items"]]};
+window.SIDEBAR_ITEMS = {"macro":[["impl_property",""]],"mod":[["arrays",""],["errors","A custom error type that aggregates internal errors"],["headers","Module that defines headers and associated items"],["tables","Module that defines tables and associated items"]]};

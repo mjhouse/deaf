@@ -428,6 +428,22 @@
 <a href="#428" id="428">428</a>
 <a href="#429" id="429">429</a>
 <a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::headers::common::constants::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::errors::{Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>num_enum::{TryFromPrimitive,FromPrimitive};
@@ -836,6 +852,22 @@
     }
 
     <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_to_bytes_i64_little_endian_fitting() {
+        <span class="kw">let </span>v: i64 = <span class="number">0x0807060504030201</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>b = [<span class="number">0</span>; <span class="number">8</span>];
+        v.to_bytes(<span class="kw-2">&amp;mut </span>b, Layout::Little).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>b, <span class="kw-2">&amp;</span>[<span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>, <span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x08</span>]);
+    }
+
+    <span class="comment">// #[test]
+    // fn test_to_bytes_i64_little_endian_unfitting() {
+    //     let v: i64 = 0x0807060504030201;
+    //     let mut b = [0; 4];
+    //     let result = v.to_bytes(&amp;mut b, Layout::Little);
+    //     assert!(result.is_err());
+    // }
+
+    </span><span class="attr">#[test]
     </span><span class="kw">fn </span>test_from_bytes_u64_big_endian() {
         <span class="kw">let </span>d = <span class="kw-2">&amp;</span>[<span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>, <span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x08</span>];
         <span class="kw">let </span>v: u64 = u64::from_bytes(d, Layout::Big).unwrap();

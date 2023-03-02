@@ -28,20 +28,20 @@
 
 <span class="kw">pub trait </span>Table&lt;T&gt; {
 
-    <span class="doccomment">/// the number of elements in the table
+    <span class="doccomment">/// The number of elements in the table
     </span><span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize;
 
-    <span class="doccomment">/// the size in bytes of the table
+    <span class="doccomment">/// The size in bytes of the table
     </span><span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize;
 
-    <span class="doccomment">/// get the item at `index` or return None
+    <span class="doccomment">/// Get the item at `index` or return None
     </span><span class="kw">fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt;;
 
-    <span class="doccomment">/// set an index position to `item` returning the 
+    <span class="doccomment">/// Set an index position to `item` returning the 
     /// index on success
     </span><span class="kw">fn </span>set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize, item: T) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt;;
 
-    <span class="doccomment">/// add the item at the end of the table returning 
+    <span class="doccomment">/// Add the item at the end of the table returning 
     /// the index on success
     </span><span class="kw">fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: T) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt;;
 
