@@ -1,0 +1,83 @@
+[
+	{
+        "name": ".gnu.hash",
+        "type": "GNU_HASH",
+        "address": "752",
+        "offset": "752",
+        "size": "1988",
+        "entsize": "0"
+    },
+    {
+        "name": ".dynsym",
+        "type": "DYNSYM",
+        "address": "2744",
+        "offset": "2744",
+        "size": "7056",
+        "entsize": "24"
+    },
+    {
+        "name": ".dynstr",
+        "type": "STRTAB",
+        "address": "9800",
+        "offset": "9800",
+        "size": "4118",
+        "entsize": "0"
+    },
+    {
+        "name": ".gnu.version",
+        "type": "VERSYM",
+        "address": "13918",
+        "offset": "13918",
+        "size": "588",
+        "entsize": "2"
+    },
+    {
+        "name": ".rela.dyn",
+        "type": "RELA",
+        "address": "14656",
+        "offset": "14656",
+        "size": "1224",
+        "entsize": "24"
+    },
+    {
+        "name": ".rela.plt",
+        "type": "RELA",
+        "address": "15880",
+        "offset": "15880",
+        "size": "1344",
+        "entsize": "24"
+    },
+    {
+        "name": ".init",
+        "type": "PROGBITS",
+        "address": "20480",
+        "offset": "20480",
+        "size": "27",
+        "entsize": "0"
+    },
+    {
+        "name": ".plt",
+        "type": "PROGBITS",
+        "address": "20512",
+        "offset": "20512",
+        "size": "912",
+        "entsize": "16"
+    },
+    {
+        "name": ".plt.got",
+        "type": "PROGBITS",
+        "address": "21424",
+        "offset": "21424",
+        "size": "16",
+        "entsize": "16"
+    },
+    {
+        "name": ".plt.sec",
+        "type": "PROGBITS",
+        "address": "21440",
+        "offset": "21440",
+        "size": "896",
+        "entsize": "16"
+    },
+    
+]
