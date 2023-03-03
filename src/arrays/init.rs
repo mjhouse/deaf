@@ -4,7 +4,7 @@ use crate::headers::section::header::{
     SectionHeader,
     SectionHeaderValues
 };
-use crate::headers::common::bytes::{FromBytes,IntoBytes};
+use crate::common::bytes::{FromBytes,IntoBytes};
 use crate::tables::common::ByteIter;
 
 use crate::arrays::common::{

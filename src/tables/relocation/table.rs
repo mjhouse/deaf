@@ -136,10 +136,10 @@ impl Table<Relocation> for RelocationTable {
 
 }
 
-impl TryFrom<SectionHeader> for RelocationTable {
+impl TryFrom<&SectionHeader> for RelocationTable {
     type Error = Error;
 
-    fn try_from(header: SectionHeader) -> Result<Self> {
+    fn try_from(header: &SectionHeader) -> Result<Self> {
         match header.values.sh_type {
             SHType::SHT_RELA | SHType::SHT_REL => Ok(Self::new(
                 header.offset(),
@@ -150,6 +150,14 @@ impl TryFrom<SectionHeader> for RelocationTable {
             )),
             _ => Err(Error::WrongSectionError)
         }
+    }
+}
+
+impl TryFrom<SectionHeader> for RelocationTable {
+    type Error = Error;
+
+    fn try_from(header: SectionHeader) -> Result<Self> {
+        Self::try_from(&header)
     }
 }
 
@@ -205,21 +213,20 @@ mod tests {
         assert!(section_headers.is_ok());
         let headers = section_headers.unwrap();
 
-        for section in headers.into_iter() {
-            if section.section_type() == SHType::SHT_RELA {
-                // build a table from the section
-                let result = RelocationTable::try_from(section);
-                assert!(result.is_ok());
-                let mut table = result.unwrap();
+        let result = headers.iter().find(|&h| 
+            h.section_type() == SHType::SHT_RELA);
 
-                // read the table from the buffer
-                assert!(table.read(&b).is_ok());
+        assert!(result.is_some());
 
-                // verify that the table has expected length
-                assert_eq!(table.len(),SYMBOL_COUNT);
-                break;
-            }
-        }
+        let header = result.unwrap();
+        let result = RelocationTable::try_from(header);
+
+        assert!(result.is_ok());
+
+        let mut table = result.unwrap();
+
+        assert!(table.read(&b).is_ok());
+        assert_eq!(table.len(),SYMBOL_COUNT);
     }
 
     #[test]

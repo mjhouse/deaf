@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 
-use crate::headers::common::bytes::{FromBytes, IntoBytes, Convert};
+use crate::common::bytes::{FromBytes, IntoBytes, Convert};
 use crate::headers::common::constants::{Layout, Width};
 use crate::errors::{Error, Result};
 use crate::headers::common::ranges::Ranges;

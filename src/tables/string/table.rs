@@ -131,16 +131,24 @@ impl Table<String> for StringTable {
 
 }
 
-impl TryFrom<SectionHeader> for StringTable {
+impl TryFrom<&SectionHeader> for StringTable {
     type Error = Error;
 
-    fn try_from(header: SectionHeader) -> Result<Self> {
+    fn try_from(header: &SectionHeader) -> Result<Self> {
         match header.values.sh_type {
             SHType::SHT_STRTAB => Ok(Self::new(
                 header.offset(),
                 header.size())),
             _ => Err(Error::WrongSectionError)
         }
+    }
+}
+
+impl TryFrom<SectionHeader> for StringTable {
+    type Error = Error;
+
+    fn try_from(header: SectionHeader) -> Result<Self> {
+        Self::try_from(&header)
     }
 }
 
@@ -194,24 +202,23 @@ mod tests {
         assert!(section_headers.is_ok());
         let headers = section_headers.unwrap();
 
-        // find the first string table header
-        for (i,section) in headers.into_iter().enumerate() {
-            if i == index {
-                // build a string table from the section
-                let result = StringTable::try_from(section);
-                assert!(result.is_ok());
-                let mut table = result.unwrap();
+        let result = headers
+            .iter()
+            .enumerate()
+            .find(|(i,_)| *i == index)
+            .map(|(_,h)| h);
 
-                // read the string table from the buffer
-                assert!(table.read(&b).is_ok());
+        assert!(result.is_some());
 
-                // verify that the string table has expected length
-                assert_eq!(table.len(),TEST_TABLE_COUNT);
+        let header = result.unwrap();
+        let result = StringTable::try_from(header);
 
-                // don't process any more section headers
-                break;
-            }
-        }
+        assert!(result.is_ok());
+
+        let mut table = result.unwrap();
+
+        assert!(table.read(&b).is_ok());
+        assert_eq!(table.len(),TEST_TABLE_COUNT);
     }
 
     #[test]

@@ -1,0 +1,32 @@
+{
+    ".symtab": {
+        "offset": 0,
+        "length": 0,
+        "count": 0
+    },
+    ".strtab": {
+        "offset": 0,
+        "length": 0,
+        "count": 0
+    },
+    ".rela.dyn": {
+        "offset": 0,
+        "length": 0,
+        "count": 0
+    },
+    ".rela.plt": {
+        "offset": 0,
+        "length": 0,
+        "count": 0
+    },
+    ".init_array": {
+        "offset": 0,
+        "length": 0,
+        "count": 0
+    },
+    ".fini_array": {
+        "offset": 0,
+        "length": 0,
+        "count": 0
+    }
+}

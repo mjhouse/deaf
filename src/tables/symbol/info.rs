@@ -1,5 +1,5 @@
 use crate::errors::{Error, Result};
-use crate::headers::common::bytes::Convert;
+use crate::common::bytes::Convert;
 use crate::headers::common::constants::{STBind,STType};
 
 #[derive(Clone,Copy)]

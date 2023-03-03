@@ -136,10 +136,10 @@ impl Table<Symbol> for SymbolTable {
 
 }
 
-impl TryFrom<SectionHeader> for SymbolTable {
+impl TryFrom<&SectionHeader> for SymbolTable {
     type Error = Error;
 
-    fn try_from(header: SectionHeader) -> Result<Self> {
+    fn try_from(header: &SectionHeader) -> Result<Self> {
         match header.values.sh_type {
             SHType::SHT_SYMTAB => Ok(Self::new(
                 header.offset(),
@@ -150,6 +150,14 @@ impl TryFrom<SectionHeader> for SymbolTable {
             )),
             _ => Err(Error::WrongSectionError)
         }
+    }
+}
+
+impl TryFrom<SectionHeader> for SymbolTable {
+    type Error = Error;
+
+    fn try_from(header: SectionHeader) -> Result<Self> {
+        Self::try_from(&header)
     }
 }
 
@@ -206,20 +214,20 @@ mod tests {
         assert!(section_headers.is_ok());
         let headers = section_headers.unwrap();
 
-        for section in headers.into_iter() {
-            if section.section_type() == SHType::SHT_SYMTAB {
-                // build a string table from the section
-                let result = SymbolTable::try_from(section);
-                assert!(result.is_ok());
-                let mut table = result.unwrap();
+        let result = headers.iter().find(|&h| 
+            h.section_type() == SHType::SHT_SYMTAB);
 
-                // read the string table from the buffer
-                assert!(table.read(&b).is_ok());
+        assert!(result.is_some());
 
-                // verify that the string table has expected length
-                assert_eq!(table.len(),SYMBOL_COUNT);
-            }
-        }
+        let header = result.unwrap();
+        let result = SymbolTable::try_from(header);
+
+        assert!(result.is_ok());
+
+        let mut table = result.unwrap();
+
+        assert!(table.read(&b).is_ok());
+        assert_eq!(table.len(),SYMBOL_COUNT);
     }
 
     #[test]
