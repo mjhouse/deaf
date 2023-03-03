@@ -110,7 +110,7 @@ mod tests {
     use super::*;
     use crate::headers::common::constants::{RT_SIZE_64};
 
-    const TEST_TABLE: &[u8] = include!("../../../assets/bytes/libvpf_rela.dyn.in");
+    const TEST_TABLE: &[u8] = include!("../../../assets/libvpf/dump/section_rela_dyn.in");
 
     // the starting byte of the test table
     const TEST_TABLE_OFFSET: usize = 0;

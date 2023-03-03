@@ -169,7 +169,7 @@ mod tests {
     use crate::headers::file::header::FileHeader;
     use crate::headers::section::header::SectionHeader;
 
-    const TEST_TABLE: &[u8] = include!("../../../assets/bytes/libvpf_rela.dyn.in");
+    const TEST_TABLE: &[u8] = include!("../../../assets/libvpf/dump/section_rela_dyn.in");
 
     // the starting byte of the test table
     const TEST_TABLE_OFFSET: usize = 0;
@@ -187,7 +187,7 @@ mod tests {
     fn test_extract_real_relocation_section_as_table() {
         const SYMBOL_COUNT: usize = 210;
 
-        let mut f = File::open("assets/libjpeg.so.9").unwrap();
+        let mut f = File::open("assets/libjpeg/libjpeg.so.9").unwrap();
         let mut b = Vec::new();
         
         f.read_to_end(&mut b)

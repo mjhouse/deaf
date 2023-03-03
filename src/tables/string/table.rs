@@ -160,7 +160,7 @@ mod tests {
     use crate::headers::file::header::FileHeader;
     use crate::headers::section::header::SectionHeader;
 
-    const TEST_TABLE: &[u8] = include!("../../../assets/bytes/libvpf_strtab.in");
+    const TEST_TABLE: &[u8] = include!("../../../assets/libvpf/dump/section_shstrtab.in");
 
     // the starting byte of the test table
     const TEST_TABLE_OFFSET: usize = 0;
@@ -173,7 +173,7 @@ mod tests {
 
     #[test]
     fn test_extract_real_shstrtab_section_as_table() {
-        let mut f = File::open("assets/libvpf.so.4.1").unwrap();
+        let mut f = File::open("assets/libvpf/libvpf.so.4.1").unwrap();
         let mut b = Vec::new();
         
         f.read_to_end(&mut b)

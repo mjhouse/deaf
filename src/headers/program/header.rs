@@ -185,7 +185,7 @@ mod tests {
 
     #[test]
     fn test_extract_program_headers() {
-        let mut f = File::open("assets/libvpf.so.4.1").unwrap();
+        let mut f = File::open("assets/libvpf/libvpf.so.4.1").unwrap();
         let mut b = Vec::new();
         
         f.read_to_end(&mut b)

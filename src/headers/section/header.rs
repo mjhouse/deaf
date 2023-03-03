@@ -220,7 +220,7 @@ mod tests {
 
     #[test]
     fn test_extract_section_headers() {
-        let mut f = File::open("assets/libvpf.so.4.1").unwrap();
+        let mut f = File::open("assets/libvpf/libvpf.so.4.1").unwrap();
         let mut b = Vec::new();
         
         f.read_to_end(&mut b)
@@ -248,7 +248,7 @@ mod tests {
 
     #[test]
     fn test_check_section_header_flags() {
-        let mut f = File::open("assets/libvpf.so.4.1").unwrap();
+        let mut f = File::open("assets/libvpf/libvpf.so.4.1").unwrap();
         let mut b = Vec::new();
         
         f.read_to_end(&mut b)

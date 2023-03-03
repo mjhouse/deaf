@@ -190,7 +190,7 @@ mod tests {
     use crate::headers::section::header::SectionHeader;
     use std::ops::{Index,IndexMut};
 
-    const TEST_TABLE: &[u8] = include!("../../assets/bytes/libqscintilla_init_array.in");
+    const TEST_TABLE: &[u8] = include!("../../assets/libqscintilla2/dump/section_init_array.in");
 
     // the starting byte of the test table
     const TEST_TABLE_OFFSET: usize = 0;
@@ -207,7 +207,7 @@ mod tests {
     #[test]
     fn test_extract_real_init_array() {
 
-        let mut f = File::open("assets/libqscintilla2_qt5.so.15.0.0").unwrap();
+        let mut f = File::open("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0").unwrap();
         let mut b = Vec::new();
         
         f.read_to_end(&mut b)

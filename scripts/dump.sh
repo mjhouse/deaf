@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# this script will use readelf to generate an `info.json` description of a 
-# given elf file for all sections. Use it like this:
-#   ./scripts/info.sh "assets/libvpf.so.4.1"
+if [ "$#" -ne 2 ]; then
+    echo "USAGE: ./scripts/dump.sh \"path/to/lib.so\" \".section.name\"";
+    exit 1;
+fi
+
 
 DATA=$(readelf -S $1);
 DATA=${DATA//$'\n'/};
@@ -18,13 +20,13 @@ BASENAME=${BASH_REMATCH[1]}
 # create the output location for the dump
 mkdir -p assets/${BASENAME}/dump/;
 
-# copy the target library to the dump
-cp $1 assets/${BASENAME};
+# copy the library if it doesn't exist
+cp -n $1 assets/${BASENAME};
 
 INFO="[\n\t";
 
 # this ugly-ass regex is brought to you by the letter A. A as in "[_A-Z]+"
-while [[ "$DATA" =~ \[[[:blank:]]*[[:digit:]]+\][[:blank:]]*([\.a-z]+)[[:blank:]]+([_A-Z]+)[[:blank:]]+0*([a-z0-9]*)[[:blank:]]+0*([a-z0-9]*)[[:blank:]]+([a-z0-9]+)[[:blank:]]+([a-z0-9]+) ]]; do
+while [[ "$DATA" =~ \[[[:blank:]]*[[:digit:]]+\][[:blank:]]*([\._a-zA-Z]+)[[:blank:]]+([_A-Z]+)[[:blank:]]+0*([a-z0-9]*)[[:blank:]]+0*([a-z0-9]*)[[:blank:]]+([a-z0-9]+)[[:blank:]]+([a-z0-9]+) ]]; do
     
     # parse matches from regular expression
     FULL_MATCH=${BASH_REMATCH[0]}
@@ -46,11 +48,6 @@ while [[ "$DATA" =~ \[[[:blank:]]*[[:digit:]]+\][[:blank:]]*([\.a-z]+)[[:blank:]
     SIZE=$(echo "ibase=16; ${SIZE_MATCH^^}" | bc);
     ENTS=$(echo "ibase=16; ${ENTS_MATCH^^}" | bc);
 
-    # skip big, useless sections
-    if [ "$NAME_MATCH" = ".text" ]; then
-        break;
-    fi
-
     # add section info to the json output
     INFO="${INFO}{
         \"name\": \"${NAME_MATCH}\",
@@ -61,31 +58,34 @@ while [[ "$DATA" =~ \[[[:blank:]]*[[:digit:]]+\][[:blank:]]*([\.a-z]+)[[:blank:]
         \"entsize\": \"${ENTS}\"
     },
     "
+    # only write out bytes for the requested section
+    if [ "$NAME_MATCH" = "$2" ]; then
 
-    # build a path to the dump file for the section
-    FILENAME=assets/${BASENAME}/dump/${NAME}.in
+        # build a path to the dump file for the section
+        FILENAME=assets/${BASENAME}/dump/${NAME}.in
 
-    # extract hex for the target secion
-    RESULT=$(hexdump -ve '1/1 "%.2x "' -s $OFFS -n $SIZE $1);
-    ARRAY=($RESULT);
+        # extract hex for the target secion
+        RESULT=$(hexdump -ve '1/1 "%.2x "' -s $OFFS -n $SIZE $1);
+        ARRAY=($RESULT);
 
-    # default to a set width if no entity size found
-    if [ "$ENTS" = "0" ]; then
-        ENTS=16
-    fi
-
-    # build a valid rust array to output
-    OUTPUT="&[";
-    for i in ${!ARRAY[@]}; do 
-        if ! (( $i % $ENTS )); then 
-            OUTPUT="${OUTPUT}\n\t";
+        # default to a set width if no entity size found
+        if [ "$ENTS" = "0" ]; then
+            ENTS=16
         fi
-        OUTPUT="${OUTPUT}0x${ARRAY[$i]}, ";
-    done
-    OUTPUT="${OUTPUT}\n]";
 
-    # dump the rust array to a file
-    echo -e "$OUTPUT" > ${FILENAME};
+        # build a valid rust array to output
+        OUTPUT="&[";
+        for i in ${!ARRAY[@]}; do 
+            if ! (( $i % $ENTS )); then 
+                OUTPUT="${OUTPUT}\n\t";
+            fi
+            OUTPUT="${OUTPUT}0x${ARRAY[$i]}, ";
+        done
+        OUTPUT="${OUTPUT}\n]";
+
+        # dump the rust array to a file
+        echo -e "$OUTPUT" > ${FILENAME};
+    fi
 done
 
 INFO="${INFO%,}\n]";

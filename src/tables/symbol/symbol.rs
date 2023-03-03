@@ -146,7 +146,7 @@ mod tests {
     use crate::headers::common::constants::{ST_SIZE_32,ST_SIZE_64};
     use crate::headers::common::constants::{STBind,STType};
 
-    const TEST_TABLE: &[u8] = include!("../../../assets/bytes/libvpf_symtab.in");
+    const TEST_TABLE: &[u8] = include!("../../../assets/libvpf/dump/section_dynsym.in");
 
     // the starting byte of the test table
     const TEST_TABLE_OFFSET: usize = 0;

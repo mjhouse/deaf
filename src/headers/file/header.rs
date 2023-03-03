@@ -266,7 +266,7 @@ mod tests {
     #[test]
     fn test_read_file_header() {
         // read file as byte array
-        let mut f = File::open("assets/libvpf.so.4.1").unwrap();
+        let mut f = File::open("assets/libvpf/libvpf.so.4.1").unwrap();
         let mut b = Vec::new();
         f.read_to_end(&mut b).unwrap();
 
@@ -289,7 +289,7 @@ mod tests {
     #[test]
     fn test_write_file_header_with_no_changes() {
         // read file as byte array
-        let mut f = File::open("assets/libvpf.so.4.1").unwrap();
+        let mut f = File::open("assets/libvpf/libvpf.so.4.1").unwrap();
         let mut b = Vec::new();
         f.read_to_end(&mut b).unwrap();
 
@@ -314,7 +314,7 @@ mod tests {
     #[test]
     fn test_write_file_header_with_changes() {
         // read file as byte array
-        let mut f = File::open("assets/libvpf.so.4.1").unwrap();
+        let mut f = File::open("assets/libvpf/libvpf.so.4.1").unwrap();
         let mut b = Vec::new();
         f.read_to_end(&mut b).unwrap();
 
