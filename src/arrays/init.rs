@@ -156,10 +156,10 @@ impl Array<i64> for InitArray {
 
 }
 
-impl TryFrom<SectionHeader> for InitArray {
+impl TryFrom<&SectionHeader> for InitArray {
     type Error = Error;
 
-    fn try_from(header: SectionHeader) -> Result<Self> {
+    fn try_from(header: &SectionHeader) -> Result<Self> {
         match header.values.sh_type {
             SHType::SHT_INIT_ARRAY => Ok(Self::new(
                 header.offset(),
@@ -173,6 +173,14 @@ impl TryFrom<SectionHeader> for InitArray {
     }
 }
 
+impl TryFrom<SectionHeader> for InitArray {
+    type Error = Error;
+
+    fn try_from(header: SectionHeader) -> Result<Self> {
+        Self::try_from(&header)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -180,6 +188,7 @@ mod tests {
     use std::io::Read;
     use crate::headers::file::header::FileHeader;
     use crate::headers::section::header::SectionHeader;
+    use std::ops::{Index,IndexMut};
 
     const TEST_TABLE: &[u8] = include!("../../assets/bytes/libqscintilla_init_array.in");
 
@@ -195,150 +204,143 @@ mod tests {
     // the size of an element in the test table
     const TEST_TABLE_ENTITY: usize = 8;
 
-    // #[test]
-    // fn test_extract_real_relocation_section_as_table() {
-    //     const SYMBOL_COUNT: usize = 210;
+    #[test]
+    fn test_extract_real_init_array() {
 
-    //     let mut f = File::open("assets/libjpeg.so.9").unwrap();
-    //     let mut b = Vec::new();
+        let mut f = File::open("assets/libqscintilla2_qt5.so.15.0.0").unwrap();
+        let mut b = Vec::new();
         
-    //     f.read_to_end(&mut b)
-    //         .unwrap();
+        f.read_to_end(&mut b)
+            .unwrap();
 
-    //     let file_header = FileHeader::parse(&b)
-    //         .unwrap();
+        let file_header = FileHeader::parse(&b)
+            .unwrap();
 
-    //     let count = file_header.shnum();
-    //     let offset = file_header.shoff();
-    //     let size = file_header.shentsize();
-    //     let layout = file_header.data();
-    //     let width = file_header.class();
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
         
-    //     let section_headers = SectionHeader::parse_all(
-    //         &b,
-    //         count,
-    //         offset,
-    //         size,
-    //         layout,
-    //         width);
+        let section_headers = SectionHeader::parse_all(
+            &b,
+            count,
+            offset,
+            size,
+            layout,
+            width);
 
-    //     assert!(section_headers.is_ok());
-    //     let headers = section_headers.unwrap();
+        assert!(section_headers.is_ok());
+        let headers = section_headers.unwrap();
 
-    //     for section in headers.into_iter() {
-    //         if section.section_type() == SHType::SHT_RELA {
-    //             // build a table from the section
-    //             let result = RelocationTable::try_from(section);
-    //             assert!(result.is_ok());
-    //             let mut table = result.unwrap();
+        let result = headers.iter().find(|&h| 
+            h.section_type() == SHType::SHT_INIT_ARRAY);
 
-    //             // read the table from the buffer
-    //             assert!(table.read(&b).is_ok());
+        assert!(result.is_some());
 
-    //             // verify that the table has expected length
-    //             assert_eq!(table.len(),SYMBOL_COUNT);
-    //             break;
-    //         }
-    //     }
-    // }
+        let header = result.unwrap();
+        let result = InitArray::try_from(header);
 
-    // #[test]
-    // fn test_read_relocation_table() {
+        assert!(result.is_ok());
+
+        let mut array = result.unwrap();
+
+        assert!(array.read(&b).is_ok());
+        assert_eq!(array.len(),TEST_TABLE_COUNT);
+    }
+
+    #[test]
+    fn test_read_init_array() {
         
-    //     // directly initialize a relocation table
-    //     let mut table = RelocationTable::new(
-    //         TEST_TABLE_OFFSET,
-    //         TEST_TABLE_LENGTH,
-    //         Layout::Little,
-    //         Width::X64,
-    //         TEST_TABLE_ENTITY
-    //     );
+        // directly initialize an array
+        let mut array = InitArray::new(
+            TEST_TABLE_OFFSET,
+            TEST_TABLE_LENGTH,
+            Layout::Little,
+            Width::X64,
+            TEST_TABLE_ENTITY
+        );
 
-    //     // read the test table and verify success
-    //     let result = table.read(TEST_TABLE);
-    //     assert!(result.is_ok());
+        // read the test array and verify success
+        let result = array.read(TEST_TABLE);
+        assert!(result.is_ok());
 
-    //     // verify that the table has the expected number of elements
-    //     assert_eq!(table.len(),TEST_TABLE_COUNT);
-    // }
+        // verify that the array has the expected number of elements
+        assert_eq!(array.len(),TEST_TABLE_COUNT);
+    }
 
-    // #[test]
-    // fn test_write_relocation_table_with_no_changes() {
+    #[test]
+    fn test_write_init_array_with_no_changes() {
 
-    //     // directly initialize a symbol table
-    //     let mut table = RelocationTable::new(
-    //         TEST_TABLE_OFFSET,
-    //         TEST_TABLE_LENGTH,
-    //         Layout::Little,
-    //         Width::X64,
-    //         TEST_TABLE_ENTITY
-    //     );
+        // directly initialize an array
+        let mut array = InitArray::new(
+            TEST_TABLE_OFFSET,
+            TEST_TABLE_LENGTH,
+            Layout::Little,
+            Width::X64,
+            TEST_TABLE_ENTITY
+        );
 
-    //     // read the test table and verify success
-    //     let mut result = table.read(TEST_TABLE);
-    //     assert!(result.is_ok());
+        // read the test array and verify success
+        let result = array.read(TEST_TABLE);
+        assert!(result.is_ok());
 
-    //     // initialize a buffer big enough for table data
-    //     let mut buffer: Vec<u8> = vec![];
-    //     buffer.resize(table.size(),0x00);
+        // initialize a buffer big enough for array data
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(array.size(),0x00);
 
-    //     // write to the new table
-    //     result = table.write(buffer.as_mut_slice());
-    //     assert!(result.is_ok());
+        // write to the new array
+        let result = array.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
 
-    //     // verify that the written table is the same as original
-    //     assert_eq!(buffer.as_slice(),TEST_TABLE);
-    // }
+        // verify that the written array is the same as original
+        assert_eq!(buffer.as_slice(),TEST_TABLE);
+    }
 
-    // #[test]
-    // fn test_write_relocation_table_with_changes() {
+    #[test]
+    fn test_write_init_array_with_changes() {
 
-    //     // directly initialize a relocation table
-    //     let mut table = RelocationTable::new(
-    //         TEST_TABLE_OFFSET,
-    //         TEST_TABLE_LENGTH,
-    //         Layout::Little,
-    //         Width::X64,
-    //         TEST_TABLE_ENTITY
-    //     );
+        // directly initialize an array
+        let mut array = InitArray::new(
+            TEST_TABLE_OFFSET,
+            TEST_TABLE_LENGTH,
+            Layout::Little,
+            Width::X64,
+            TEST_TABLE_ENTITY
+        );
 
-    //     // read the test table and verify success
-    //     let mut result = table.read(TEST_TABLE);
-    //     assert!(result.is_ok());
+        // read the test array and verify success
+        let result = array.read(TEST_TABLE);
+        assert!(result.is_ok());
 
-    //     // get a relocation from the table
-    //     let result = table.get(1);
-    //     assert!(result.is_some());
+        // remove an element from the array
+        let result = array.remove(1);
+        assert_eq!(result,0xa2ed0);
 
-    //     // modify the relocation attributes
-    //     let mut relocation = result.unwrap();
-    //     relocation.set_addend(Some(20));
+        // insert an element at that index
+        array.insert(1,123);
 
-    //     // update the string table with the modified string
-    //     let result = table.set(1,relocation);
-    //     assert!(result.is_ok());
+        // initialize a buffer big enough for modified table data
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(array.size(),0x00);
 
-    //     // initialize a buffer big enough for modified table data
-    //     let mut buffer: Vec<u8> = vec![];
-    //     buffer.resize(table.size(),0x00);
+        // write to the new table
+        let result = array.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
 
-    //     // write to the new table
-    //     let result = table.write(buffer.as_mut_slice());
-    //     assert!(result.is_ok());
+        // verify that the written table is not the same as original
+        assert_ne!(buffer.as_slice(),TEST_TABLE);
 
-    //     // verify that the written table is not the same as original
-    //     assert_ne!(buffer.as_slice(),TEST_TABLE);
+        // read the buffer and verify success
+        let result = array.read(&buffer);
+        assert!(result.is_ok());
 
-    //     // read the buffer and verify success
-    //     let mut result = table.read(&buffer);
-    //     assert!(result.is_ok());
+        // get an element from the table
+        let result = array.get(1);
+        assert!(result.is_some());
 
-    //     // get a relocation from the table
-    //     let result = table.get(1);
-    //     assert!(result.is_some());
-
-    //     // check the relocation attribute is changed
-    //     let mut relocation = result.unwrap();
-    //     assert_eq!(relocation.addend(),Some(20));
-    // }
+        // check the element is changed
+        let value = result.unwrap();
+        assert_eq!(value,&123);
+    }
 }

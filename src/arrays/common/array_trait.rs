@@ -1,5 +1,6 @@
 use crate::errors::Result;
 use std::ops::{Index,IndexMut};
+use std::slice::SliceIndex;
 
 /// Trait for ELF Array sections that mimics the API of Vec
 pub trait Array<T> {
@@ -25,21 +26,4 @@ pub trait Array<T> {
     /// Remove an element from the array
     fn remove(&mut self, index: usize) -> T;
 
-}
-
-/// Implementation for indexing of Array
-impl<T> Index<usize> for dyn Array<T> {
-    type Output = T;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        self.get(index).expect("Out of bounds")
-    }
-}
-
-/// Implementation for mutable indexing of Array
-impl<T> IndexMut<usize> for dyn Array<T> {
-
-    fn index_mut(&mut self, index: usize) -> &mut T {
-        self.get_mut(index).expect("Out of bounds")
-    }
 }
