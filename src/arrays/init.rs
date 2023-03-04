@@ -9,6 +9,7 @@ use crate::tables::common::ByteIter;
 
 use crate::arrays::common::{
     Array,
+    ArrayItem,
     constants::*
 };
 
@@ -32,20 +33,6 @@ impl InitArray {
             section_size: size,
             values: vec![],
         }
-    }
-
-    fn read_one(&self, bytes: &[u8]) -> Result<i64> {
-        Ok(match self.width {
-            Width::X32 => i32::from_bytes(bytes,self.layout)? as i64,
-            Width::X64 => i64::from_bytes(bytes,self.layout)?,
-        })
-    }
-
-    fn write_one(&self, bytes: &mut [u8], value: i64) -> Result<()> {
-        Ok(match self.width {
-            Width::X32 => (value as i32).to_bytes(bytes,self.layout)?,
-            Width::X64 => (value as i64).to_bytes(bytes,self.layout)?,
-        })
     }
 
     // reads from an offset to offset + section_size
@@ -78,7 +65,7 @@ impl InitArray {
 
         for data in ByteIter::length(&bytes[start..end],size) {            
             // parse an address from the byte slice
-            let value = self.read_one(data)?;
+            let value = i64::read(data,self.width,self.layout)?;
 
             // add the address to values
             values.push(value);
@@ -112,7 +99,7 @@ impl InitArray {
             let buffer = &mut bytes[start..end];
 
             // write the item to the byte slice
-            self.write_one(buffer,value);
+            value.write(buffer,self.width,self.layout)?;
         }
 
         Ok(self.values.len())
@@ -184,13 +171,11 @@ impl TryFrom<SectionHeader> for InitArray {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs::File;
-    use std::io::Read;
+
     use crate::headers::file::header::FileHeader;
     use crate::headers::section::header::SectionHeader;
-    use std::ops::{Index,IndexMut};
 
-    use crate::utilities::tests::{LIBQSCINTILLA_INIT_ARRAY as TEST,read};
+    use crate::utilities::tests::{LIBQSCINTILLA_INIT_ARRAY as TEST, read};
 
     #[test]
     fn test_extract_real_init_array() {
