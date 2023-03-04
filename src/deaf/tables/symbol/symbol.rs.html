@@ -263,23 +263,6 @@
 <a href="#263" id="263">263</a>
 <a href="#264" id="264">264</a>
 <a href="#265" id="265">265</a>
-<a href="#266" id="266">266</a>
-<a href="#267" id="267">267</a>
-<a href="#268" id="268">268</a>
-<a href="#269" id="269">269</a>
-<a href="#270" id="270">270</a>
-<a href="#271" id="271">271</a>
-<a href="#272" id="272">272</a>
-<a href="#273" id="273">273</a>
-<a href="#274" id="274">274</a>
-<a href="#275" id="275">275</a>
-<a href="#276" id="276">276</a>
-<a href="#277" id="277">277</a>
-<a href="#278" id="278">278</a>
-<a href="#279" id="279">279</a>
-<a href="#280" id="280">280</a>
-<a href="#281" id="281">281</a>
-<a href="#282" id="282">282</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span><span class="kw">crate</span>::headers::common::constants::{Width,Layout,STType};
 <span class="kw">use </span><span class="kw">crate</span>::headers::common::field::Field;
@@ -425,35 +408,18 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span><span class="kw">crate</span>::headers::common::constants::{ST_SIZE_32,ST_SIZE_64};
     <span class="kw">use </span><span class="kw">crate</span>::headers::common::constants::{STBind,STType};
+    <span class="kw">use </span><span class="kw">crate</span>::utilities::tests::{LIBVPF_DYNSYM <span class="kw">as </span>TEST,read};
 
-    <span class="kw">const </span>TEST_TABLE: <span class="kw-2">&amp;</span>[u8] = <span class="macro">include!</span>(<span class="string">&quot;../../../assets/bytes/libvpf_symtab.in&quot;</span>);
-
-    <span class="comment">// the starting byte of the test table
-    </span><span class="kw">const </span>TEST_TABLE_OFFSET: usize = <span class="number">0</span>;
-
-    <span class="comment">// the length in bytes of the test table
-    </span><span class="kw">const </span>TEST_TABLE_LENGTH: usize = <span class="number">7056</span>;
-
-    <span class="comment">// the number of elements in the test table
-    </span><span class="kw">const </span>TEST_TABLE_COUNT: usize = <span class="number">294</span>;
-
-    <span class="comment">// the size of an element in the test table
-    </span><span class="kw">const </span>TEST_TABLE_ENTITY: usize = <span class="number">24</span>;
-
-    <span class="comment">// dump symbols:
-    //      readelf --symbols assets/libvpf.so.4.1
-
-    </span><span class="attr">#[test]
+    <span class="attr">#[test]
     </span><span class="kw">fn </span>test_symbol_parse_value() {
         <span class="comment">// calculate the element size and position
         </span><span class="kw">let </span>index = <span class="number">150</span>;
-        <span class="kw">let </span>start = ST_SIZE_64 * index;
-        <span class="kw">let </span>end = start + ST_SIZE_64;
+        <span class="kw">let </span>start = TEST.entsize * index;
+        <span class="kw">let </span>end = start + TEST.entsize;
 
         <span class="comment">// parse the Symbol from the byte buffer
-        </span><span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST_TABLE[start..end];
+        </span><span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST.bytes[start..end];
         <span class="kw">let </span>result = Symbol::parse(bytes,Layout::Little,Width::X64);
 
         <span class="comment">// unwrap the resulting symbol
@@ -468,11 +434,11 @@
     </span><span class="kw">fn </span>test_symbol_parse_info_object() {
         <span class="comment">// calculate the element size and position
         </span><span class="kw">let </span>index = <span class="number">99</span>;
-        <span class="kw">let </span>start = ST_SIZE_64 * index;
-        <span class="kw">let </span>end = start + ST_SIZE_64;
+        <span class="kw">let </span>start = TEST.entsize * index;
+        <span class="kw">let </span>end = start + TEST.entsize;
 
         <span class="comment">// parse the Symbol from the byte buffer
-        </span><span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST_TABLE[start..end];
+        </span><span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST.bytes[start..end];
         <span class="kw">let </span>result = Symbol::parse(bytes,Layout::Little,Width::X64);
 
         <span class="comment">// unwrap the resulting symbol
@@ -489,11 +455,11 @@
     </span><span class="kw">fn </span>test_symbol_parse_info_symbol() {
         <span class="comment">// calculate the element size and position
         </span><span class="kw">let </span>index = <span class="number">150</span>;
-        <span class="kw">let </span>start = ST_SIZE_64 * index;
-        <span class="kw">let </span>end = start + ST_SIZE_64;
+        <span class="kw">let </span>start = TEST.entsize * index;
+        <span class="kw">let </span>end = start + TEST.entsize;
 
         <span class="comment">// parse the Symbol from the byte buffer
-        </span><span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST_TABLE[start..end];
+        </span><span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST.bytes[start..end];
         <span class="kw">let </span>result = Symbol::parse(bytes,Layout::Little,Width::X64);
 
         <span class="comment">// unwrap the resulting symbol
@@ -510,12 +476,12 @@
     </span><span class="kw">fn </span>test_symbol_write_no_change() {
         <span class="comment">// calculate the element size and position
         </span><span class="kw">let </span>index = <span class="number">150</span>;
-        <span class="kw">let </span>start = ST_SIZE_64 * index;
-        <span class="kw">let </span>end = start + ST_SIZE_64;
+        <span class="kw">let </span>start = TEST.entsize * index;
+        <span class="kw">let </span>end = start + TEST.entsize;
 
         <span class="comment">// parse the Symbol from the byte buffer
-        </span><span class="kw">let </span><span class="kw-2">mut </span>result = [<span class="number">0</span>;ST_SIZE_64];
-        <span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST_TABLE[start..end];
+        </span><span class="kw">let </span><span class="kw-2">mut </span>result = [<span class="number">0</span>;TEST.entsize];
+        <span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST.bytes[start..end];
         <span class="kw">let </span>parsed = Symbol::parse(bytes,Layout::Little,Width::X64);
 
         <span class="comment">// unwrap the resulting symbol
@@ -531,12 +497,12 @@
     </span><span class="kw">fn </span>test_symbol_write_with_change() {
         <span class="comment">// calculate the element size and position
         </span><span class="kw">let </span>index = <span class="number">150</span>;
-        <span class="kw">let </span>start = ST_SIZE_64 * index;
-        <span class="kw">let </span>end = start + ST_SIZE_64;
+        <span class="kw">let </span>start = TEST.entsize * index;
+        <span class="kw">let </span>end = start + TEST.entsize;
 
         <span class="comment">// parse the Symbol from the byte buffer
-        </span><span class="kw">let </span><span class="kw-2">mut </span>result = [<span class="number">0</span>;ST_SIZE_64];
-        <span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST_TABLE[start..end];
+        </span><span class="kw">let </span><span class="kw-2">mut </span>result = [<span class="number">0</span>;TEST.entsize];
+        <span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST.bytes[start..end];
         <span class="kw">let </span>parsed = Symbol::parse(bytes,Layout::Little,Width::X64);
 
         <span class="comment">// unwrap the resulting symbol

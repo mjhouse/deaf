@@ -616,7 +616,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_read_file_header() {
         <span class="comment">// read file as byte array
-        </span><span class="kw">let </span><span class="kw-2">mut </span>f = File::open(<span class="string">&quot;assets/libvpf.so.4.1&quot;</span>).unwrap();
+        </span><span class="kw">let </span><span class="kw-2">mut </span>f = File::open(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>b = Vec::new();
         f.read_to_end(<span class="kw-2">&amp;mut </span>b).unwrap();
 
@@ -639,7 +639,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_file_header_with_no_changes() {
         <span class="comment">// read file as byte array
-        </span><span class="kw">let </span><span class="kw-2">mut </span>f = File::open(<span class="string">&quot;assets/libvpf.so.4.1&quot;</span>).unwrap();
+        </span><span class="kw">let </span><span class="kw-2">mut </span>f = File::open(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>b = Vec::new();
         f.read_to_end(<span class="kw-2">&amp;mut </span>b).unwrap();
 
@@ -664,7 +664,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_file_header_with_changes() {
         <span class="comment">// read file as byte array
-        </span><span class="kw">let </span><span class="kw-2">mut </span>f = File::open(<span class="string">&quot;assets/libvpf.so.4.1&quot;</span>).unwrap();
+        </span><span class="kw">let </span><span class="kw-2">mut </span>f = File::open(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>b = Vec::new();
         f.read_to_end(<span class="kw-2">&amp;mut </span>b).unwrap();
 

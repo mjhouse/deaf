@@ -232,20 +232,6 @@
 <a href="#232" id="232">232</a>
 <a href="#233" id="233">233</a>
 <a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
-<a href="#238" id="238">238</a>
-<a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
-<a href="#241" id="241">241</a>
-<a href="#242" id="242">242</a>
-<a href="#243" id="243">243</a>
-<a href="#244" id="244">244</a>
-<a href="#245" id="245">245</a>
-<a href="#246" id="246">246</a>
-<a href="#247" id="247">247</a>
-<a href="#248" id="248">248</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span><span class="kw">crate</span>::headers::common::constants::{Width,Layout};
 <span class="kw">use </span><span class="kw">crate</span>::headers::common::field::Field;
@@ -356,30 +342,16 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span><span class="kw">crate</span>::headers::common::constants::{RT_SIZE_64};
-
-    <span class="kw">const </span>TEST_TABLE: <span class="kw-2">&amp;</span>[u8] = <span class="macro">include!</span>(<span class="string">&quot;../../../assets/bytes/libvpf_rela.dyn.in&quot;</span>);
-
-    <span class="comment">// the starting byte of the test table
-    </span><span class="kw">const </span>TEST_TABLE_OFFSET: usize = <span class="number">0</span>;
-
-    <span class="comment">// the length in bytes of the test table
-    </span><span class="kw">const </span>TEST_TABLE_LENGTH: usize = <span class="number">1224</span>;
-
-    <span class="comment">// the number of elements in the test table
-    </span><span class="kw">const </span>TEST_TABLE_COUNT: usize = <span class="number">51</span>;
-
-    <span class="comment">// the size of an element in the test table
-    </span><span class="kw">const </span>TEST_TABLE_ENTITY: usize = <span class="number">24</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::utilities::tests::{LIBVPF_RELA_DYN <span class="kw">as </span>TEST,read};
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_relocation_parse_offset() {
         <span class="comment">// calculate table offset
-        </span><span class="kw">let </span>start = TEST_TABLE_ENTITY * <span class="number">1</span>;
-        <span class="kw">let </span>end = start + TEST_TABLE_ENTITY;
+        </span><span class="kw">let </span>start = TEST.entsize * <span class="number">1</span>;
+        <span class="kw">let </span>end = start + TEST.entsize;
 
         <span class="comment">// get a constrained slice and parse
-        </span><span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST_TABLE[start..end];
+        </span><span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST.bytes[start..end];
         <span class="kw">let </span>result = Relocation::parse(bytes,Layout::Little,Width::X64);
 
         <span class="comment">// unwrap the resulting relocation
@@ -393,11 +365,11 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_relocation_parse_info() {
         <span class="comment">// calculate table offset
-        </span><span class="kw">let </span>start = TEST_TABLE_ENTITY * <span class="number">38</span>;
-        <span class="kw">let </span>end = start + TEST_TABLE_ENTITY;
+        </span><span class="kw">let </span>start = TEST.entsize * <span class="number">38</span>;
+        <span class="kw">let </span>end = start + TEST.entsize;
 
         <span class="comment">// get a constrained slice and parse
-        </span><span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST_TABLE[start..end];
+        </span><span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST.bytes[start..end];
         <span class="kw">let </span>result = Relocation::parse(bytes,Layout::Little,Width::X64);
 
         <span class="comment">// unwrap the resulting relocation
@@ -415,11 +387,11 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_relocation_parse_addend_rela() {
         <span class="comment">// calculate table offset
-        </span><span class="kw">let </span>start = TEST_TABLE_ENTITY * <span class="number">1</span>;
-        <span class="kw">let </span>end = start + TEST_TABLE_ENTITY;
+        </span><span class="kw">let </span>start = TEST.entsize * <span class="number">1</span>;
+        <span class="kw">let </span>end = start + TEST.entsize;
 
         <span class="comment">// get a constrained slice and parse
-        </span><span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST_TABLE[start..end];
+        </span><span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST.bytes[start..end];
         <span class="kw">let </span>result = Relocation::parse(bytes,Layout::Little,Width::X64);
 
         <span class="comment">// unwrap the resulting relocation
@@ -436,11 +408,11 @@
         </span><span class="kw">let </span>length = <span class="number">16</span>;
 
         <span class="comment">// calculate table offset (using addend lengths)
-        </span><span class="kw">let </span>start = TEST_TABLE_ENTITY * <span class="number">1</span>;
+        </span><span class="kw">let </span>start = TEST.entsize * <span class="number">1</span>;
         <span class="kw">let </span>end = start + length; <span class="comment">// leave off the addend
 
         // get a constrained slice and parse
-        </span><span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST_TABLE[start..end];
+        </span><span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST.bytes[start..end];
         <span class="kw">let </span>result = Relocation::parse(bytes,Layout::Little,Width::X64);
 
         <span class="comment">// unwrap the resulting relocation
@@ -454,8 +426,8 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_relocation_write_no_change() {
         <span class="comment">// calculate table offset
-        </span><span class="kw">let </span><span class="kw-2">mut </span>result = [<span class="number">0</span>;RT_SIZE_64];
-        <span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST_TABLE[..RT_SIZE_64];
+        </span><span class="kw">let </span><span class="kw-2">mut </span>result = [<span class="number">0</span>;TEST.entsize];
+        <span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST.bytes[..TEST.entsize];
         
         <span class="comment">// parse the relocation from the buffer
         </span><span class="kw">let </span>parsed = Relocation::parse(bytes,Layout::Little,Width::X64);
@@ -470,8 +442,8 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_relocation_write_change() {
-        <span class="kw">let </span><span class="kw-2">mut </span>result = [<span class="number">0</span>;RT_SIZE_64];
-        <span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST_TABLE[..RT_SIZE_64];
+        <span class="kw">let </span><span class="kw-2">mut </span>result = [<span class="number">0</span>;TEST.entsize];
+        <span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>TEST.bytes[..TEST.entsize];
         
         <span class="comment">// parse a relocation record from the relocation table
         </span><span class="kw">let </span>parsed = Relocation::parse(bytes,Layout::Little,Width::X64);

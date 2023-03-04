@@ -396,7 +396,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_extract_program_headers() {
-        <span class="kw">let </span><span class="kw-2">mut </span>f = File::open(<span class="string">&quot;assets/libvpf.so.4.1&quot;</span>).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>f = File::open(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>b = Vec::new();
         
         f.read_to_end(<span class="kw-2">&amp;mut </span>b)

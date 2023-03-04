@@ -277,10 +277,6 @@
 <a href="#277" id="277">277</a>
 <a href="#278" id="278">278</a>
 <a href="#279" id="279">279</a>
-<a href="#280" id="280">280</a>
-<a href="#281" id="281">281</a>
-<a href="#282" id="282">282</a>
-<a href="#283" id="283">283</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span><span class="kw">crate</span>::headers::section::header::{
     SectionHeader,
@@ -414,16 +410,24 @@
 
 }
 
-<span class="kw">impl </span>TryFrom&lt;SectionHeader&gt; <span class="kw">for </span>StringTable {
+<span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>SectionHeader&gt; <span class="kw">for </span>StringTable {
     <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn </span>try_from(header: SectionHeader) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>try_from(header: <span class="kw-2">&amp;</span>SectionHeader) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>header.values.sh_type {
             SHType::SHT_STRTAB =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(
                 header.offset(),
                 header.size())),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::WrongSectionError)
         }
+    }
+}
+
+<span class="kw">impl </span>TryFrom&lt;SectionHeader&gt; <span class="kw">for </span>StringTable {
+    <span class="kw">type </span>Error = Error;
+
+    <span class="kw">fn </span>try_from(header: SectionHeader) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="self">Self</span>::try_from(<span class="kw-2">&amp;</span>header)
     }
 }
 
@@ -435,24 +439,11 @@
     <span class="kw">use </span><span class="kw">crate</span>::headers::file::header::FileHeader;
     <span class="kw">use </span><span class="kw">crate</span>::headers::section::header::SectionHeader;
 
-    <span class="kw">const </span>TEST_TABLE: <span class="kw-2">&amp;</span>[u8] = <span class="macro">include!</span>(<span class="string">&quot;../../../assets/bytes/libvpf_strtab.in&quot;</span>);
-
-    <span class="comment">// the starting byte of the test table
-    </span><span class="kw">const </span>TEST_TABLE_OFFSET: usize = <span class="number">0</span>;
-
-    <span class="comment">// the length in bytes of the test table
-    </span><span class="kw">const </span>TEST_TABLE_LENGTH: usize = <span class="number">263</span>;
-
-    <span class="comment">// the number of elements in the test table
-    </span><span class="kw">const </span>TEST_TABLE_COUNT: usize = <span class="number">25</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::utilities::tests::{LIBVPF_SHSTRTAB <span class="kw">as </span>TEST, read};
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_extract_real_shstrtab_section_as_table() {
-        <span class="kw">let </span><span class="kw-2">mut </span>f = File::open(<span class="string">&quot;assets/libvpf.so.4.1&quot;</span>).unwrap();
-        <span class="kw">let </span><span class="kw-2">mut </span>b = Vec::new();
-        
-        f.read_to_end(<span class="kw-2">&amp;mut </span>b)
-            .unwrap();
+        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>);
 
         <span class="comment">// get the fileheader and use it to find section headers
         </span><span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
@@ -477,42 +468,43 @@
         <span class="macro">assert!</span>(section_headers.is_ok());
         <span class="kw">let </span>headers = section_headers.unwrap();
 
-        <span class="comment">// find the first string table header
-        </span><span class="kw">for </span>(i,section) <span class="kw">in </span>headers.into_iter().enumerate() {
-            <span class="kw">if </span>i == index {
-                <span class="comment">// build a string table from the section
-                </span><span class="kw">let </span>result = StringTable::try_from(section);
-                <span class="macro">assert!</span>(result.is_ok());
-                <span class="kw">let </span><span class="kw-2">mut </span>table = result.unwrap();
+        <span class="kw">let </span>result = headers
+            .iter()
+            .enumerate()
+            .find(|(i,<span class="kw">_</span>)| <span class="kw-2">*</span>i == index)
+            .map(|(<span class="kw">_</span>,h)| h);
 
-                <span class="comment">// read the string table from the buffer
-                </span><span class="macro">assert!</span>(table.read(<span class="kw-2">&amp;</span>b).is_ok());
+        <span class="macro">assert!</span>(result.is_some());
 
-                <span class="comment">// verify that the string table has expected length
-                </span><span class="macro">assert_eq!</span>(table.len(),TEST_TABLE_COUNT);
+        <span class="kw">let </span>header = result.unwrap();
+        <span class="kw">let </span>result = StringTable::try_from(header);
 
-                <span class="comment">// don&#39;t process any more section headers
-                </span><span class="kw">break</span>;
-            }
-        }
+        <span class="macro">assert!</span>(result.is_ok());
+
+        <span class="kw">let </span><span class="kw-2">mut </span>table = result.unwrap();
+
+        <span class="macro">assert!</span>(table.read(<span class="kw-2">&amp;</span>b).is_ok());
+        <span class="macro">assert_eq!</span>(table.len(),TEST.length);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_read_string_table() {
         <span class="comment">// read the test table data
-        </span><span class="kw">let </span><span class="kw-2">mut </span>table = StringTable::new(TEST_TABLE_OFFSET,TEST_TABLE_LENGTH);
-        <span class="kw">let </span>result = table.read(TEST_TABLE);
+        </span><span class="kw">let </span><span class="kw-2">mut </span>table = StringTable::new(<span class="number">0</span>,TEST.size);
+
+        <span class="kw">let </span>result = table.read(TEST.bytes);
         <span class="macro">assert!</span>(result.is_ok());
 
         <span class="comment">// verify that the table has the expected number of elements
-        </span><span class="macro">assert_eq!</span>(table.len(),TEST_TABLE_COUNT);
+        </span><span class="macro">assert_eq!</span>(table.len(),TEST.length);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_string_table_with_no_changes() {
         <span class="comment">// read the test table data
-        </span><span class="kw">let </span><span class="kw-2">mut </span>table = StringTable::new(TEST_TABLE_OFFSET,TEST_TABLE_LENGTH);
-        <span class="kw">let </span><span class="kw-2">mut </span>result = table.read(TEST_TABLE);
+        </span><span class="kw">let </span><span class="kw-2">mut </span>table = StringTable::new(<span class="number">0</span>,TEST.size);
+
+        <span class="kw">let </span><span class="kw-2">mut </span>result = table.read(TEST.bytes);
         <span class="macro">assert!</span>(result.is_ok());
 
         <span class="comment">// initialize a buffer big enough for table data
@@ -524,7 +516,7 @@
         <span class="macro">assert!</span>(result.is_ok());
 
         <span class="comment">// verify that the written table is the same as original
-        </span><span class="macro">assert_eq!</span>(buffer.as_slice(),TEST_TABLE);
+        </span><span class="macro">assert_eq!</span>(buffer.as_slice(),TEST.bytes);
     }
 
     <span class="attr">#[test]
@@ -533,8 +525,8 @@
         <span class="kw">const </span>TEST_LEN: usize = <span class="number">5</span>;
 
         <span class="comment">// read the test table data
-        </span><span class="kw">let </span><span class="kw-2">mut </span>table = StringTable::new(TEST_TABLE_OFFSET,TEST_TABLE_LENGTH);
-        <span class="kw">let </span>result = table.read(TEST_TABLE);
+        </span><span class="kw">let </span><span class="kw-2">mut </span>table = StringTable::new(<span class="number">0</span>,TEST.size);
+        <span class="kw">let </span>result = table.read(TEST.bytes);
         <span class="macro">assert!</span>(result.is_ok());
 
         <span class="comment">// get a string from the table
@@ -559,8 +551,8 @@
         <span class="macro">assert!</span>(result.is_ok());
 
         <span class="comment">// verify that the written table is not the same as original
-        </span><span class="macro">assert_ne!</span>(buffer.as_slice(),TEST_TABLE);
-        <span class="macro">assert_eq!</span>(buffer.len(),TEST_TABLE_LENGTH + TEST_LEN);
+        </span><span class="macro">assert_ne!</span>(buffer.as_slice(),TEST.bytes);
+        <span class="macro">assert_eq!</span>(buffer.len(),TEST.size + TEST_LEN);
     }
 
 }</code></pre></div>

@@ -327,28 +327,13 @@
 <a href="#327" id="327">327</a>
 <a href="#328" id="328">328</a>
 <a href="#329" id="329">329</a>
-<a href="#330" id="330">330</a>
-<a href="#331" id="331">331</a>
-<a href="#332" id="332">332</a>
-<a href="#333" id="333">333</a>
-<a href="#334" id="334">334</a>
-<a href="#335" id="335">335</a>
-<a href="#336" id="336">336</a>
-<a href="#337" id="337">337</a>
-<a href="#338" id="338">338</a>
-<a href="#339" id="339">339</a>
-<a href="#340" id="340">340</a>
-<a href="#341" id="341">341</a>
-<a href="#342" id="342">342</a>
-<a href="#343" id="343">343</a>
-<a href="#344" id="344">344</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span><span class="kw">crate</span>::headers::common::constants::{Width,Layout,SHType};
 <span class="kw">use </span><span class="kw">crate</span>::headers::section::header::{
     SectionHeader,
     SectionHeaderValues
 };
-<span class="kw">use </span><span class="kw">crate</span>::headers::common::bytes::{FromBytes,IntoBytes};
+<span class="kw">use </span><span class="kw">crate</span>::common::bytes::{FromBytes,IntoBytes};
 <span class="kw">use </span><span class="kw">crate</span>::tables::common::ByteIter;
 
 <span class="kw">use </span><span class="kw">crate</span>::arrays::common::{
@@ -500,10 +485,10 @@
 
 }
 
-<span class="kw">impl </span>TryFrom&lt;SectionHeader&gt; <span class="kw">for </span>InitArray {
+<span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>SectionHeader&gt; <span class="kw">for </span>InitArray {
     <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn </span>try_from(header: SectionHeader) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>try_from(header: <span class="kw-2">&amp;</span>SectionHeader) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>header.values.sh_type {
             SHType::SHT_INIT_ARRAY =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(
                 header.offset(),
@@ -517,6 +502,14 @@
     }
 }
 
+<span class="kw">impl </span>TryFrom&lt;SectionHeader&gt; <span class="kw">for </span>InitArray {
+    <span class="kw">type </span>Error = Error;
+
+    <span class="kw">fn </span>try_from(header: SectionHeader) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="self">Self</span>::try_from(<span class="kw-2">&amp;</span>header)
+    }
+}
+
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
@@ -524,166 +517,143 @@
     <span class="kw">use </span>std::io::Read;
     <span class="kw">use </span><span class="kw">crate</span>::headers::file::header::FileHeader;
     <span class="kw">use </span><span class="kw">crate</span>::headers::section::header::SectionHeader;
+    <span class="kw">use </span>std::ops::{Index,IndexMut};
 
-    <span class="kw">const </span>TEST_TABLE: <span class="kw-2">&amp;</span>[u8] = <span class="macro">include!</span>(<span class="string">&quot;../../assets/bytes/libqscintilla_init_array.in&quot;</span>);
+    <span class="kw">use </span><span class="kw">crate</span>::utilities::tests::{LIBQSCINTILLA_INIT_ARRAY <span class="kw">as </span>TEST,read};
 
-    <span class="comment">// the starting byte of the test table
-    </span><span class="kw">const </span>TEST_TABLE_OFFSET: usize = <span class="number">0</span>;
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_extract_real_init_array() {
+        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0&quot;</span>); 
 
-    <span class="comment">// the length in bytes of the test table
-    </span><span class="kw">const </span>TEST_TABLE_LENGTH: usize = <span class="number">912</span>;
+        <span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
+            .unwrap();
 
-    <span class="comment">// the number of elements in the test table
-    </span><span class="kw">const </span>TEST_TABLE_COUNT: usize = <span class="number">114</span>;
-
-    <span class="comment">// the size of an element in the test table
-    </span><span class="kw">const </span>TEST_TABLE_ENTITY: usize = <span class="number">8</span>;
-
-    <span class="comment">// #[test]
-    // fn test_extract_real_relocation_section_as_table() {
-    //     const SYMBOL_COUNT: usize = 210;
-
-    //     let mut f = File::open(&quot;assets/libjpeg.so.9&quot;).unwrap();
-    //     let mut b = Vec::new();
+        <span class="kw">let </span>count = file_header.shnum();
+        <span class="kw">let </span>offset = file_header.shoff();
+        <span class="kw">let </span>size = file_header.shentsize();
+        <span class="kw">let </span>layout = file_header.data();
+        <span class="kw">let </span>width = file_header.class();
         
-    //     f.read_to_end(&amp;mut b)
-    //         .unwrap();
+        <span class="kw">let </span>section_headers = SectionHeader::parse_all(
+            <span class="kw-2">&amp;</span>b,
+            count,
+            offset,
+            size,
+            layout,
+            width);
 
-    //     let file_header = FileHeader::parse(&amp;b)
-    //         .unwrap();
+        <span class="macro">assert!</span>(section_headers.is_ok());
+        <span class="kw">let </span>headers = section_headers.unwrap();
 
-    //     let count = file_header.shnum();
-    //     let offset = file_header.shoff();
-    //     let size = file_header.shentsize();
-    //     let layout = file_header.data();
-    //     let width = file_header.class();
+        <span class="kw">let </span>result = headers.iter().find(|<span class="kw-2">&amp;</span>h| 
+            h.section_type() == SHType::SHT_INIT_ARRAY);
+
+        <span class="macro">assert!</span>(result.is_some());
+
+        <span class="kw">let </span>header = result.unwrap();
+        <span class="kw">let </span>result = InitArray::try_from(header);
+
+        <span class="macro">assert!</span>(result.is_ok());
+
+        <span class="kw">let </span><span class="kw-2">mut </span>array = result.unwrap();
+
+        <span class="macro">assert!</span>(array.read(<span class="kw-2">&amp;</span>b).is_ok());
+        <span class="macro">assert_eq!</span>(array.len(),TEST.length);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_read_init_array() {
         
-    //     let section_headers = SectionHeader::parse_all(
-    //         &amp;b,
-    //         count,
-    //         offset,
-    //         size,
-    //         layout,
-    //         width);
+        <span class="comment">// directly initialize an array
+        </span><span class="kw">let </span><span class="kw-2">mut </span>array = InitArray::new(
+            <span class="number">0</span>, <span class="comment">// because we&#39;re reading directly
+            </span>TEST.size,
+            Layout::Little,
+            Width::X64,
+            TEST.entsize
+        );
 
-    //     assert!(section_headers.is_ok());
-    //     let headers = section_headers.unwrap();
+        <span class="comment">// read the test array and verify success
+        </span><span class="kw">let </span>result = array.read(TEST.bytes);
+        <span class="macro">assert!</span>(result.is_ok());
 
-    //     for section in headers.into_iter() {
-    //         if section.section_type() == SHType::SHT_RELA {
-    //             // build a table from the section
-    //             let result = RelocationTable::try_from(section);
-    //             assert!(result.is_ok());
-    //             let mut table = result.unwrap();
+        <span class="comment">// verify that the array has the expected number of elements
+        </span><span class="macro">assert_eq!</span>(array.len(),TEST.length);
+    }
 
-    //             // read the table from the buffer
-    //             assert!(table.read(&amp;b).is_ok());
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_write_init_array_with_no_changes() {
 
-    //             // verify that the table has expected length
-    //             assert_eq!(table.len(),SYMBOL_COUNT);
-    //             break;
-    //         }
-    //     }
-    // }
+        <span class="comment">// directly initialize an array
+        </span><span class="kw">let </span><span class="kw-2">mut </span>array = InitArray::new(
+            <span class="number">0</span>, <span class="comment">// because we&#39;re reading directly
+            </span>TEST.size,
+            Layout::Little,
+            Width::X64,
+            TEST.entsize
+        );
 
-    // #[test]
-    // fn test_read_relocation_table() {
-        
-    //     // directly initialize a relocation table
-    //     let mut table = RelocationTable::new(
-    //         TEST_TABLE_OFFSET,
-    //         TEST_TABLE_LENGTH,
-    //         Layout::Little,
-    //         Width::X64,
-    //         TEST_TABLE_ENTITY
-    //     );
+        <span class="comment">// read the test array and verify success
+        </span><span class="kw">let </span>result = array.read(TEST.bytes);
+        <span class="macro">assert!</span>(result.is_ok());
 
-    //     // read the test table and verify success
-    //     let result = table.read(TEST_TABLE);
-    //     assert!(result.is_ok());
+        <span class="comment">// initialize a buffer big enough for array data
+        </span><span class="kw">let </span><span class="kw-2">mut </span>buffer: Vec&lt;u8&gt; = <span class="macro">vec!</span>[];
+        buffer.resize(array.size(),<span class="number">0x00</span>);
 
-    //     // verify that the table has the expected number of elements
-    //     assert_eq!(table.len(),TEST_TABLE_COUNT);
-    // }
+        <span class="comment">// write to the new array
+        </span><span class="kw">let </span>result = array.write(buffer.as_mut_slice());
+        <span class="macro">assert!</span>(result.is_ok());
 
-    // #[test]
-    // fn test_write_relocation_table_with_no_changes() {
+        <span class="comment">// verify that the written array is the same as original
+        </span><span class="macro">assert_eq!</span>(buffer.as_slice(),TEST.bytes);
+    }
 
-    //     // directly initialize a symbol table
-    //     let mut table = RelocationTable::new(
-    //         TEST_TABLE_OFFSET,
-    //         TEST_TABLE_LENGTH,
-    //         Layout::Little,
-    //         Width::X64,
-    //         TEST_TABLE_ENTITY
-    //     );
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_write_init_array_with_changes() {
 
-    //     // read the test table and verify success
-    //     let mut result = table.read(TEST_TABLE);
-    //     assert!(result.is_ok());
+        <span class="comment">// directly initialize an array
+        </span><span class="kw">let </span><span class="kw-2">mut </span>array = InitArray::new(
+            <span class="number">0</span>, <span class="comment">// because we&#39;re reading directly
+            </span>TEST.size,
+            Layout::Little,
+            Width::X64,
+            TEST.entsize
+        );
 
-    //     // initialize a buffer big enough for table data
-    //     let mut buffer: Vec&lt;u8&gt; = vec![];
-    //     buffer.resize(table.size(),0x00);
+        <span class="comment">// read the test array and verify success
+        </span><span class="kw">let </span>result = array.read(TEST.bytes);
+        <span class="macro">assert!</span>(result.is_ok());
 
-    //     // write to the new table
-    //     result = table.write(buffer.as_mut_slice());
-    //     assert!(result.is_ok());
+        <span class="comment">// remove an element from the array
+        </span><span class="kw">let </span>result = array.remove(<span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(result,<span class="number">0xa2ed0</span>);
 
-    //     // verify that the written table is the same as original
-    //     assert_eq!(buffer.as_slice(),TEST_TABLE);
-    // }
+        <span class="comment">// insert an element at that index
+        </span>array.insert(<span class="number">1</span>,<span class="number">123</span>);
 
-    // #[test]
-    // fn test_write_relocation_table_with_changes() {
+        <span class="comment">// initialize a buffer big enough for modified table data
+        </span><span class="kw">let </span><span class="kw-2">mut </span>buffer: Vec&lt;u8&gt; = <span class="macro">vec!</span>[];
+        buffer.resize(array.size(),<span class="number">0x00</span>);
 
-    //     // directly initialize a relocation table
-    //     let mut table = RelocationTable::new(
-    //         TEST_TABLE_OFFSET,
-    //         TEST_TABLE_LENGTH,
-    //         Layout::Little,
-    //         Width::X64,
-    //         TEST_TABLE_ENTITY
-    //     );
+        <span class="comment">// write to the new table
+        </span><span class="kw">let </span>result = array.write(buffer.as_mut_slice());
+        <span class="macro">assert!</span>(result.is_ok());
 
-    //     // read the test table and verify success
-    //     let mut result = table.read(TEST_TABLE);
-    //     assert!(result.is_ok());
+        <span class="comment">// verify that the written table is not the same as original
+        </span><span class="macro">assert_ne!</span>(buffer.as_slice(),TEST.bytes);
 
-    //     // get a relocation from the table
-    //     let result = table.get(1);
-    //     assert!(result.is_some());
+        <span class="comment">// read the buffer and verify success
+        </span><span class="kw">let </span>result = array.read(<span class="kw-2">&amp;</span>buffer);
+        <span class="macro">assert!</span>(result.is_ok());
 
-    //     // modify the relocation attributes
-    //     let mut relocation = result.unwrap();
-    //     relocation.set_addend(Some(20));
+        <span class="comment">// get an element from the table
+        </span><span class="kw">let </span>result = array.get(<span class="number">1</span>);
+        <span class="macro">assert!</span>(result.is_some());
 
-    //     // update the string table with the modified string
-    //     let result = table.set(1,relocation);
-    //     assert!(result.is_ok());
-
-    //     // initialize a buffer big enough for modified table data
-    //     let mut buffer: Vec&lt;u8&gt; = vec![];
-    //     buffer.resize(table.size(),0x00);
-
-    //     // write to the new table
-    //     let result = table.write(buffer.as_mut_slice());
-    //     assert!(result.is_ok());
-
-    //     // verify that the written table is not the same as original
-    //     assert_ne!(buffer.as_slice(),TEST_TABLE);
-
-    //     // read the buffer and verify success
-    //     let mut result = table.read(&amp;buffer);
-    //     assert!(result.is_ok());
-
-    //     // get a relocation from the table
-    //     let result = table.get(1);
-    //     assert!(result.is_some());
-
-    //     // check the relocation attribute is changed
-    //     let mut relocation = result.unwrap();
-    //     assert_eq!(relocation.addend(),Some(20));
-    // }
-</span>}</code></pre></div>
+        <span class="comment">// check the element is changed
+        </span><span class="kw">let </span>value = result.unwrap();
+        <span class="macro">assert_eq!</span>(value,<span class="kw-2">&amp;</span><span class="number">123</span>);
+    }
+}</code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>

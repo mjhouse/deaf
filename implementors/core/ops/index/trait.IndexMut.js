@@ -1,3 +1,0 @@
-(function() {var implementors = {
-"deaf":[["impl&lt;T&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.67.1/core/ops/index/trait.IndexMut.html\" title=\"trait core::ops::index::IndexMut\">IndexMut</a>&lt;<a class=\"primitive\" href=\"https://doc.rust-lang.org/1.67.1/std/primitive.usize.html\">usize</a>&gt; for dyn <a class=\"trait\" href=\"deaf/arrays/trait.Array.html\" title=\"trait deaf::arrays::Array\">Array</a>&lt;T&gt;"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
