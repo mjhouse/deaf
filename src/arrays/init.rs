@@ -190,28 +190,11 @@ mod tests {
     use crate::headers::section::header::SectionHeader;
     use std::ops::{Index,IndexMut};
 
-    const TEST_TABLE: &[u8] = include!("../../assets/libqscintilla2/dump/section_init_array.in");
-
-    // the starting byte of the test table
-    const TEST_TABLE_OFFSET: usize = 0;
-
-    // the length in bytes of the test table
-    const TEST_TABLE_LENGTH: usize = 912;
-
-    // the number of elements in the test table
-    const TEST_TABLE_COUNT: usize = 114;
-
-    // the size of an element in the test table
-    const TEST_TABLE_ENTITY: usize = 8;
+    use crate::utilities::tests::{LIBQSCINTILLA_INIT_ARRAY as TEST,read};
 
     #[test]
     fn test_extract_real_init_array() {
-
-        let mut f = File::open("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0").unwrap();
-        let mut b = Vec::new();
-        
-        f.read_to_end(&mut b)
-            .unwrap();
+        let b = read("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0"); 
 
         let file_header = FileHeader::parse(&b)
             .unwrap();
@@ -246,7 +229,7 @@ mod tests {
         let mut array = result.unwrap();
 
         assert!(array.read(&b).is_ok());
-        assert_eq!(array.len(),TEST_TABLE_COUNT);
+        assert_eq!(array.len(),TEST.length);
     }
 
     #[test]
@@ -254,19 +237,19 @@ mod tests {
         
         // directly initialize an array
         let mut array = InitArray::new(
-            TEST_TABLE_OFFSET,
-            TEST_TABLE_LENGTH,
+            0, // because we're reading directly
+            TEST.size,
             Layout::Little,
             Width::X64,
-            TEST_TABLE_ENTITY
+            TEST.entsize
         );
 
         // read the test array and verify success
-        let result = array.read(TEST_TABLE);
+        let result = array.read(TEST.bytes);
         assert!(result.is_ok());
 
         // verify that the array has the expected number of elements
-        assert_eq!(array.len(),TEST_TABLE_COUNT);
+        assert_eq!(array.len(),TEST.length);
     }
 
     #[test]
@@ -274,15 +257,15 @@ mod tests {
 
         // directly initialize an array
         let mut array = InitArray::new(
-            TEST_TABLE_OFFSET,
-            TEST_TABLE_LENGTH,
+            0, // because we're reading directly
+            TEST.size,
             Layout::Little,
             Width::X64,
-            TEST_TABLE_ENTITY
+            TEST.entsize
         );
 
         // read the test array and verify success
-        let result = array.read(TEST_TABLE);
+        let result = array.read(TEST.bytes);
         assert!(result.is_ok());
 
         // initialize a buffer big enough for array data
@@ -294,7 +277,7 @@ mod tests {
         assert!(result.is_ok());
 
         // verify that the written array is the same as original
-        assert_eq!(buffer.as_slice(),TEST_TABLE);
+        assert_eq!(buffer.as_slice(),TEST.bytes);
     }
 
     #[test]
@@ -302,15 +285,15 @@ mod tests {
 
         // directly initialize an array
         let mut array = InitArray::new(
-            TEST_TABLE_OFFSET,
-            TEST_TABLE_LENGTH,
+            0, // because we're reading directly
+            TEST.size,
             Layout::Little,
             Width::X64,
-            TEST_TABLE_ENTITY
+            TEST.entsize
         );
 
         // read the test array and verify success
-        let result = array.read(TEST_TABLE);
+        let result = array.read(TEST.bytes);
         assert!(result.is_ok());
 
         // remove an element from the array
@@ -329,7 +312,7 @@ mod tests {
         assert!(result.is_ok());
 
         // verify that the written table is not the same as original
-        assert_ne!(buffer.as_slice(),TEST_TABLE);
+        assert_ne!(buffer.as_slice(),TEST.bytes);
 
         // read the buffer and verify success
         let result = array.read(&buffer);

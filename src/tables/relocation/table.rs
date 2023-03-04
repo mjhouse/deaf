@@ -169,29 +169,13 @@ mod tests {
     use crate::headers::file::header::FileHeader;
     use crate::headers::section::header::SectionHeader;
 
-    const TEST_TABLE: &[u8] = include!("../../../assets/libvpf/dump/section_rela_dyn.in");
-
-    // the starting byte of the test table
-    const TEST_TABLE_OFFSET: usize = 0;
-
-    // the length in bytes of the test table
-    const TEST_TABLE_LENGTH: usize = 1224;
-
-    // the number of elements in the test table
-    const TEST_TABLE_COUNT: usize = 51;
-
-    // the size of an element in the test table
-    const TEST_TABLE_ENTITY: usize = 24;
+    use crate::utilities::tests::{LIBVPF_RELA_DYN as TEST,read};
 
     #[test]
     fn test_extract_real_relocation_section_as_table() {
         const SYMBOL_COUNT: usize = 210;
 
-        let mut f = File::open("assets/libjpeg/libjpeg.so.9").unwrap();
-        let mut b = Vec::new();
-        
-        f.read_to_end(&mut b)
-            .unwrap();
+        let b = read("assets/libjpeg/libjpeg.so.9");
 
         let file_header = FileHeader::parse(&b)
             .unwrap();
@@ -234,19 +218,19 @@ mod tests {
         
         // directly initialize a relocation table
         let mut table = RelocationTable::new(
-            TEST_TABLE_OFFSET,
-            TEST_TABLE_LENGTH,
+            0, // because we're reading directly
+            TEST.size,
             Layout::Little,
             Width::X64,
-            TEST_TABLE_ENTITY
+            TEST.entsize
         );
 
         // read the test table and verify success
-        let result = table.read(TEST_TABLE);
+        let result = table.read(TEST.bytes);
         assert!(result.is_ok());
 
         // verify that the table has the expected number of elements
-        assert_eq!(table.len(),TEST_TABLE_COUNT);
+        assert_eq!(table.len(),TEST.length);
     }
 
     #[test]
@@ -254,15 +238,15 @@ mod tests {
 
         // directly initialize a symbol table
         let mut table = RelocationTable::new(
-            TEST_TABLE_OFFSET,
-            TEST_TABLE_LENGTH,
+            0, // because we're reading directly
+            TEST.size,
             Layout::Little,
             Width::X64,
-            TEST_TABLE_ENTITY
+            TEST.entsize
         );
 
         // read the test table and verify success
-        let mut result = table.read(TEST_TABLE);
+        let mut result = table.read(TEST.bytes);
         assert!(result.is_ok());
 
         // initialize a buffer big enough for table data
@@ -274,7 +258,7 @@ mod tests {
         assert!(result.is_ok());
 
         // verify that the written table is the same as original
-        assert_eq!(buffer.as_slice(),TEST_TABLE);
+        assert_eq!(buffer.as_slice(),TEST.bytes);
     }
 
     #[test]
@@ -282,15 +266,15 @@ mod tests {
 
         // directly initialize a relocation table
         let mut table = RelocationTable::new(
-            TEST_TABLE_OFFSET,
-            TEST_TABLE_LENGTH,
+            0, // because we're reading directly
+            TEST.size,
             Layout::Little,
             Width::X64,
-            TEST_TABLE_ENTITY
+            TEST.entsize
         );
 
         // read the test table and verify success
-        let mut result = table.read(TEST_TABLE);
+        let mut result = table.read(TEST.bytes);
         assert!(result.is_ok());
 
         // get a relocation from the table
@@ -314,7 +298,7 @@ mod tests {
         assert!(result.is_ok());
 
         // verify that the written table is not the same as original
-        assert_ne!(buffer.as_slice(),TEST_TABLE);
+        assert_ne!(buffer.as_slice(),TEST.bytes);
 
         // read the buffer and verify success
         let mut result = table.read(&buffer);

@@ -143,35 +143,18 @@ impl std::fmt::Debug for Symbol {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::headers::common::constants::{ST_SIZE_32,ST_SIZE_64};
     use crate::headers::common::constants::{STBind,STType};
-
-    const TEST_TABLE: &[u8] = include!("../../../assets/libvpf/dump/section_dynsym.in");
-
-    // the starting byte of the test table
-    const TEST_TABLE_OFFSET: usize = 0;
-
-    // the length in bytes of the test table
-    const TEST_TABLE_LENGTH: usize = 7056;
-
-    // the number of elements in the test table
-    const TEST_TABLE_COUNT: usize = 294;
-
-    // the size of an element in the test table
-    const TEST_TABLE_ENTITY: usize = 24;
-
-    // dump symbols:
-    //      readelf --symbols assets/libvpf.so.4.1
+    use crate::utilities::tests::{LIBVPF_DYNSYM as TEST,read};
 
     #[test]
     fn test_symbol_parse_value() {
         // calculate the element size and position
         let index = 150;
-        let start = ST_SIZE_64 * index;
-        let end = start + ST_SIZE_64;
+        let start = TEST.entsize * index;
+        let end = start + TEST.entsize;
 
         // parse the Symbol from the byte buffer
-        let bytes = &TEST_TABLE[start..end];
+        let bytes = &TEST.bytes[start..end];
         let result = Symbol::parse(bytes,Layout::Little,Width::X64);
 
         // unwrap the resulting symbol
@@ -186,11 +169,11 @@ mod tests {
     fn test_symbol_parse_info_object() {
         // calculate the element size and position
         let index = 99;
-        let start = ST_SIZE_64 * index;
-        let end = start + ST_SIZE_64;
+        let start = TEST.entsize * index;
+        let end = start + TEST.entsize;
 
         // parse the Symbol from the byte buffer
-        let bytes = &TEST_TABLE[start..end];
+        let bytes = &TEST.bytes[start..end];
         let result = Symbol::parse(bytes,Layout::Little,Width::X64);
 
         // unwrap the resulting symbol
@@ -207,11 +190,11 @@ mod tests {
     fn test_symbol_parse_info_symbol() {
         // calculate the element size and position
         let index = 150;
-        let start = ST_SIZE_64 * index;
-        let end = start + ST_SIZE_64;
+        let start = TEST.entsize * index;
+        let end = start + TEST.entsize;
 
         // parse the Symbol from the byte buffer
-        let bytes = &TEST_TABLE[start..end];
+        let bytes = &TEST.bytes[start..end];
         let result = Symbol::parse(bytes,Layout::Little,Width::X64);
 
         // unwrap the resulting symbol
@@ -228,12 +211,12 @@ mod tests {
     fn test_symbol_write_no_change() {
         // calculate the element size and position
         let index = 150;
-        let start = ST_SIZE_64 * index;
-        let end = start + ST_SIZE_64;
+        let start = TEST.entsize * index;
+        let end = start + TEST.entsize;
 
         // parse the Symbol from the byte buffer
-        let mut result = [0;ST_SIZE_64];
-        let bytes = &TEST_TABLE[start..end];
+        let mut result = [0;TEST.entsize];
+        let bytes = &TEST.bytes[start..end];
         let parsed = Symbol::parse(bytes,Layout::Little,Width::X64);
 
         // unwrap the resulting symbol
@@ -249,12 +232,12 @@ mod tests {
     fn test_symbol_write_with_change() {
         // calculate the element size and position
         let index = 150;
-        let start = ST_SIZE_64 * index;
-        let end = start + ST_SIZE_64;
+        let start = TEST.entsize * index;
+        let end = start + TEST.entsize;
 
         // parse the Symbol from the byte buffer
-        let mut result = [0;ST_SIZE_64];
-        let bytes = &TEST_TABLE[start..end];
+        let mut result = [0;TEST.entsize];
+        let bytes = &TEST.bytes[start..end];
         let parsed = Symbol::parse(bytes,Layout::Little,Width::X64);
 
         // unwrap the resulting symbol

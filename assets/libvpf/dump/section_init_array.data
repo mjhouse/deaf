@@ -1,0 +1,5 @@
+name: ".init_array"
+address: 289584
+offset: 285488
+size: 8
+entsize: 8

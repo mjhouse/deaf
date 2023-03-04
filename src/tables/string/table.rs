@@ -160,24 +160,11 @@ mod tests {
     use crate::headers::file::header::FileHeader;
     use crate::headers::section::header::SectionHeader;
 
-    const TEST_TABLE: &[u8] = include!("../../../assets/libvpf/dump/section_shstrtab.in");
-
-    // the starting byte of the test table
-    const TEST_TABLE_OFFSET: usize = 0;
-
-    // the length in bytes of the test table
-    const TEST_TABLE_LENGTH: usize = 263;
-
-    // the number of elements in the test table
-    const TEST_TABLE_COUNT: usize = 25;
+    use crate::utilities::tests::{LIBVPF_SHSTRTAB as TEST, read};
 
     #[test]
     fn test_extract_real_shstrtab_section_as_table() {
-        let mut f = File::open("assets/libvpf/libvpf.so.4.1").unwrap();
-        let mut b = Vec::new();
-        
-        f.read_to_end(&mut b)
-            .unwrap();
+        let b = read("assets/libvpf/libvpf.so.4.1");
 
         // get the fileheader and use it to find section headers
         let file_header = FileHeader::parse(&b)
@@ -218,25 +205,27 @@ mod tests {
         let mut table = result.unwrap();
 
         assert!(table.read(&b).is_ok());
-        assert_eq!(table.len(),TEST_TABLE_COUNT);
+        assert_eq!(table.len(),TEST.length);
     }
 
     #[test]
     fn test_read_string_table() {
         // read the test table data
-        let mut table = StringTable::new(TEST_TABLE_OFFSET,TEST_TABLE_LENGTH);
-        let result = table.read(TEST_TABLE);
+        let mut table = StringTable::new(0,TEST.size);
+
+        let result = table.read(TEST.bytes);
         assert!(result.is_ok());
 
         // verify that the table has the expected number of elements
-        assert_eq!(table.len(),TEST_TABLE_COUNT);
+        assert_eq!(table.len(),TEST.length);
     }
 
     #[test]
     fn test_write_string_table_with_no_changes() {
         // read the test table data
-        let mut table = StringTable::new(TEST_TABLE_OFFSET,TEST_TABLE_LENGTH);
-        let mut result = table.read(TEST_TABLE);
+        let mut table = StringTable::new(0,TEST.size);
+
+        let mut result = table.read(TEST.bytes);
         assert!(result.is_ok());
 
         // initialize a buffer big enough for table data
@@ -248,7 +237,7 @@ mod tests {
         assert!(result.is_ok());
 
         // verify that the written table is the same as original
-        assert_eq!(buffer.as_slice(),TEST_TABLE);
+        assert_eq!(buffer.as_slice(),TEST.bytes);
     }
 
     #[test]
@@ -257,8 +246,8 @@ mod tests {
         const TEST_LEN: usize = 5;
 
         // read the test table data
-        let mut table = StringTable::new(TEST_TABLE_OFFSET,TEST_TABLE_LENGTH);
-        let result = table.read(TEST_TABLE);
+        let mut table = StringTable::new(0,TEST.size);
+        let result = table.read(TEST.bytes);
         assert!(result.is_ok());
 
         // get a string from the table
@@ -283,8 +272,8 @@ mod tests {
         assert!(result.is_ok());
 
         // verify that the written table is not the same as original
-        assert_ne!(buffer.as_slice(),TEST_TABLE);
-        assert_eq!(buffer.len(),TEST_TABLE_LENGTH + TEST_LEN);
+        assert_ne!(buffer.as_slice(),TEST.bytes);
+        assert_eq!(buffer.len(),TEST.size + TEST_LEN);
     }
 
 }

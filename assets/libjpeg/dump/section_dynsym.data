@@ -1,0 +1,5 @@
+name: ".dynsym"
+address: 1864
+offset: 1864
+size: 4656
+entsize: 24

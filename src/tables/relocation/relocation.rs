@@ -108,30 +108,16 @@ impl std::fmt::Debug for Relocation {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::headers::common::constants::{RT_SIZE_64};
-
-    const TEST_TABLE: &[u8] = include!("../../../assets/libvpf/dump/section_rela_dyn.in");
-
-    // the starting byte of the test table
-    const TEST_TABLE_OFFSET: usize = 0;
-
-    // the length in bytes of the test table
-    const TEST_TABLE_LENGTH: usize = 1224;
-
-    // the number of elements in the test table
-    const TEST_TABLE_COUNT: usize = 51;
-
-    // the size of an element in the test table
-    const TEST_TABLE_ENTITY: usize = 24;
+    use crate::utilities::tests::{LIBVPF_RELA_DYN as TEST,read};
 
     #[test]
     fn test_relocation_parse_offset() {
         // calculate table offset
-        let start = TEST_TABLE_ENTITY * 1;
-        let end = start + TEST_TABLE_ENTITY;
+        let start = TEST.entsize * 1;
+        let end = start + TEST.entsize;
 
         // get a constrained slice and parse
-        let bytes = &TEST_TABLE[start..end];
+        let bytes = &TEST.bytes[start..end];
         let result = Relocation::parse(bytes,Layout::Little,Width::X64);
 
         // unwrap the resulting relocation
@@ -145,11 +131,11 @@ mod tests {
     #[test]
     fn test_relocation_parse_info() {
         // calculate table offset
-        let start = TEST_TABLE_ENTITY * 38;
-        let end = start + TEST_TABLE_ENTITY;
+        let start = TEST.entsize * 38;
+        let end = start + TEST.entsize;
 
         // get a constrained slice and parse
-        let bytes = &TEST_TABLE[start..end];
+        let bytes = &TEST.bytes[start..end];
         let result = Relocation::parse(bytes,Layout::Little,Width::X64);
 
         // unwrap the resulting relocation
@@ -167,11 +153,11 @@ mod tests {
     #[test]
     fn test_relocation_parse_addend_rela() {
         // calculate table offset
-        let start = TEST_TABLE_ENTITY * 1;
-        let end = start + TEST_TABLE_ENTITY;
+        let start = TEST.entsize * 1;
+        let end = start + TEST.entsize;
 
         // get a constrained slice and parse
-        let bytes = &TEST_TABLE[start..end];
+        let bytes = &TEST.bytes[start..end];
         let result = Relocation::parse(bytes,Layout::Little,Width::X64);
 
         // unwrap the resulting relocation
@@ -188,11 +174,11 @@ mod tests {
         let length = 16;
 
         // calculate table offset (using addend lengths)
-        let start = TEST_TABLE_ENTITY * 1;
+        let start = TEST.entsize * 1;
         let end = start + length; // leave off the addend
 
         // get a constrained slice and parse
-        let bytes = &TEST_TABLE[start..end];
+        let bytes = &TEST.bytes[start..end];
         let result = Relocation::parse(bytes,Layout::Little,Width::X64);
 
         // unwrap the resulting relocation
@@ -206,8 +192,8 @@ mod tests {
     #[test]
     fn test_relocation_write_no_change() {
         // calculate table offset
-        let mut result = [0;RT_SIZE_64];
-        let bytes = &TEST_TABLE[..RT_SIZE_64];
+        let mut result = [0;TEST.entsize];
+        let bytes = &TEST.bytes[..TEST.entsize];
         
         // parse the relocation from the buffer
         let parsed = Relocation::parse(bytes,Layout::Little,Width::X64);
@@ -222,8 +208,8 @@ mod tests {
 
     #[test]
     fn test_relocation_write_change() {
-        let mut result = [0;RT_SIZE_64];
-        let bytes = &TEST_TABLE[..RT_SIZE_64];
+        let mut result = [0;TEST.entsize];
+        let bytes = &TEST.bytes[..TEST.entsize];
         
         // parse a relocation record from the relocation table
         let parsed = Relocation::parse(bytes,Layout::Little,Width::X64);

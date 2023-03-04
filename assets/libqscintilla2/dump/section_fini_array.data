@@ -1,0 +1,5 @@
+name: ".fini_array"
+address: 3811960
+offset: 3807864
+size: 8
+entsize: 8

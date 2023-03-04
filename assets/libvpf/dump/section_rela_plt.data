@@ -1,0 +1,5 @@
+name: ".rela.plt"
+address: 15880
+offset: 15880
+size: 1344
+entsize: 24
