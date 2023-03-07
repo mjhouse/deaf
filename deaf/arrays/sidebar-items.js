@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["InitArray",""]],"trait":[["Array","Trait for ELF Array sections that mimics the API of Vec"]]};
+window.SIDEBAR_ITEMS = {"struct":[["FiniArray",""],["InitArray",""]],"trait":[["Array","Trait for ELF Array sections that mimics the API of Vec"]]};

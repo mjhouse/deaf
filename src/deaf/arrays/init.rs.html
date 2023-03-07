@@ -312,21 +312,6 @@
 <a href="#312" id="312">312</a>
 <a href="#313" id="313">313</a>
 <a href="#314" id="314">314</a>
-<a href="#315" id="315">315</a>
-<a href="#316" id="316">316</a>
-<a href="#317" id="317">317</a>
-<a href="#318" id="318">318</a>
-<a href="#319" id="319">319</a>
-<a href="#320" id="320">320</a>
-<a href="#321" id="321">321</a>
-<a href="#322" id="322">322</a>
-<a href="#323" id="323">323</a>
-<a href="#324" id="324">324</a>
-<a href="#325" id="325">325</a>
-<a href="#326" id="326">326</a>
-<a href="#327" id="327">327</a>
-<a href="#328" id="328">328</a>
-<a href="#329" id="329">329</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span><span class="kw">crate</span>::headers::common::constants::{Width,Layout,SHType};
 <span class="kw">use </span><span class="kw">crate</span>::headers::section::header::{
@@ -338,6 +323,7 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::arrays::common::{
     Array,
+    ArrayItem,
     constants::*
 };
 
@@ -361,20 +347,6 @@
             section_size: size,
             values: <span class="macro">vec!</span>[],
         }
-    }
-
-    <span class="kw">fn </span>read_one(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;i64&gt; {
-        <span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="self">self</span>.width {
-            Width::X32 =&gt; i32::from_bytes(bytes,<span class="self">self</span>.layout)<span class="question-mark">? </span><span class="kw">as </span>i64,
-            Width::X64 =&gt; i64::from_bytes(bytes,<span class="self">self</span>.layout)<span class="question-mark">?</span>,
-        })
-    }
-
-    <span class="kw">fn </span>write_one(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>[u8], value: i64) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="self">self</span>.width {
-            Width::X32 =&gt; (value <span class="kw">as </span>i32).to_bytes(bytes,<span class="self">self</span>.layout)<span class="question-mark">?</span>,
-            Width::X64 =&gt; (value <span class="kw">as </span>i64).to_bytes(bytes,<span class="self">self</span>.layout)<span class="question-mark">?</span>,
-        })
     }
 
     <span class="comment">// reads from an offset to offset + section_size
@@ -407,7 +379,7 @@
 
         <span class="kw">for </span>data <span class="kw">in </span>ByteIter::length(<span class="kw-2">&amp;</span>bytes[start..end],size) {            
             <span class="comment">// parse an address from the byte slice
-            </span><span class="kw">let </span>value = <span class="self">self</span>.read_one(data)<span class="question-mark">?</span>;
+            </span><span class="kw">let </span>value = i64::read(data,<span class="self">self</span>.width,<span class="self">self</span>.layout)<span class="question-mark">?</span>;
 
             <span class="comment">// add the address to values
             </span>values.push(value);
@@ -441,7 +413,7 @@
             </span><span class="kw">let </span>buffer = <span class="kw-2">&amp;mut </span>bytes[start..end];
 
             <span class="comment">// write the item to the byte slice
-            </span><span class="self">self</span>.write_one(buffer,value);
+            </span>value.write(buffer,<span class="self">self</span>.width,<span class="self">self</span>.layout)<span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.values.len())
@@ -513,13 +485,11 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span>std::fs::File;
-    <span class="kw">use </span>std::io::Read;
+
     <span class="kw">use </span><span class="kw">crate</span>::headers::file::header::FileHeader;
     <span class="kw">use </span><span class="kw">crate</span>::headers::section::header::SectionHeader;
-    <span class="kw">use </span>std::ops::{Index,IndexMut};
 
-    <span class="kw">use </span><span class="kw">crate</span>::utilities::tests::{LIBQSCINTILLA_INIT_ARRAY <span class="kw">as </span>TEST,read};
+    <span class="kw">use </span><span class="kw">crate</span>::utilities::tests::{LIBQSCINTILLA_INIT_ARRAY <span class="kw">as </span>TEST, read};
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_extract_real_init_array() {
