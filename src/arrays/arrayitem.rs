@@ -1,5 +1,5 @@
 use crate::headers::common::constants::{Width,Layout};
-use crate::common::bytes::{FromBytes, IntoBytes};
+use crate::common::{FromBytes, IntoBytes, Field, ranges::ADDRESS};
 use crate::errors::{Error, Result};
 
 /// A trait for array items
