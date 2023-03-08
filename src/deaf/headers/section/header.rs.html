@@ -285,8 +285,8 @@
 };
 <span class="kw">use </span>enumflags2::BitFlags;
 
-<span class="kw">use </span><span class="kw">crate</span>::headers::common::field::Field;
-<span class="kw">use </span><span class="kw">crate</span>::headers::common::ranges::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::common::field::Field;
+<span class="kw">use </span><span class="kw">crate</span>::common::ranges::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::errors::{Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span><span class="kw">crate</span>::impl_property;
 
@@ -478,7 +478,7 @@
     }
 
     <span class="macro">impl_property!</span>(name,sh_name,u32);
-    <span class="macro">impl_property!</span>(section_type,sh_type,SHType);
+    <span class="macro">impl_property!</span>(kind,sh_type,SHType);
     <span class="macro">impl_property!</span>(flags,sh_flags,BitFlags&lt;SHFlags&gt;);
     <span class="macro">impl_property!</span>(address,sh_address,u64);
     <span class="macro">impl_property!</span>(offset,sh_offset,usize);

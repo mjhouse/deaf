@@ -515,7 +515,7 @@
         <span class="kw">let </span>headers = section_headers.unwrap();
 
         <span class="kw">let </span>result = headers.iter().find(|<span class="kw-2">&amp;</span>h| 
-            h.section_type() == SHType::SHT_SYMTAB);
+            h.kind() == SHType::SHT_SYMTAB);
 
         <span class="macro">assert!</span>(result.is_some());
 
