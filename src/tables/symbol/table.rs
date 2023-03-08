@@ -199,7 +199,7 @@ mod tests {
         let headers = section_headers.unwrap();
 
         let result = headers.iter().find(|&h| 
-            h.section_type() == SHType::SHT_SYMTAB);
+            h.kind() == SHType::SHT_SYMTAB);
 
         assert!(result.is_some());
 

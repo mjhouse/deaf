@@ -198,7 +198,7 @@ mod tests {
         let headers = section_headers.unwrap();
 
         let result = headers.iter().find(|&h| 
-            h.section_type() == SHType::SHT_RELA);
+            h.kind() == SHType::SHT_RELA);
 
         assert!(result.is_some());
 

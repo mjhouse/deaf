@@ -1,10 +1,6 @@
 
-mod common;
+mod arrayitem;
+mod array;
 
-mod fini;
-mod init;
-mod preinit;
-
-pub use common::Array;
-pub use fini::FiniArray;
-pub use init::InitArray;
+pub use arrayitem::ArrayItem;
+pub use array::Array;

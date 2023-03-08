@@ -199,7 +199,7 @@ impl SectionHeader {
     }
 
     impl_property!(name,sh_name,u32);
-    impl_property!(section_type,sh_type,SHType);
+    impl_property!(kind,sh_type,SHType);
     impl_property!(flags,sh_flags,BitFlags<SHFlags>);
     impl_property!(address,sh_address,u64);
     impl_property!(offset,sh_offset,usize);
