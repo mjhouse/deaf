@@ -6,12 +6,16 @@
 <a href="#6" id="6">6</a>
 <a href="#7" id="7">7</a>
 <a href="#8" id="8">8</a>
+<a href="#9" id="9">9</a>
+<a href="#10" id="10">10</a>
 </pre><pre class="rust"><code>
-<span class="kw">pub mod </span>bytes;
-<span class="kw">pub mod </span>field;
-<span class="kw">pub mod </span>ranges;
+<span class="kw">pub mod </span>ranges; <span class="comment">// find byte slices to parse
+</span><span class="kw">pub mod </span>bytes;  <span class="comment">// parse bytes into values
+</span><span class="kw">pub mod </span>field;  <span class="comment">// read and write values
+</span><span class="kw">pub mod </span>item;   <span class="comment">// read and write with cache
 
-<span class="kw">pub use </span>bytes::{FromBytes,IntoBytes};
+</span><span class="kw">pub use </span>bytes::{FromBytes,IntoBytes,Convert};
+<span class="kw">pub use </span>ranges::Ranges;
 <span class="kw">pub use </span>field::Field;
-<span class="kw">pub use </span>ranges::Ranges;</code></pre></div>
+<span class="kw">pub use </span>item::Item;</code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
