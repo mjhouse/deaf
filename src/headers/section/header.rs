@@ -6,8 +6,8 @@ use crate::headers::common::constants::{
 };
 use enumflags2::BitFlags;
 
-use crate::headers::common::field::Field;
-use crate::headers::common::ranges::*;
+use crate::common::field::Field;
+use crate::common::ranges::*;
 use crate::errors::{Error, Result};
 use crate::impl_property;
 

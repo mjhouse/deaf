@@ -4,7 +4,7 @@ use num_enum::{IntoPrimitive, TryFromPrimitive};
 use crate::common::bytes::{FromBytes, IntoBytes, Convert};
 use crate::headers::common::constants::{Layout, Width};
 use crate::errors::{Error, Result};
-use crate::headers::common::ranges::Ranges;
+use crate::common::Ranges;
 
 #[derive(Debug,Clone)]
 pub struct Field<T32 = u8, T64 = T32, Out = T64>
@@ -34,6 +34,26 @@ where
             ranges,
             layout: Layout::Little,
         }
+    }
+
+    pub const fn empty() -> Self {
+        Self {
+            a: PhantomData {},
+            b: PhantomData {},
+            c: PhantomData {},
+            ranges: Ranges::empty(),
+            layout: Layout::Little,
+        }
+    }
+
+    pub const fn with_width(mut self, width: Width) -> Self {
+        self.ranges.width = width;
+        self
+    }
+
+    pub const fn with_layout(mut self, layout: Layout) -> Self {
+        self.layout = layout;
+        self
     }
 
     /// Get a constrained slice of bytes using the appropriate range

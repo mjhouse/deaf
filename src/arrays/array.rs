@@ -1,10 +1,11 @@
 use crate::errors::{Error, Result};
 use crate::headers::common::constants::{Width,Layout,SHType};
+use crate::common::{Ranges,ranges::ADDRESS};
 use crate::headers::section::header::{
     SectionHeader,
     SectionHeaderValues
 };
-use crate::common::bytes::{FromBytes,IntoBytes};
+use crate::common::{FromBytes,IntoBytes,Field};
 use crate::arrays::arrayitem::ArrayItem;
 use crate::tables::common::ByteIter;
 

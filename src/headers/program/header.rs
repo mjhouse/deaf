@@ -6,8 +6,8 @@ use crate::headers::common::constants::{
     PH_SIZE_64
 };
 
-use crate::headers::common::field::Field;
-use crate::headers::common::ranges::*;
+use crate::common::field::Field;
+use crate::common::ranges::*;
 use crate::errors::{Error, Result};
 
 #[derive(Debug,Clone)]
@@ -28,7 +28,6 @@ pub struct ProgramHeader {
     offset: usize,
     layout: Layout,
     width: Width,
-
     size: usize,
     p_type: Field<u32,u32,PHType>,
     p_flags: Field<u32>,
@@ -38,7 +37,6 @@ pub struct ProgramHeader {
     p_filesz: Field<u32,u64>,
     p_memsz: Field<u32,u64>,
     p_align: Field<u32,u64>,
-
     values: ProgramHeaderValues,
 }
 
