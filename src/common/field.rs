@@ -57,6 +57,9 @@ where
     }
 
     /// Get a constrained slice of bytes using the appropriate range
+    ///
+    /// If the slice is too short, this method will fail, otherwise
+    /// it will just reduce the slice to fit the data.
     pub fn slice<'a>(&self, b: &'a [u8]) -> Result<&'a [u8]> {
         let range = self.ranges.get();
         if range.end > b.len() {
@@ -67,6 +70,9 @@ where
     }
 
     /// Get a constrained slice of mutable bytes using the appropriate range
+    ///
+    /// If the slice is too short, this method will fail, otherwise
+    /// it will just reduce the slice to fit the data.
     pub fn slice_mut<'a>(&self, b: &'a mut [u8]) -> Result<&'a mut [u8]> {
         let range = self.ranges.get();
         if range.end > b.len() {

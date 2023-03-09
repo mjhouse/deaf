@@ -101,6 +101,11 @@ impl Array {
             // get a constrained, mutable slice of bytes to write to
             let buffer = &mut bytes[start..end];
 
+            // fail if users have modified the item format
+            if value.layout() != layout || value.width() != width {
+                return Err(Error::MalformedDataError);
+            }
+
             // write the item to the byte slice
             value.write(buffer)?;
         }
@@ -257,6 +262,41 @@ mod tests {
 
         assert!(array.read(&b).is_ok());
         assert_eq!(array.len(),FINI_TEST.length);
+    }
+
+    #[test]
+    fn test_write_inconsistent_init_array() {
+
+        // directly initialize an array
+        let mut array = Array::new(
+            0, // because we're reading directly
+            INIT_TEST.size,
+            Layout::Little,
+            Width::X64,
+            SHType::SHT_INIT_ARRAY,
+            INIT_TEST.entsize
+        );
+
+        // read the test array and verify success
+        let result = array.read(INIT_TEST.bytes);
+        assert!(result.is_ok());
+
+        // get an element from the array
+        let result = array.get_mut(1);
+        assert!(result.is_some());
+
+        // change the width of the element
+        if let Some(item) = result {
+            item.set_width(Width::X32);
+        }
+
+        // initialize a buffer big enough for modified table data
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(array.size(),0x00);
+
+        // write to the new table
+        let result = array.write(buffer.as_mut_slice());
+        assert!(result.is_err());
     }
 
     #[test]

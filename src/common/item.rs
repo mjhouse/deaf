@@ -48,11 +48,13 @@ where
         Ok(self)
     }
 
+    /// Read the value if possible
     pub fn read(&mut self, bytes: &[u8]) -> Result<()> {
         self.value = Some(self.field.get(bytes)?);
         Ok(())
     }
 
+    /// Write the value if there is one
     pub fn write(&self, bytes: &mut [u8]) -> Result<()> {
         if let Some(v) = &self.value {
             self.field.set(bytes,v.clone())?;
@@ -68,8 +70,16 @@ where
         self.value = Some(value)
     }
 
+    pub fn width(&self) -> Width {
+        self.field.ranges.width
+    }
+
     pub fn set_width(&mut self, width: Width) {
         self.field.ranges.width = width;
+    }
+
+    pub fn layout(&self) -> Layout {
+        self.field.layout
     }
 
     pub fn set_layout(&mut self, layout: Layout) {
