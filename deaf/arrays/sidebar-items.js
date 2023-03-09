@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Array",""]],"trait":[["ArrayItem","A trait for array items"]]};
+window.SIDEBAR_ITEMS = {"struct":[["Array",""],["ArrayItem","Wraps and hides the more general purpose Item"]]};
