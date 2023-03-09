@@ -321,6 +321,12 @@
 <a href="#321" id="321">321</a>
 <a href="#322" id="322">322</a>
 <a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::marker::PhantomData;
 <span class="kw">use </span>num_enum::{IntoPrimitive, TryFromPrimitive};
 
@@ -380,6 +386,9 @@
     </span>}
 
     <span class="doccomment">/// Get a constrained slice of bytes using the appropriate range
+    ///
+    /// If the slice is too short, this method will fail, otherwise
+    /// it will just reduce the slice to fit the data.
     </span><span class="kw">pub fn </span>slice&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt; {
         <span class="kw">let </span>range = <span class="self">self</span>.ranges.get();
         <span class="kw">if </span>range.end &gt; b.len() {
@@ -390,6 +399,9 @@
     }
 
     <span class="doccomment">/// Get a constrained slice of mutable bytes using the appropriate range
+    ///
+    /// If the slice is too short, this method will fail, otherwise
+    /// it will just reduce the slice to fit the data.
     </span><span class="kw">pub fn </span>slice_mut&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8]&gt; {
         <span class="kw">let </span>range = <span class="self">self</span>.ranges.get();
         <span class="kw">if </span>range.end &gt; b.len() {
