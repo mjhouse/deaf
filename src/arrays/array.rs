@@ -6,10 +6,8 @@ use crate::headers::section::header::{
     SectionHeaderValues
 };
 use crate::common::{FromBytes,IntoBytes,Field,Item};
-use crate::arrays::arrayitem::ArrayItem;
+use crate::arrays::array_item::ArrayItem;
 use crate::tables::common::ByteIter;
-
-type Address = Item<i32,i64>;
 
 pub struct Array {
     offset: usize,
@@ -18,7 +16,7 @@ pub struct Array {
     kind: SHType,
     entity_size: usize,
     section_size: usize,
-    values: Vec<Address>
+    values: Vec<ArrayItem>
 }
 
 impl Array {
@@ -64,14 +62,12 @@ impl Array {
         values.reserve(self.section_size / size);
 
         for data in ByteIter::length(&bytes[start..end],size) {            
-            // parse an address from the byte slice
-            let item = Item::new(ADDRESS)
-                .with_width(self.width)
-                .with_layout(self.layout)
-                .parse(data)?;
-
             // add the address to values
-            values.push(item);
+            values.push(ArrayItem::read(
+                self.layout,
+                self.width,
+                data
+            )?);
         }
 
         // don't update self until successful read
@@ -101,11 +97,6 @@ impl Array {
             // get a constrained, mutable slice of bytes to write to
             let buffer = &mut bytes[start..end];
 
-            // fail if users have modified the item format
-            if value.layout() != layout || value.width() != width {
-                return Err(Error::MalformedDataError);
-            }
-
             // write the item to the byte slice
             value.write(buffer)?;
         }
@@ -121,23 +112,27 @@ impl Array {
         self.len() * self.entity_size
     }
 
-    fn get(&self, index: usize) -> Option<&Address> {
+    fn get(&self, index: usize) -> Option<&ArrayItem> {
         self.values.get(index)
     }
 
-    fn get_mut(&mut self, index: usize) -> Option<&mut Address> {
+    fn get_mut(&mut self, index: usize) -> Option<&mut ArrayItem> {
         self.values.get_mut(index)
     }
 
-    fn insert(&mut self, index: usize, item: Address) {
+    fn insert(&mut self, index: usize, mut item: ArrayItem) {
+        item.set_layout(self.layout);
+        item.set_width(self.width);
         self.values.insert(index,item);
     }
 
-    fn push(&mut self, item: Address) {
+    fn push(&mut self, mut item: ArrayItem) {
+        item.set_layout(self.layout);
+        item.set_width(self.width);
         self.values.push(item);
     }
 
-    fn remove(&mut self, index: usize) -> Address {
+    fn remove(&mut self, index: usize) -> ArrayItem {
         self.values.remove(index)
     }
 
@@ -265,41 +260,6 @@ mod tests {
     }
 
     #[test]
-    fn test_write_inconsistent_init_array() {
-
-        // directly initialize an array
-        let mut array = Array::new(
-            0, // because we're reading directly
-            INIT_TEST.size,
-            Layout::Little,
-            Width::X64,
-            SHType::SHT_INIT_ARRAY,
-            INIT_TEST.entsize
-        );
-
-        // read the test array and verify success
-        let result = array.read(INIT_TEST.bytes);
-        assert!(result.is_ok());
-
-        // get an element from the array
-        let result = array.get_mut(1);
-        assert!(result.is_some());
-
-        // change the width of the element
-        if let Some(item) = result {
-            item.set_width(Width::X32);
-        }
-
-        // initialize a buffer big enough for modified table data
-        let mut buffer: Vec<u8> = vec![];
-        buffer.resize(array.size(),0x00);
-
-        // write to the new table
-        let result = array.write(buffer.as_mut_slice());
-        assert!(result.is_err());
-    }
-
-    #[test]
     fn test_read_init_array() {
         
         // directly initialize an array
@@ -422,7 +382,7 @@ mod tests {
 
         // change the value of the element
         if let Some(item) = result {
-            item.set(123);
+            item.set_value(123);
         }
 
         // initialize a buffer big enough for modified table data
@@ -446,7 +406,7 @@ mod tests {
 
         // check the element is changed
         let item = result.unwrap();
-        assert_eq!(item.get(),Some(123));
+        assert_eq!(item.value(),Some(123));
     }
 
     #[test]
@@ -472,7 +432,7 @@ mod tests {
 
         // change the value of the element
         if let Some(item) = result {
-            item.set(123);
+            item.set_value(123);
         }
 
         // initialize a buffer big enough for modified table data
@@ -496,6 +456,6 @@ mod tests {
 
         // check the element is changed
         let item = result.unwrap();
-        assert_eq!(item.get(),Some(123));
+        assert_eq!(item.value(),Some(123));
     }
 }
