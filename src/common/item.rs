@@ -38,6 +38,11 @@ where
         self
     }
 
+    pub fn with_value(mut self, value: Out) -> Self {
+        self.set(value);
+        self
+    }
+
     pub fn parse(mut self, bytes: &[u8]) -> Result<Self> {
         self.read(bytes)?;
         Ok(self)

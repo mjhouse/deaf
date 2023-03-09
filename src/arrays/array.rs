@@ -70,8 +70,6 @@ impl Array {
                 .with_layout(self.layout)
                 .parse(data)?;
 
-            // let value = i64::read(data,self.width,self.layout)?;
-
             // add the address to values
             values.push(item);
         }
@@ -167,292 +165,297 @@ impl TryFrom<SectionHeader> for Array {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
 
-//     use crate::headers::file::header::FileHeader;
-//     use crate::headers::section::header::SectionHeader;
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-//     use crate::utilities::tests::{
-//         LIBQSCINTILLA_FINI_ARRAY as FINI_TEST,
-//         LIBQSCINTILLA_INIT_ARRAY as INIT_TEST, 
-//         read
-//     };
+    use crate::headers::file::header::FileHeader;
+    use crate::headers::section::header::SectionHeader;
 
-//     #[test]
-//     fn test_extract_real_init_array() {
-//         let b = read("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0"); 
+    use crate::utilities::tests::{
+        LIBQSCINTILLA_FINI_ARRAY as FINI_TEST,
+        LIBQSCINTILLA_INIT_ARRAY as INIT_TEST, 
+        read
+    };
 
-//         let file_header = FileHeader::parse(&b)
-//             .unwrap();
+    #[test]
+    fn test_extract_real_init_array() {
+        let b = read("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0"); 
 
-//         let count = file_header.shnum();
-//         let offset = file_header.shoff();
-//         let size = file_header.shentsize();
-//         let layout = file_header.data();
-//         let width = file_header.class();
+        let file_header = FileHeader::parse(&b)
+            .unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
         
-//         let section_headers = SectionHeader::parse_all(
-//             &b,
-//             count,
-//             offset,
-//             size,
-//             layout,
-//             width);
+        let section_headers = SectionHeader::parse_all(
+            &b,
+            count,
+            offset,
+            size,
+            layout,
+            width);
 
-//         assert!(section_headers.is_ok());
-//         let headers = section_headers.unwrap();
+        assert!(section_headers.is_ok());
+        let headers = section_headers.unwrap();
 
-//         let result = headers.iter().find(|&h| 
-//             h.kind() == SHType::SHT_INIT_ARRAY);
+        let result = headers.iter().find(|&h| 
+            h.kind() == SHType::SHT_INIT_ARRAY);
 
-//         assert!(result.is_some());
+        assert!(result.is_some());
 
-//         let header = result.unwrap();
-//         let result = Array::try_from(header);
+        let header = result.unwrap();
+        let result = Array::try_from(header);
 
-//         assert!(result.is_ok());
+        assert!(result.is_ok());
 
-//         let mut array = result.unwrap();
+        let mut array = result.unwrap();
 
-//         assert!(array.read(&b).is_ok());
-//         assert_eq!(array.len(),INIT_TEST.length);
-//     }
+        assert!(array.read(&b).is_ok());
+        assert_eq!(array.len(),INIT_TEST.length);
+    }
 
-//     #[test]
-//     fn test_extract_real_fini_array() {
-//         let b = read("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0"); 
+    #[test]
+    fn test_extract_real_fini_array() {
+        let b = read("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0"); 
 
-//         let file_header = FileHeader::parse(&b)
-//             .unwrap();
+        let file_header = FileHeader::parse(&b)
+            .unwrap();
 
-//         let count = file_header.shnum();
-//         let offset = file_header.shoff();
-//         let size = file_header.shentsize();
-//         let layout = file_header.data();
-//         let width = file_header.class();
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
         
-//         let section_headers = SectionHeader::parse_all(
-//             &b,
-//             count,
-//             offset,
-//             size,
-//             layout,
-//             width);
+        let section_headers = SectionHeader::parse_all(
+            &b,
+            count,
+            offset,
+            size,
+            layout,
+            width);
 
-//         assert!(section_headers.is_ok());
-//         let headers = section_headers.unwrap();
+        assert!(section_headers.is_ok());
+        let headers = section_headers.unwrap();
 
-//         let result = headers.iter().find(|&h| 
-//             h.kind() == SHType::SHT_FINI_ARRAY);
+        let result = headers.iter().find(|&h| 
+            h.kind() == SHType::SHT_FINI_ARRAY);
 
-//         assert!(result.is_some());
+        assert!(result.is_some());
 
-//         let header = result.unwrap();
-//         let result = Array::try_from(header);
+        let header = result.unwrap();
+        let result = Array::try_from(header);
 
-//         assert!(result.is_ok());
+        assert!(result.is_ok());
 
-//         let mut array = result.unwrap();
+        let mut array = result.unwrap();
 
-//         assert!(array.read(&b).is_ok());
-//         assert_eq!(array.len(),FINI_TEST.length);
-//     }
+        assert!(array.read(&b).is_ok());
+        assert_eq!(array.len(),FINI_TEST.length);
+    }
 
-//     #[test]
-//     fn test_read_init_array() {
+    #[test]
+    fn test_read_init_array() {
         
-//         // directly initialize an array
-//         let mut array = Array::new(
-//             0, // because we're reading directly
-//             INIT_TEST.size,
-//             Layout::Little,
-//             Width::X64,
-//             SHType::SHT_INIT_ARRAY,
-//             INIT_TEST.entsize
-//         );
+        // directly initialize an array
+        let mut array = Array::new(
+            0, // because we're reading directly
+            INIT_TEST.size,
+            Layout::Little,
+            Width::X64,
+            SHType::SHT_INIT_ARRAY,
+            INIT_TEST.entsize
+        );
 
-//         // read the test array and verify success
-//         let result = array.read(INIT_TEST.bytes);
-//         assert!(result.is_ok());
+        // read the test array and verify success
+        let result = array.read(INIT_TEST.bytes);
+        assert!(result.is_ok());
 
-//         // verify that the array has the expected number of elements
-//         assert_eq!(array.len(),INIT_TEST.length);
-//     }
+        // verify that the array has the expected number of elements
+        assert_eq!(array.len(),INIT_TEST.length);
+    }
 
-//     #[test]
-//     fn test_read_fini_array() {
+    #[test]
+    fn test_read_fini_array() {
         
-//         // directly initialize an array
-//         let mut array = Array::new(
-//             0, // because we're reading directly
-//             FINI_TEST.size,
-//             Layout::Little,
-//             Width::X64,
-//             SHType::SHT_FINI_ARRAY,
-//             FINI_TEST.entsize
-//         );
+        // directly initialize an array
+        let mut array = Array::new(
+            0, // because we're reading directly
+            FINI_TEST.size,
+            Layout::Little,
+            Width::X64,
+            SHType::SHT_FINI_ARRAY,
+            FINI_TEST.entsize
+        );
 
-//         // read the test array and verify success
-//         let result = array.read(FINI_TEST.bytes);
-//         assert!(result.is_ok());
+        // read the test array and verify success
+        let result = array.read(FINI_TEST.bytes);
+        assert!(result.is_ok());
 
-//         // verify that the array has the expected number of elements
-//         assert_eq!(array.len(),FINI_TEST.length);
-//     }
+        // verify that the array has the expected number of elements
+        assert_eq!(array.len(),FINI_TEST.length);
+    }
 
-//     #[test]
-//     fn test_write_init_array_with_no_changes() {
+    #[test]
+    fn test_write_init_array_with_no_changes() {
 
-//         // directly initialize an array
-//         let mut array = Array::new(
-//             0, // because we're reading directly
-//             INIT_TEST.size,
-//             Layout::Little,
-//             Width::X64,
-//             SHType::SHT_INIT_ARRAY,
-//             INIT_TEST.entsize
-//         );
+        // directly initialize an array
+        let mut array = Array::new(
+            0, // because we're reading directly
+            INIT_TEST.size,
+            Layout::Little,
+            Width::X64,
+            SHType::SHT_INIT_ARRAY,
+            INIT_TEST.entsize
+        );
 
-//         // read the test array and verify success
-//         let result = array.read(INIT_TEST.bytes);
-//         assert!(result.is_ok());
+        // read the test array and verify success
+        let result = array.read(INIT_TEST.bytes);
+        assert!(result.is_ok());
 
-//         // initialize a buffer big enough for array data
-//         let mut buffer: Vec<u8> = vec![];
-//         buffer.resize(array.size(),0x00);
+        // initialize a buffer big enough for array data
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(array.size(),0x00);
 
-//         // write to the new array
-//         let result = array.write(buffer.as_mut_slice());
-//         assert!(result.is_ok());
+        // write to the new array
+        let result = array.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
 
-//         // verify that the written array is the same as original
-//         assert_eq!(buffer.as_slice(),INIT_TEST.bytes);
-//     }
+        // verify that the written array is the same as original
+        assert_eq!(buffer.as_slice(),INIT_TEST.bytes);
+    }
 
-//     #[test]
-//     fn test_write_fini_array_with_no_changes() {
+    #[test]
+    fn test_write_fini_array_with_no_changes() {
 
-//         // directly initialize an array
-//         let mut array = Array::new(
-//             0, // because we're reading directly
-//             FINI_TEST.size,
-//             Layout::Little,
-//             Width::X64,
-//             SHType::SHT_FINI_ARRAY,
-//             FINI_TEST.entsize
-//         );
+        // directly initialize an array
+        let mut array = Array::new(
+            0, // because we're reading directly
+            FINI_TEST.size,
+            Layout::Little,
+            Width::X64,
+            SHType::SHT_FINI_ARRAY,
+            FINI_TEST.entsize
+        );
 
-//         // read the test array and verify success
-//         let result = array.read(FINI_TEST.bytes);
-//         assert!(result.is_ok());
+        // read the test array and verify success
+        let result = array.read(FINI_TEST.bytes);
+        assert!(result.is_ok());
 
-//         // initialize a buffer big enough for array data
-//         let mut buffer: Vec<u8> = vec![];
-//         buffer.resize(array.size(),0x00);
+        // initialize a buffer big enough for array data
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(array.size(),0x00);
 
-//         // write to the new array
-//         let result = array.write(buffer.as_mut_slice());
-//         assert!(result.is_ok());
+        // write to the new array
+        let result = array.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
 
-//         // verify that the written array is the same as original
-//         assert_eq!(buffer.as_slice(),FINI_TEST.bytes);
-//     }
+        // verify that the written array is the same as original
+        assert_eq!(buffer.as_slice(),FINI_TEST.bytes);
+    }
 
-//     #[test]
-//     fn test_write_init_array_with_changes() {
+    #[test]
+    fn test_write_init_array_with_changes() {
 
-//         // directly initialize an array
-//         let mut array = Array::new(
-//             0, // because we're reading directly
-//             INIT_TEST.size,
-//             Layout::Little,
-//             Width::X64,
-//             SHType::SHT_INIT_ARRAY,
-//             INIT_TEST.entsize
-//         );
+        // directly initialize an array
+        let mut array = Array::new(
+            0, // because we're reading directly
+            INIT_TEST.size,
+            Layout::Little,
+            Width::X64,
+            SHType::SHT_INIT_ARRAY,
+            INIT_TEST.entsize
+        );
 
-//         // read the test array and verify success
-//         let result = array.read(INIT_TEST.bytes);
-//         assert!(result.is_ok());
+        // read the test array and verify success
+        let result = array.read(INIT_TEST.bytes);
+        assert!(result.is_ok());
 
-//         // remove an element from the array
-//         let result = array.remove(1);
-//         assert_eq!(result,0xa2ed0);
+        // get an element from the array
+        let result = array.get_mut(1);
+        assert!(result.is_some());
 
-//         // insert an element at that index
-//         array.insert(1,123);
+        // change the value of the element
+        if let Some(item) = result {
+            item.set(123);
+        }
 
-//         // initialize a buffer big enough for modified table data
-//         let mut buffer: Vec<u8> = vec![];
-//         buffer.resize(array.size(),0x00);
+        // initialize a buffer big enough for modified table data
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(array.size(),0x00);
 
-//         // write to the new table
-//         let result = array.write(buffer.as_mut_slice());
-//         assert!(result.is_ok());
+        // write to the new table
+        let result = array.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
 
-//         // verify that the written table is not the same as original
-//         assert_ne!(buffer.as_slice(),INIT_TEST.bytes);
+        // verify that the written table is not the same as original
+        assert_ne!(buffer.as_slice(),INIT_TEST.bytes);
 
-//         // read the buffer and verify success
-//         let result = array.read(&buffer);
-//         assert!(result.is_ok());
+        // read the buffer and verify success
+        let result = array.read(&buffer);
+        assert!(result.is_ok());
 
-//         // get an element from the table
-//         let result = array.get(1);
-//         assert!(result.is_some());
+        // get an element from the table
+        let result = array.get(1);
+        assert!(result.is_some());
 
-//         // check the element is changed
-//         let value = result.unwrap();
-//         assert_eq!(value,&123);
-//     }
+        // check the element is changed
+        let item = result.unwrap();
+        assert_eq!(item.get(),Some(123));
+    }
 
-//     #[test]
-//     fn test_write_fini_array_with_changes() {
+    #[test]
+    fn test_write_fini_array_with_changes() {
 
-//         // directly initialize an array
-//         let mut array = Array::new(
-//             0, // because we're reading directly
-//             FINI_TEST.size,
-//             Layout::Little,
-//             Width::X64,
-//             SHType::SHT_FINI_ARRAY,
-//             FINI_TEST.entsize
-//         );
+        // directly initialize an array
+        let mut array = Array::new(
+            0, // because we're reading directly
+            FINI_TEST.size,
+            Layout::Little,
+            Width::X64,
+            SHType::SHT_FINI_ARRAY,
+            FINI_TEST.entsize
+        );
 
-//         // read the test array and verify success
-//         let result = array.read(FINI_TEST.bytes);
-//         assert!(result.is_ok());
+        // read the test array and verify success
+        let result = array.read(FINI_TEST.bytes);
+        assert!(result.is_ok());
 
-//         // remove an element from the array
-//         let result = array.remove(0);
-//         assert_eq!(result,0x0a5b70);
+        // get an element from the array
+        let result = array.get_mut(0);
+        assert!(result.is_some());
 
-//         // insert an element at that index
-//         array.insert(0,123);
+        // change the value of the element
+        if let Some(item) = result {
+            item.set(123);
+        }
 
-//         // initialize a buffer big enough for modified table data
-//         let mut buffer: Vec<u8> = vec![];
-//         buffer.resize(array.size(),0x00);
+        // initialize a buffer big enough for modified table data
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(array.size(),0x00);
 
-//         // write to the new table
-//         let result = array.write(buffer.as_mut_slice());
-//         assert!(result.is_ok());
+        // write to the new table
+        let result = array.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
 
-//         // verify that the written table is not the same as original
-//         assert_ne!(buffer.as_slice(),FINI_TEST.bytes);
+        // verify that the written table is not the same as original
+        assert_ne!(buffer.as_slice(),FINI_TEST.bytes);
 
-//         // read the buffer and verify success
-//         let result = array.read(&buffer);
-//         assert!(result.is_ok());
+        // read the buffer and verify success
+        let result = array.read(&buffer);
+        assert!(result.is_ok());
 
-//         // get an element from the table
-//         let result = array.get(0);
-//         assert!(result.is_some());
+        // get an element from the table
+        let result = array.get(0);
+        assert!(result.is_some());
 
-//         // check the element is changed
-//         let value = result.unwrap();
-//         assert_eq!(value,&123);
-//     }
-// }
+        // check the element is changed
+        let item = result.unwrap();
+        assert_eq!(item.get(),Some(123));
+    }
+}
