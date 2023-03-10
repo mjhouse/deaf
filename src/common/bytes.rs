@@ -2,6 +2,7 @@ use crate::headers::common::constants::*;
 use crate::errors::{Result};
 use num_enum::{TryFromPrimitive};
 use enumflags2::BitFlags;
+use std::ffi::{CString,CStr};
 
 /// Parse an object from bytes
 ///
@@ -198,6 +199,18 @@ impl FromBytes for String {
 impl IntoBytes for String {
     fn to_bytes(&self, b: &mut [u8], _: Layout) -> Result<()> {
         Ok(b.copy_from_slice(&self.as_bytes()))
+    }
+}
+
+impl FromBytes for CString {
+    fn from_bytes(b: &[u8], _: Layout) -> Result<Self> {
+        Ok(CStr::from_bytes_with_nul(b)?.into())
+    }
+}
+
+impl IntoBytes for CString {
+    fn to_bytes(&self, b: &mut [u8], _: Layout) -> Result<()> {
+        Ok(b.copy_from_slice(&self.as_bytes_with_nul()))
     }
 }
 

@@ -8,7 +8,7 @@ pub struct ArrayItem(Item<i32,i64>);
 
 impl ArrayItem {
 
-    /// Set the internal ArrayItem value
+    /// Create an ArrayItem with a value
     pub fn new(value: i64) -> Self {
         Self(Item::new(ADDRESS)
         .with_value(value))

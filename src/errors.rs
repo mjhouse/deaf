@@ -35,7 +35,10 @@ pub enum Error {
     FromBytesWithNulError(#[from] std::ffi::FromBytesWithNulError),
 
     #[error("Could not convert String to CString")]
-    StringConvertError(#[from] std::ffi::NulError),
+    FromStringError(#[from] std::ffi::NulError),
+
+    #[error("Could not convert CString to String")]
+    IntoStringError(#[from] std::ffi::IntoStringError),
 
     #[error("This error will never actually be created")]
     InfallibleError(#[from] std::convert::Infallible),

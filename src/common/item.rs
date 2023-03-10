@@ -49,9 +49,10 @@ where
     }
 
     /// Read the value if possible
-    pub fn read(&mut self, bytes: &[u8]) -> Result<()> {
-        self.value = Some(self.field.get(bytes)?);
-        Ok(())
+    pub fn read(&mut self, bytes: &[u8]) -> Result<Out> {
+        let value = self.field.get(bytes)?;
+        self.value = Some(value.clone());
+        Ok(value)
     }
 
     /// Write the value if there is one
@@ -68,6 +69,13 @@ where
 
     pub fn set(&mut self, value: Out) {
         self.value = Some(value)
+    }
+
+    pub fn size(&self) -> usize {
+        match self.value {
+            Some(_) => self.field.size(),
+            None => 0
+        }
     }
 
     pub fn width(&self) -> Width {
