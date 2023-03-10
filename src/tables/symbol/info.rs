@@ -1,4 +1,4 @@
-use crate::errors::{Error, Result};
+use crate::errors::{Result};
 use crate::common::bytes::Convert;
 use crate::headers::common::constants::{STBind,STType};
 

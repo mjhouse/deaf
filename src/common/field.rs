@@ -1,5 +1,4 @@
 use std::marker::PhantomData;
-use num_enum::{IntoPrimitive, TryFromPrimitive};
 
 use crate::common::bytes::{FromBytes, IntoBytes, Convert};
 use crate::headers::common::constants::{Layout, Width};

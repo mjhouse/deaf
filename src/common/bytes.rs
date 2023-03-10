@@ -1,6 +1,6 @@
 use crate::headers::common::constants::*;
-use crate::errors::{Error, Result};
-use num_enum::{TryFromPrimitive,FromPrimitive};
+use crate::errors::{Result};
+use num_enum::{TryFromPrimitive};
 use enumflags2::BitFlags;
 
 /// Parse an object from bytes

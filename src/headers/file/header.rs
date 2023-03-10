@@ -1,5 +1,5 @@
-use crate::errors::{Error, Result};
-use crate::headers::common::constants::{Width,Layout,FH_SIZE_32,FH_SIZE_64};
+use crate::errors::{Result};
+use crate::headers::common::constants::{Width,Layout};
 use crate::common::field::Field;
 use crate::common::ranges::*;
 use crate::impl_property;

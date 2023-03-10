@@ -1,6 +1,5 @@
 use num_enum::{IntoPrimitive, TryFromPrimitive, FromPrimitive};
-use enumflags2::{bitflags, make_bitflags, BitFlags};
-use crate::errors::{Error, Result};
+use enumflags2::bitflags;
 
 // global const sizes for various widths
 pub const FH_SIZE_32: usize = 52;

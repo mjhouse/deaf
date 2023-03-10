@@ -1,4 +1,4 @@
-use crate::errors::{Error, Result};
+use crate::errors::{Result};
 use crate::headers::common::constants::{Width,Layout};
 use crate::common::field::Field;
 use crate::common::ranges::*;

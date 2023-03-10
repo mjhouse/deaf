@@ -8,7 +8,7 @@ use crate::headers::common::constants::{
 
 use crate::common::field::Field;
 use crate::common::ranges::*;
-use crate::errors::{Error, Result};
+use crate::errors::{Result};
 
 #[derive(Debug,Clone)]
 pub struct ProgramHeaderValues {

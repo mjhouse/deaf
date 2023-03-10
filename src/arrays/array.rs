@@ -1,11 +1,6 @@
 use crate::errors::{Error, Result};
 use crate::headers::common::constants::{Width,Layout,SHType};
-use crate::common::{Ranges,ranges::ADDRESS};
-use crate::headers::section::header::{
-    SectionHeader,
-    SectionHeaderValues
-};
-use crate::common::{FromBytes,IntoBytes,Field,Item};
+use crate::headers::section::header::{SectionHeader};
 use crate::arrays::array_item::ArrayItem;
 use crate::tables::common::ByteIter;
 
@@ -39,8 +34,6 @@ impl Array {
         let end = self.offset + self.section_size;
 
         let size = self.entity_size;
-        let layout = self.layout;
-        let width = self.width;
 
         // check that the entity size is > 0
         if size == 0 {
@@ -84,8 +77,6 @@ impl Array {
         }
 
         let size = self.entity_size;
-        let layout = self.layout;
-        let width = self.width;
 
         // iterate all contained addresses
         for (i,value) in self.values.iter().enumerate() {

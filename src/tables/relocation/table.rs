@@ -1,9 +1,6 @@
 use crate::errors::{Error, Result};
 use crate::headers::common::constants::{Width,Layout,SHType};
-use crate::headers::section::header::{
-    SectionHeader,
-    SectionHeaderValues
-};
+use crate::headers::section::header::{SectionHeader};
 use crate::tables::relocation::Relocation;
 use crate::tables::common::ByteIter;
 use crate::tables::common::Table;
@@ -80,8 +77,6 @@ impl RelocationTable {
         }
 
         let size = self.entity_size;
-        let layout = self.layout;
-        let width = self.width;
 
         // iterate all contained relocations
         for (i,relocation) in self.values.iter().enumerate() {

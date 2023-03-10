@@ -1,9 +1,6 @@
 use crate::errors::{Error, Result};
 use crate::headers::common::constants::{Width,Layout,SHType};
-use crate::headers::section::header::{
-    SectionHeader,
-    SectionHeaderValues
-};
+use crate::headers::section::header::{SectionHeader};
 use crate::tables::symbol::Symbol;
 use crate::tables::common::ByteIter;
 use crate::tables::common::Table;
@@ -36,8 +33,6 @@ impl SymbolTable {
         let end = self.offset + self.section_size;
 
         let size = self.entity_size;
-        let layout = self.layout;
-        let width = self.width;
 
         // check that the entity size is > 0
         if size == 0 {
@@ -60,7 +55,10 @@ impl SymbolTable {
 
         for data in ByteIter::length(&bytes[start..end],size) {
             // parse a symbol from the byte range
-            let symbol = Symbol::parse(data,layout,width)?;
+            let symbol = Symbol::parse(
+                data,
+                self.layout,
+                self.width)?;
 
             // add to vector of Symbol objects
             values.push(symbol);
@@ -80,8 +78,6 @@ impl SymbolTable {
         }
 
         let size = self.entity_size;
-        let layout = self.layout;
-        let width = self.width;
 
         // iterate all contained symbols
         for (i,symbol) in self.values.iter().enumerate() {

@@ -1,7 +1,7 @@
 use crate::errors::{Result};
 use crate::headers::common::constants::{Width,Layout};
 use crate::common::ranges::ADDRESS;
-use crate::common::{Field,Item};
+use crate::common::{Item};
 
 /// Wraps and hides the more general purpose Item
 pub struct ArrayItem(Item<i32,i64>);

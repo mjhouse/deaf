@@ -1,11 +1,6 @@
 use crate::errors::{Error, Result};
-use crate::headers::section::header::{
-    SectionHeader,
-    SectionHeaderValues
-};
-use crate::headers::common::constants::{
-    SHType
-};
+use crate::headers::section::header::{SectionHeader};
+use crate::headers::common::constants::{SHType};
 use crate::tables::common::ByteIter;
 use crate::tables::common::Table;
 use std::ffi::{CString,CStr};
