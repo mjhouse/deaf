@@ -71,6 +71,9 @@
 <a href="#71" id="71">71</a>
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
 </pre><pre class="rust"><code><span class="doccomment">//! A custom error type that aggregates internal errors
 //!
 
@@ -108,7 +111,10 @@
     </span>FromBytesWithNulError(<span class="attr">#[from] </span>std::ffi::FromBytesWithNulError),
 
     <span class="attr">#[error(<span class="string">&quot;Could not convert String to CString&quot;</span>)]
-    </span>StringConvertError(<span class="attr">#[from] </span>std::ffi::NulError),
+    </span>FromStringError(<span class="attr">#[from] </span>std::ffi::NulError),
+
+    <span class="attr">#[error(<span class="string">&quot;Could not convert CString to String&quot;</span>)]
+    </span>IntoStringError(<span class="attr">#[from] </span>std::ffi::IntoStringError),
 
     <span class="attr">#[error(<span class="string">&quot;This error will never actually be created&quot;</span>)]
     </span>InfallibleError(<span class="attr">#[from] </span>std::convert::Infallible),

@@ -53,14 +53,14 @@
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{<span class="prelude-ty">Result</span>};
 <span class="kw">use </span><span class="kw">crate</span>::headers::common::constants::{Width,Layout};
 <span class="kw">use </span><span class="kw">crate</span>::common::ranges::ADDRESS;
-<span class="kw">use </span><span class="kw">crate</span>::common::{Field,Item};
+<span class="kw">use </span><span class="kw">crate</span>::common::{Item};
 
 <span class="doccomment">/// Wraps and hides the more general purpose Item
 </span><span class="kw">pub struct </span>ArrayItem(Item&lt;i32,i64&gt;);
 
 <span class="kw">impl </span>ArrayItem {
 
-    <span class="doccomment">/// Set the internal ArrayItem value
+    <span class="doccomment">/// Create an ArrayItem with a value
     </span><span class="kw">pub fn </span>new(value: i64) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>(Item::new(ADDRESS)
         .with_value(value))

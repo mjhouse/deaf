@@ -246,37 +246,6 @@
 <a href="#246" id="246">246</a>
 <a href="#247" id="247">247</a>
 <a href="#248" id="248">248</a>
-<a href="#249" id="249">249</a>
-<a href="#250" id="250">250</a>
-<a href="#251" id="251">251</a>
-<a href="#252" id="252">252</a>
-<a href="#253" id="253">253</a>
-<a href="#254" id="254">254</a>
-<a href="#255" id="255">255</a>
-<a href="#256" id="256">256</a>
-<a href="#257" id="257">257</a>
-<a href="#258" id="258">258</a>
-<a href="#259" id="259">259</a>
-<a href="#260" id="260">260</a>
-<a href="#261" id="261">261</a>
-<a href="#262" id="262">262</a>
-<a href="#263" id="263">263</a>
-<a href="#264" id="264">264</a>
-<a href="#265" id="265">265</a>
-<a href="#266" id="266">266</a>
-<a href="#267" id="267">267</a>
-<a href="#268" id="268">268</a>
-<a href="#269" id="269">269</a>
-<a href="#270" id="270">270</a>
-<a href="#271" id="271">271</a>
-<a href="#272" id="272">272</a>
-<a href="#273" id="273">273</a>
-<a href="#274" id="274">274</a>
-<a href="#275" id="275">275</a>
-<a href="#276" id="276">276</a>
-<a href="#277" id="277">277</a>
-<a href="#278" id="278">278</a>
-<a href="#279" id="279">279</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::headers::common::constants::{
     Width,
     Layout,
@@ -523,37 +492,6 @@
             width);
 
         <span class="macro">assert!</span>(section_headers.is_ok())
-    }
-
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_check_section_header_flags() {
-        <span class="kw">let </span><span class="kw-2">mut </span>f = File::open(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>).unwrap();
-        <span class="kw">let </span><span class="kw-2">mut </span>b = Vec::new();
-        
-        f.read_to_end(<span class="kw-2">&amp;mut </span>b)
-            .unwrap();
-
-        <span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
-            .unwrap();
-
-        <span class="kw">let </span>count = file_header.shnum();
-        <span class="kw">let </span>offset = file_header.shoff();
-        <span class="kw">let </span>size = file_header.shentsize();
-        <span class="kw">let </span>layout = file_header.data();
-        <span class="kw">let </span>width = file_header.class();
-        
-        <span class="kw">let </span>section_headers = SectionHeader::parse_all(
-            <span class="kw-2">&amp;</span>b,
-            count,
-            offset,
-            size,
-            layout,
-            width).unwrap();
-
-        <span class="kw">for </span>header <span class="kw">in </span>section_headers.into_iter() {
-            <span class="comment">// dbg!(header.flags());
-        </span>}
-
     }
 }</code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>

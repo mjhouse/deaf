@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["common",""],["relocation",""],["string",""],["symbol",""]]};
+window.SIDEBAR_ITEMS = {"mod":[["common",""]],"struct":[["RelocationInfo",""],["RelocationItem",""],["StringItem",""],["SymbolInfo",""],["SymbolItem",""],["Table","A section interpreted as a table"]],"type":[["RelocationTable",""],["StringTable",""],["SymbolTable",""]]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["ByteDelimiter",""]],"struct":[["ByteIter",""]],"trait":[["Table",""]]};
+window.SIDEBAR_ITEMS = {"enum":[["ByteDelimiter",""]],"struct":[["ByteIter",""]]};
