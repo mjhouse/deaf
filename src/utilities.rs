@@ -91,7 +91,7 @@ pub mod tests {
         address: 0,
         offset: 287172,
         size: 263,
-        length: 25,
+        length: 26,
         entsize: 0,
     };
 

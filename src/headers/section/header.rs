@@ -245,35 +245,4 @@ mod tests {
 
         assert!(section_headers.is_ok())
     }
-
-    #[test]
-    fn test_check_section_header_flags() {
-        let mut f = File::open("assets/libvpf/libvpf.so.4.1").unwrap();
-        let mut b = Vec::new();
-        
-        f.read_to_end(&mut b)
-            .unwrap();
-
-        let file_header = FileHeader::parse(&b)
-            .unwrap();
-
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
-        
-        let section_headers = SectionHeader::parse_all(
-            &b,
-            count,
-            offset,
-            size,
-            layout,
-            width).unwrap();
-
-        for header in section_headers.into_iter() {
-            // dbg!(header.flags());
-        }
-
-    }
 }

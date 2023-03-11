@@ -139,6 +139,24 @@ mod tests {
     pub const RANGES_COMPLEX_U8_U16: Ranges = Ranges::new(0x01..0x02, 0x01..0x03);
 
     #[test]
+    fn test_simple_set_failure() {
+        let bytes = &mut [ 0x0A, 0x09, 0x08, 0x07, 0x06 ];
+        let field: Field<u64> = Field::new(RANGES_U64);
+
+        let result = field.set(bytes,0x0908070605040302);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_simple_get_failure() {
+        let bytes = &mut [ 0x0A, 0x09, 0x08, 0x07, 0x06 ];
+        let field: Field<u64> = Field::new(RANGES_U64);
+
+        let result = field.get(bytes);
+        assert!(result.is_err());
+    }
+
+    #[test]
     fn test_simple_field_u8_get() {
         let bytes = &[ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 ];
         let field: Field<u8> = Field::new(RANGES_U8);

@@ -1,4 +1,8 @@
-use crate::tables::common::ByteDelimiter;
+
+pub enum ByteDelimiter {
+    Value(u8),
+    Length(usize),
+}
 
 pub struct ByteIter<'a> {
     data: &'a [u8],
@@ -104,7 +108,7 @@ mod tests {
 
     #[test]
     fn test_byte_iter_take_slice() {
-        let mut iter = ByteIter::new(NULL_TERM_STR,ByteDelimiter::Value(b'\0'));
+        let iter = ByteIter::new(NULL_TERM_STR,ByteDelimiter::Value(b'\0'));
         assert!(iter.take_slice().is_some());
 
         // returns whole slcie because the iter index defaults to 0
@@ -158,7 +162,7 @@ mod tests {
 
     #[test]
     fn test_byte_iter_by_value() {
-        let mut iter = ByteIter::new(NULL_TERM_STR,ByteDelimiter::Value(b'\0'));
+        let iter = ByteIter::new(NULL_TERM_STR,ByteDelimiter::Value(b'\0'));
         let strings = iter
             .filter_map(|d| std::str::from_utf8(d).ok())
             .map(|s| s.into())
@@ -172,7 +176,7 @@ mod tests {
 
     #[test]
     fn test_byte_iter_by_length() {
-        let mut iter = ByteIter::new(FIXED_LEN_DATA,ByteDelimiter::Length(14));
+        let iter = ByteIter::new(FIXED_LEN_DATA,ByteDelimiter::Length(14));
         let strings = iter
             .filter_map(|d| std::str::from_utf8(d).ok())
             .map(|s| s.into())
