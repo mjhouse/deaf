@@ -44,9 +44,3 @@ macro_rules! impl_property {
         impl_property!($n,$f,$v<>);
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-}

@@ -262,6 +262,7 @@ mod tests {
     use super::*;
     use std::fs::File;
     use std::io::Read;
+    use crate::headers::common::constants::FH_SIZE_64;
 
     #[test]
     fn test_read_file_header() {
@@ -342,7 +343,7 @@ mod tests {
         let result = FileHeader::parse(&buffer);
         assert!(result.is_ok());
 
-        let mut header = result.unwrap();
+        let header = result.unwrap();
 
         // verify that the re-parsed shentsize is the new value
         assert_eq!(header.shentsize(),123);

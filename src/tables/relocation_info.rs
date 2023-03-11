@@ -2,7 +2,7 @@ use crate::errors::{Result};
 use crate::headers::common::constants::{Width,Layout};
 use crate::common::field::Field;
 use crate::common::ranges::*;
-use crate::tables::relocation::RelocationInfo;
+use crate::tables::RelocationInfo;
 use crate::impl_property;
 
 #[derive(Debug,Clone)]
@@ -108,7 +108,7 @@ impl std::fmt::Debug for Relocation {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utilities::tests::{LIBVPF_RELA_DYN as TEST,read};
+    use crate::utilities::tests::{LIBVPF_RELA_DYN as TEST};
 
     #[test]
     fn test_relocation_parse_offset() {
@@ -202,7 +202,7 @@ mod tests {
         let relocation = parsed.unwrap();
         
         // write the relocation back to the buffer
-        relocation.write(&mut result);
+        relocation.write(&mut result).unwrap();
         assert_eq!(&result,bytes);
     }
 
@@ -220,7 +220,7 @@ mod tests {
         relocation.set_addend(Some(-20));
         
         // write the relocation to a buffer
-        relocation.write(&mut result);
+        relocation.write(&mut result).unwrap();
         assert_ne!(&result,bytes);
 
         // re-parse the written data

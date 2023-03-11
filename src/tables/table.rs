@@ -1,11 +1,22 @@
 use crate::errors::{Error,Result};
 use crate::tables::common::ByteIter;
-use crate::tables::table_item::TableItem;
-use crate::headers::common::constants::{Width,Layout};
+use crate::headers::common::constants::{Width,Layout,SHType};
+use crate::headers::section::header::{SectionHeader};
+
+use crate::tables::table_item::{
+    TableItem,
+    StringItem,
+    SymbolItem,
+    RelocationItem
+};
+
+type StringTable = Table<StringItem>;
+type SymbolTable = Table<SymbolItem>;
+type RelocationTable = Table<RelocationItem>;
 
 pub struct Table<T>
 where
-    T: TableItem
+    T: TableItem + Default
 {
     table_offset: usize,
     table_size: usize,
@@ -17,7 +28,7 @@ where
 
 impl<T> Table<T>
 where
-    T: TableItem
+    T: TableItem + Default
 {
 
     pub fn new(table_offset: usize, table_size: usize, item_size: usize, layout: Layout, width: Width) -> Self {
@@ -37,38 +48,28 @@ where
 
         let size = self.item_size;
 
-        // check that the entity size is > 0
-        if size == 0 {
-            return Err(Error::MalformedDataError);
-        }
-
-        // check that the table has data
-        if self.table_size == 0 {
-            return Err(Error::MalformedDataError);
-        }
-
-        // check that entities fit cleanly into section
-        if self.table_size % size != 0 {
-            return Err(Error::MalformedDataError);
-        }
-
         // reserve a temporary buffer for items
         let mut items: Vec<T> = vec![];
-        items.reserve(self.table_size / size);
+
+        // if a size is given, reserve space upfront
+        if size > 0 {
+            items.reserve(self.table_size / size);
+        }
 
         // build a delimiter for the item type
         let delim = T::delimiter(size);
 
         // iterate over entity-sized slices of the byte array
         for data in ByteIter::new(&bytes[start..end],delim) {
-            // // parse a symbol from the byte range
-            // let symbol = Symbol::parse(
-            //     data,
-            //     self.layout,
-            //     self.width)?;
+            let mut item = T::default();
 
-            // // add to vector of Symbol objects
-            // values.push(symbol);
+            // set expected layout and width from table
+            item.set_layout(self.layout);
+            item.set_width(self.width);
+
+            // parse the table item and add to collection
+            item.read(data)?;
+            items.push(item);
         }
 
         // don't update self until successful read
@@ -155,4 +156,520 @@ where
         }
     }
 
+}
+
+impl TryFrom<&SectionHeader> for SymbolTable {
+    type Error = Error;
+
+    fn try_from(header: &SectionHeader) -> Result<Self> {
+        match header.values.sh_type {
+            SHType::SHT_SYMTAB => Ok(Self::new(
+                header.offset(),
+                header.size(),
+                header.entsize(),
+                header.layout(),
+                header.width()
+            )),
+            _ => Err(Error::WrongSectionError)
+        }
+    }
+}
+
+impl TryFrom<&SectionHeader> for StringTable {
+    type Error = Error;
+
+    fn try_from(header: &SectionHeader) -> Result<Self> {
+        match header.values.sh_type {
+            SHType::SHT_STRTAB => Ok(Self::new(
+                header.offset(),
+                header.size(),
+                header.entsize(),
+                header.layout(),
+                header.width()
+            )),
+            _ => Err(Error::WrongSectionError)
+        }
+    }
+}
+
+impl TryFrom<&SectionHeader> for RelocationTable {
+    type Error = Error;
+
+    fn try_from(header: &SectionHeader) -> Result<Self> {
+        match header.values.sh_type {
+            SHType::SHT_RELA | SHType::SHT_REL => Ok(Self::new(
+                header.offset(),
+                header.size(),
+                header.entsize(),
+                header.layout(),
+                header.width()
+            )),
+            _ => Err(Error::WrongSectionError)
+        }
+    }
+}
+
+impl TryFrom<SectionHeader> for SymbolTable {
+    type Error = Error;
+
+    fn try_from(header: SectionHeader) -> Result<Self> {
+        Self::try_from(&header)
+    }
+}
+
+impl TryFrom<SectionHeader> for StringTable {
+    type Error = Error;
+
+    fn try_from(header: SectionHeader) -> Result<Self> {
+        Self::try_from(&header)
+    }
+}
+
+impl TryFrom<SectionHeader> for RelocationTable {
+    type Error = Error;
+
+    fn try_from(header: SectionHeader) -> Result<Self> {
+        Self::try_from(&header)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::headers::file::header::FileHeader;
+    use crate::headers::section::header::SectionHeader;
+
+    use crate::utilities::tests::{
+        LIBVPF_DYNSYM as SYM_TEST,
+        LIBVPF_SHSTRTAB as STR_TEST,
+        LIBVPF_RELA_DYN as REL_TEST,
+        read
+    };
+
+    #[test]
+    fn test_extract_real_relocation_section_as_table() {
+        const SYMBOL_COUNT: usize = 210;
+
+        let b = read("assets/libjpeg/libjpeg.so.9");
+
+        let file_header = FileHeader::parse(&b)
+            .unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+        
+        let section_headers = SectionHeader::parse_all(
+            &b,
+            count,
+            offset,
+            size,
+            layout,
+            width);
+
+        assert!(section_headers.is_ok());
+        let headers = section_headers.unwrap();
+
+        let result = headers.iter().find(|&h| 
+            h.kind() == SHType::SHT_RELA);
+
+        assert!(result.is_some());
+
+        let header = result.unwrap();
+        let result = RelocationTable::try_from(header);
+
+        assert!(result.is_ok());
+
+        let mut table = result.unwrap();
+
+        assert!(table.read(&b).is_ok());
+        assert_eq!(table.len(),SYMBOL_COUNT);
+    }
+
+    #[test]
+    fn test_read_relocation_table() {
+        
+        // directly initialize a test table
+        let mut table = RelocationTable::new(
+            0, // because we're reading directly
+            REL_TEST.size,
+            REL_TEST.entsize,
+            Layout::Little,
+            Width::X64
+        );
+
+        // read the test table and verify success
+        let result = table.read(REL_TEST.bytes);
+        assert!(result.is_ok());
+
+        // verify that the table has the expected number of elements
+        assert_eq!(table.len(),REL_TEST.length);
+    }
+
+    #[test]
+    fn test_write_relocation_table_with_no_changes() {
+
+        // directly initialize a test table
+        let mut table = RelocationTable::new(
+            0, // because we're reading directly
+            REL_TEST.size,
+            REL_TEST.entsize,
+            Layout::Little,
+            Width::X64
+        );
+
+        // read the test table and verify success
+        let mut result = table.read(REL_TEST.bytes);
+        assert!(result.is_ok());
+
+        // initialize a buffer big enough for table data
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(table.size(),0x00);
+
+        // write to the new table
+        result = table.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
+
+        // verify that the written table is the same as original
+        assert_eq!(buffer.as_slice(),REL_TEST.bytes);
+    }
+
+    #[test]
+    fn test_write_relocation_table_with_changes() {
+
+        // directly initialize a test table
+        let mut table = RelocationTable::new(
+            0, // because we're reading directly
+            REL_TEST.size,
+            REL_TEST.entsize,
+            Layout::Little,
+            Width::X64
+        );
+
+        // read the test table and verify success
+        let result = table.read(REL_TEST.bytes);
+        assert!(result.is_ok());
+
+        // get an item from the table
+        let result = table.get(1);
+        assert!(result.is_some());
+
+        // modify the item attributes
+        let mut item = result.cloned().unwrap();
+        item.set_addend(20);
+
+        // update the table with the modified item
+        let result = table.set(1,item);
+        assert!(result.is_ok());
+
+        // initialize a buffer big enough for modified table data
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(table.size(),0x00);
+
+        // write to the new table
+        let result = table.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
+
+        // verify that the written table is not the same as original
+        assert_ne!(buffer.as_slice(),REL_TEST.bytes);
+
+        // read the buffer and verify success
+        let result = table.read(&buffer);
+        assert!(result.is_ok());
+
+        // get a relocation from the table
+        let result = table.get(1);
+        assert!(result.is_some());
+
+        // check the item attribute is changed
+        let item = result.unwrap();
+        assert_eq!(item.addend_unchecked(),20);
+    }
+
+    #[test]
+    fn test_extract_real_shstrtab_section_as_table() {
+        let b = read("assets/libvpf/libvpf.so.4.1");
+
+        // get the fileheader and use it to find section headers
+        let file_header = FileHeader::parse(&b)
+            .unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+        let index = file_header.shstrndx();
+        
+        // parse all section headers from the buffer
+        let section_headers = SectionHeader::parse_all(
+            &b,
+            count,
+            offset,
+            size,
+            layout,
+            width);
+
+        assert!(section_headers.is_ok());
+        let headers = section_headers.unwrap();
+
+        let result = headers
+            .iter()
+            .enumerate()
+            .find(|(i,_)| *i == index)
+            .map(|(_,h)| h);
+
+        assert!(result.is_some());
+
+        let header = result.unwrap();
+        let result = StringTable::try_from(header);
+
+        assert!(result.is_ok());
+
+        let mut table = result.unwrap();
+
+        let result = table.read(&b);
+        assert!(result.is_ok());
+        assert_eq!(table.len(),STR_TEST.length);
+    }
+
+    #[test]
+    fn test_read_string_table() {
+        // directly initialize a table
+        let mut table = StringTable::new(
+            0, // because we're reading directly
+            STR_TEST.size,
+            STR_TEST.entsize,
+            Layout::Little,
+            Width::X64
+        );
+
+        let result = table.read(STR_TEST.bytes);
+        assert!(result.is_ok());
+
+        // verify that the table has the expected number of elements
+        assert_eq!(table.len(),STR_TEST.length);
+    }
+
+    #[test]
+    fn test_write_string_table_with_no_changes() {
+        // directly initialize a table
+        let mut table = StringTable::new(
+            0, // because we're reading directly
+            STR_TEST.size,
+            STR_TEST.entsize,
+            Layout::Little,
+            Width::X64
+        );
+
+        let mut result = table.read(STR_TEST.bytes);
+        assert!(result.is_ok());
+
+        // initialize a buffer big enough for table data
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(table.size(),0x00);
+
+        // write to the new table
+        result = table.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
+
+        // verify that the written table is the same as original
+        assert_eq!(buffer.as_slice(),STR_TEST.bytes);
+    }
+
+    #[test]
+    fn test_write_string_table_with_changes() {
+        const TEST_STR: &str  = "-test";
+        const TEST_LEN: usize = 5;
+
+        // directly initialize a table
+        let mut table = StringTable::new(
+            0, // because we're reading directly
+            STR_TEST.size,
+            STR_TEST.entsize,
+            Layout::Little,
+            Width::X64
+        );
+
+        // read the test table and verify success
+        let result = table.read(STR_TEST.bytes);
+        assert!(result.is_ok());
+
+        // get a value from the table
+        let result = table.get(1);  
+        assert!(result.is_some());
+
+        // get the item and string from the table
+        let mut item = result.cloned().unwrap();
+        let mut string = item.string_lossy();
+
+        // modify the string by appending test str
+        string += TEST_STR;
+        assert_eq!(string.as_str(),".shstrtab-test");
+
+        let result = item.set_string(string);
+        assert!(result.is_ok());
+
+        // update the table with the modified value
+        let result = table.set(1,item);
+        assert!(result.is_ok());
+
+        // initialize a buffer big enough for modified table data
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(table.size(),0x00);
+
+        // write to the new table
+        let result = table.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
+
+        // verify that the written table is not the same as original
+        assert_ne!(buffer.as_slice(),STR_TEST.bytes);
+        assert_eq!(buffer.len(),STR_TEST.size + TEST_LEN);
+    }
+
+
+    #[test]
+    fn test_extract_real_symtab_section_as_table() {
+        const SYMBOL_COUNT: usize = 525;
+
+        let b = read("assets/libjpeg/libjpeg.so.9");
+
+        let file_header = FileHeader::parse(&b)
+            .unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+        
+        // parse all section headers from the buffer
+        let section_headers = SectionHeader::parse_all(
+            &b,
+            count,
+            offset,
+            size,
+            layout,
+            width);
+
+        assert!(section_headers.is_ok());
+        let headers = section_headers.unwrap();
+
+        let result = headers.iter().find(|&h| 
+            h.kind() == SHType::SHT_SYMTAB);
+
+        assert!(result.is_some());
+
+        let header = result.unwrap();
+        let result = SymbolTable::try_from(header);
+
+        assert!(result.is_ok());
+
+        let mut table = result.unwrap();
+
+        assert!(table.read(&b).is_ok());
+        assert_eq!(table.len(),SYMBOL_COUNT);
+    }
+
+    #[test]
+    fn test_read_symbol_table() {
+        
+        // directly initialize a table
+        let mut table = SymbolTable::new(
+            0, // because we're reading directly
+            SYM_TEST.size,
+            SYM_TEST.entsize,
+            Layout::Little,
+            Width::X64
+        );
+
+        // read the test table and verify success
+        let result = table.read(SYM_TEST.bytes);
+        assert!(result.is_ok());
+
+        // verify that the table has the expected number of elements
+        assert_eq!(table.len(),SYM_TEST.length);
+    }
+
+    #[test]
+    fn test_write_symbol_table_with_no_changes() {
+
+        // directly initialize a table
+        let mut table = SymbolTable::new(
+            0, // because we're reading directly
+            SYM_TEST.size,
+            SYM_TEST.entsize,
+            Layout::Little,
+            Width::X64
+        );
+
+        // read the test table and verify success
+        let mut result = table.read(SYM_TEST.bytes);
+        assert!(result.is_ok());
+
+        // initialize a buffer big enough for table data
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(table.size(),0x00);
+
+        // write to the new table
+        result = table.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
+
+        // verify that the written table is the same as original
+        assert_eq!(buffer.as_slice(),SYM_TEST.bytes);
+    }
+
+    #[test]
+    fn test_write_symbol_table_with_changes() {
+
+        // directly initialize a table
+        let mut table = SymbolTable::new(
+            0, // because we're reading directly
+            SYM_TEST.size,
+            SYM_TEST.entsize,
+            Layout::Little,
+            Width::X64
+        );
+
+        // read the test table and verify success
+        let result = table.read(SYM_TEST.bytes);
+        assert!(result.is_ok());
+
+        // get an item from the table
+        let result = table.get(1);
+        assert!(result.is_some());
+
+        // modify the item attributes
+        let mut item = result.cloned().unwrap();
+        item.set_value(20);
+
+        // update the table with the modified item
+        let result = table.set(1,item);
+        assert!(result.is_ok());
+
+        // initialize a buffer big enough for modified table data
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(table.size(),0x00);
+
+        // write to the new table
+        let result = table.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
+
+        // verify that the written table is not the same as original
+        assert_ne!(buffer.as_slice(),SYM_TEST.bytes);
+
+        // read the buffer and verify success
+        let result = table.read(&buffer);
+        assert!(result.is_ok());
+
+        // get a item from the table
+        let result = table.get(1);
+        assert!(result.is_some());
+
+        // check the item attribute is changed
+        let item = result.unwrap();
+        assert_eq!(item.value_unchecked(),20);
+    }
 }

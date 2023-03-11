@@ -1,8 +1,4 @@
 
-mod constants;
-mod byte_iter;
-mod table;
+mod iterator;
 
-pub use constants::ByteDelimiter;
-pub use byte_iter::ByteIter;
-pub use table::Table;
+pub use iterator::{ByteDelimiter,ByteIter};

@@ -95,3 +95,22 @@ where
     }
 
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::common::ranges::*;
+
+    #[test]
+    fn test_read_out_of_range() {
+        let bytes: &[u8] = &[ 0x00, 0x01 ];
+
+        // build the item for testing
+        let ranges = Ranges::new(0x00..0x04,0x00..0x04);
+        let mut item: Item<u32,u64> = Item::new(ranges);
+
+        // verify that small byte buffer fails
+        assert!(item.read(bytes).is_err());
+    }
+
+}

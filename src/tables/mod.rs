@@ -2,13 +2,14 @@
 //!
 //! Each table type can be created (using TryFrom) from an appropriate section header
 //! struct. TryFrom will fail if the section isn't the correct type (e.g. non-SHT_SYMTAB
-//! section header cannot be converted into a SymbolTable struct).
+//! section header cannot be converted into a Table<SymbolItem> struct).
 
 pub mod common;
 
-pub mod relocation;
-pub mod string;
-pub mod symbol;
-
-mod table;
+mod relocation_info;
+mod symbol_info;
 mod table_item;
+mod table;
+
+pub use relocation_info::RelocationInfo;
+pub use symbol_info::SymbolInfo;
