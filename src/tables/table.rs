@@ -10,10 +10,16 @@ use crate::tables::table_item::{
     RelocationItem
 };
 
-type StringTable = Table<StringItem>;
-type SymbolTable = Table<SymbolItem>;
-type RelocationTable = Table<RelocationItem>;
+pub type StringTable = Table<StringItem>;
+pub type SymbolTable = Table<SymbolItem>;
+pub type RelocationTable = Table<RelocationItem>;
 
+/// A section interpreted as a table
+///
+/// Each Table<T> instance is considered to be 
+/// a series of records of type `T`. Tables can
+/// be parsed from a SectionHeader and a byte
+/// buffer containing the body of the section.
 pub struct Table<T>
 where
     T: TableItem + Default
@@ -31,6 +37,8 @@ where
     T: TableItem + Default
 {
 
+    /// Create a new table from section information taken from
+    /// a section header.
     pub fn new(table_offset: usize, table_size: usize, item_size: usize, layout: Layout, width: Width) -> Self {
         Self {
             table_offset,
@@ -42,6 +50,7 @@ where
         }
     }
 
+    /// Write from buffer, returning the number of items read
     pub fn read(&mut self, bytes: &[u8]) -> Result<usize> {
         let start = self.table_offset;
         let end = start + self.table_size;

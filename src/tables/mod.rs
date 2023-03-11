@@ -13,3 +13,16 @@ mod table;
 
 pub use relocation_info::RelocationInfo;
 pub use symbol_info::SymbolInfo;
+
+pub use table_item::{
+    RelocationItem,
+    SymbolItem,
+    StringItem
+};
+
+pub use table::{
+    RelocationTable,
+    SymbolTable,
+    StringTable,
+    Table
+};
