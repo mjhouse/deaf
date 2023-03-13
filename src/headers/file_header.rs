@@ -260,18 +260,12 @@ impl FileHeader {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs::File;
-    use std::io::Read;
-
-    const FH_SIZE_32: usize = 52;
-    const FH_SIZE_64: usize = 64;
+    use crate::utilities::tests::read;
 
     #[test]
     fn test_read_file_header() {
         // read file as byte array
-        let mut f = File::open("assets/libvpf/libvpf.so.4.1").unwrap();
-        let mut b = Vec::new();
-        f.read_to_end(&mut b).unwrap();
+        let b = read("assets/libvpf/libvpf.so.4.1");
 
         // parse the file header from the bytes
         let result = FileHeader::parse(&b);
@@ -286,15 +280,13 @@ mod tests {
         assert_eq!(header.shoff(),287440);
 
         // check calculated size matches known x64 ELF size
-        assert_eq!(header.header_size(),FH_SIZE_64);
+        assert_eq!(header.header_size(),64);
     }
 
     #[test]
     fn test_write_file_header_with_no_changes() {
         // read file as byte array
-        let mut f = File::open("assets/libvpf/libvpf.so.4.1").unwrap();
-        let mut b = Vec::new();
-        f.read_to_end(&mut b).unwrap();
+        let b = read("assets/libvpf/libvpf.so.4.1");
 
         // parse the file header from the bytes
         let result = FileHeader::parse(&b);
@@ -317,9 +309,7 @@ mod tests {
     #[test]
     fn test_write_file_header_with_changes() {
         // read file as byte array
-        let mut f = File::open("assets/libvpf/libvpf.so.4.1").unwrap();
-        let mut b = Vec::new();
-        f.read_to_end(&mut b).unwrap();
+        let b = read("assets/libvpf/libvpf.so.4.1");
 
         // parse the file header from the bytes
         let result = FileHeader::parse(&b);

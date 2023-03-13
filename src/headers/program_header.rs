@@ -7,6 +7,7 @@ use crate::common::{
 use crate::common::field::Field;
 use crate::common::ranges::*;
 use crate::errors::{Result};
+use crate::impl_property;
 
 #[derive(Debug,Clone)]
 pub struct ProgramHeaderValues {
@@ -86,9 +87,10 @@ impl ProgramHeader {
         result.reserve_exact(count);
 
         for i in 0..count {
+            let offs = offset + i * size;
             result.push(Self::parse(
-                b,
-                offset + i * size,
+                &b[offs..],
+                offs,
                 size,
                 layout,
                 width)?);
@@ -122,33 +124,30 @@ impl ProgramHeader {
     }
 
     pub fn read(&mut self, b: &[u8]) -> Result<ProgramHeaderValues> {
-        let s = &b[self.offset..];
-
         self.set_layout(self.layout);
         self.set_width(self.width);
 
-        self.values.p_type   = self.p_type.get(s)?;
-        self.values.p_flags  = self.p_flags.get(s)?;
-        self.values.p_offset = self.p_offset.get(s)?;
-        self.values.p_vaddr  = self.p_vaddr.get(s)?;
-        self.values.p_paddr  = self.p_paddr.get(s)?;
-        self.values.p_filesz = self.p_filesz.get(s)?;
-        self.values.p_memsz  = self.p_memsz.get(s)?;
-        self.values.p_align  = self.p_align.get(s)?;
+        self.values.p_type   = self.p_type.get(b)?;
+        self.values.p_flags  = self.p_flags.get(b)?;
+        self.values.p_offset = self.p_offset.get(b)?;
+        self.values.p_vaddr  = self.p_vaddr.get(b)?;
+        self.values.p_paddr  = self.p_paddr.get(b)?;
+        self.values.p_filesz = self.p_filesz.get(b)?;
+        self.values.p_memsz  = self.p_memsz.get(b)?;
+        self.values.p_align  = self.p_align.get(b)?;
 
         Ok(self.values.clone())
     }
 
     pub fn write(&self, b: &mut [u8]) -> Result<()> {
-        let s = &mut b[self.offset..];
-        self.p_type.set(s,self.values.p_type)?;
-        self.p_flags.set(s,self.values.p_flags)?;
-        self.p_offset.set(s,self.values.p_offset)?;
-        self.p_vaddr.set(s,self.values.p_vaddr)?;
-        self.p_paddr.set(s,self.values.p_paddr)?;
-        self.p_filesz.set(s,self.values.p_filesz)?;
-        self.p_memsz.set(s,self.values.p_memsz)?;
-        self.p_align.set(s,self.values.p_align)?;
+        self.p_type.set(b,self.values.p_type)?;
+        self.p_flags.set(b,self.values.p_flags)?;
+        self.p_offset.set(b,self.values.p_offset)?;
+        self.p_vaddr.set(b,self.values.p_vaddr)?;
+        self.p_paddr.set(b,self.values.p_paddr)?;
+        self.p_filesz.set(b,self.values.p_filesz)?;
+        self.p_memsz.set(b,self.values.p_memsz)?;
+        self.p_align.set(b,self.values.p_align)?;
         Ok(())
     }
 
@@ -163,6 +162,15 @@ impl ProgramHeader {
         self.p_align.size()
     }
 
+    impl_property!(kind, p_type, PHType);
+    impl_property!(flags, p_flags, u32);
+    impl_property!(offset, p_offset, u64);
+    impl_property!(vaddr, p_vaddr, u64);
+    impl_property!(paddr, p_paddr, u64);
+    impl_property!(filesz, p_filesz, u64);
+    impl_property!(memsz, p_memsz, u64);
+    impl_property!(align, p_align, u64);
+
 }
 
 #[cfg(test)]
@@ -173,9 +181,10 @@ mod tests {
     use crate::utilities::tests::read;
 
     #[test]
-    fn test_extract_program_headers() {
+    fn test_read_program_headers() {
         let b = read("assets/libvpf/libvpf.so.4.1");
 
+        // get the file header to find program headers
         let file_header = FileHeader::parse(&b)
             .unwrap();
 
@@ -185,6 +194,7 @@ mod tests {
         let layout = file_header.data();
         let width = file_header.class();
         
+        // parse all program headers in file
         let program_headers = ProgramHeader::parse_all(
             &b,
             count,
@@ -193,7 +203,114 @@ mod tests {
             layout,
             width);
 
-        assert!(program_headers.is_ok())
+        // get the first program header for testing
+        assert!(program_headers.is_ok());
+        let headers = program_headers.unwrap();
+
+        let header = &headers[0];
+
+        // check values are what we expected
+        assert_eq!(header.header_size(),size);
+        assert_eq!(header.filesz(),0x4348);
+        assert_eq!(header.align(),0x1000);
+    }
+
+    #[test]
+    fn test_write_program_header_with_no_changes() {
+        let b = read("assets/libvpf/libvpf.so.4.1");
+
+        // get the file header to find program headers
+        let file_header = FileHeader::parse(&b)
+            .unwrap();
+
+        let count = file_header.phnum();
+        let offset = file_header.phoff();
+        let size = file_header.phentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+        
+        // parse all program headers in file
+        let program_headers = ProgramHeader::parse_all(
+            &b,
+            count,
+            offset,
+            size,
+            layout,
+            width);
+
+        // get the first program header for testing
+        assert!(program_headers.is_ok());
+        let mut headers = program_headers.unwrap();
+
+        let header = &mut headers[0];
+
+        // initialize a buffer big enough for the header
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(header.header_size(),0x00);        
+
+        // write to the new buffer
+        let result = header.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
+
+        // get the expected result from the original buffer
+        let expected = &b[offset..offset + header.header_size()];
+
+        // verify that the written header is the same as original
+        assert_eq!(buffer.as_slice(),expected);
+    }
+
+    #[test]
+    fn test_write_program_header_with_changes() {
+        let b = read("assets/libvpf/libvpf.so.4.1");
+
+        // get the file header to find program headers
+        let file_header = FileHeader::parse(&b)
+            .unwrap();
+
+        let count = file_header.phnum();
+        let offset = file_header.phoff();
+        let size = file_header.phentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+        
+        // parse all program headers in file
+        let program_headers = ProgramHeader::parse_all(
+            &b,
+            count,
+            offset,
+            size,
+            layout,
+            width);
+
+        // get the first program header for testing
+        assert!(program_headers.is_ok());
+        let mut headers = program_headers.unwrap();
+
+        let header = &mut headers[0];
+
+        // change a field in the program header
+        header.set_paddr(123);
+
+        // initialize a buffer big enough for the header
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(header.header_size(),0x00);        
+
+        // write to the new buffer
+        let result = header.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
+
+        // get the expected result from the original buffer
+        let expected = &b[offset..offset + header.header_size()];
+
+        // verify that the written header is the same as original
+        assert_ne!(buffer.as_slice(),expected);
+
+        // read the modified data back from the buffer
+        let result = header.read(&buffer);
+        assert!(result.is_ok());
+
+        // check that the re-parsed header has changed value
+        assert_eq!(header.paddr(),123);
     }
 
 }

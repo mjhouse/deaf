@@ -101,9 +101,10 @@ impl SectionHeader {
         result.reserve_exact(count);
 
         for i in 0..count {
+            let offs = offset + i * size;
             result.push(Self::parse(
-                b,
-                offset + i * size,
+                &b[offs..],
+                offs,
                 size,
                 layout,
                 width)?);
@@ -141,37 +142,34 @@ impl SectionHeader {
     }
 
     pub fn read(&mut self, b: &[u8]) -> Result<SectionHeaderValues> {
-        let s = &b[self.offset..];
-
         self.set_layout(self.layout);
         self.set_width(self.width);
 
-        self.values.sh_name      = self.sh_name.get(s)?;
-        self.values.sh_type      = self.sh_type.get(s)?;
-        self.values.sh_flags     = self.sh_flags.get(s)?;
-        self.values.sh_address   = self.sh_address.get(s)?;
-        self.values.sh_offset    = self.sh_offset.get(s)?;
-        self.values.sh_size      = self.sh_size.get(s)?;
-        self.values.sh_link      = self.sh_link.get(s)?;
-        self.values.sh_info      = self.sh_info.get(s)?;
-        self.values.sh_addralign = self.sh_addralign.get(s)?;
-        self.values.sh_entsize   = self.sh_entsize.get(s)?;
+        self.values.sh_name      = self.sh_name.get(b)?;
+        self.values.sh_type      = self.sh_type.get(b)?;
+        self.values.sh_flags     = self.sh_flags.get(b)?;
+        self.values.sh_address   = self.sh_address.get(b)?;
+        self.values.sh_offset    = self.sh_offset.get(b)?;
+        self.values.sh_size      = self.sh_size.get(b)?;
+        self.values.sh_link      = self.sh_link.get(b)?;
+        self.values.sh_info      = self.sh_info.get(b)?;
+        self.values.sh_addralign = self.sh_addralign.get(b)?;
+        self.values.sh_entsize   = self.sh_entsize.get(b)?;
 
         Ok(self.values.clone())
     }
 
     pub fn write(&self, b: &mut [u8]) -> Result<()> {
-        let s = &mut b[self.offset..];
-        self.sh_name.set(s,self.values.sh_name)?;
-        self.sh_type.set(s,self.values.sh_type)?;
-        self.sh_flags.set(s,self.values.sh_flags)?;
-        self.sh_address.set(s,self.values.sh_address)?;
-        self.sh_offset.set(s,self.values.sh_offset)?;
-        self.sh_size.set(s,self.values.sh_size)?;
-        self.sh_link.set(s,self.values.sh_link)?;
-        self.sh_info.set(s,self.values.sh_info)?;
-        self.sh_addralign.set(s,self.values.sh_addralign)?;
-        self.sh_entsize.set(s,self.values.sh_entsize)?;
+        self.sh_name.set(b,self.values.sh_name)?;
+        self.sh_type.set(b,self.values.sh_type)?;
+        self.sh_flags.set(b,self.values.sh_flags)?;
+        self.sh_address.set(b,self.values.sh_address)?;
+        self.sh_offset.set(b,self.values.sh_offset)?;
+        self.sh_size.set(b,self.values.sh_size)?;
+        self.sh_link.set(b,self.values.sh_link)?;
+        self.sh_info.set(b,self.values.sh_info)?;
+        self.sh_addralign.set(b,self.values.sh_addralign)?;
+        self.sh_entsize.set(b,self.values.sh_entsize)?;
         Ok(())
     }
 
@@ -214,18 +212,15 @@ impl SectionHeader {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs::File;
-    use std::io::Read;
     use crate::headers::FileHeader;
 
-    #[test]
-    fn test_extract_section_headers() {
-        let mut f = File::open("assets/libvpf/libvpf.so.4.1").unwrap();
-        let mut b = Vec::new();
-        
-        f.read_to_end(&mut b)
-            .unwrap();
+    use crate::utilities::tests::read;
 
+    #[test]
+    fn test_read_section_headers() {
+        let b = read("assets/libvpf/libvpf.so.4.1");
+
+        // get the file header to find section headers
         let file_header = FileHeader::parse(&b)
             .unwrap();
 
@@ -235,6 +230,7 @@ mod tests {
         let layout = file_header.data();
         let width = file_header.class();
         
+        // parse all section headers in file
         let section_headers = SectionHeader::parse_all(
             &b,
             count,
@@ -243,6 +239,113 @@ mod tests {
             layout,
             width);
 
-        assert!(section_headers.is_ok())
+        // get the first section header for testing
+        assert!(section_headers.is_ok());
+        let headers = section_headers.unwrap();
+
+        let header = &headers[3];
+
+        // check values are what we expected
+        assert_eq!(header.header_size(),size);
+        assert_eq!(header.size(),0x7c4);
+        assert_eq!(header.offset(),0x2f0);
+    }
+
+    #[test]
+    fn test_write_section_header_with_no_changes() {
+        let b = read("assets/libvpf/libvpf.so.4.1");
+
+        // get the file header to find section headers
+        let file_header = FileHeader::parse(&b)
+            .unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+        
+        // parse all section headers in file
+        let section_headers = SectionHeader::parse_all(
+            &b,
+            count,
+            offset,
+            size,
+            layout,
+            width);
+
+        // get the first section header for testing
+        assert!(section_headers.is_ok());
+        let mut headers = section_headers.unwrap();
+
+        let header = &mut headers[0];
+
+        // initialize a buffer big enough for the header
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(header.header_size(),0x00);        
+
+        // write to the new buffer
+        let result = header.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
+
+        // get the expected result from the original buffer
+        let expected = &b[offset..offset + header.header_size()];
+
+        // verify that the written header is the same as original
+        assert_eq!(buffer.as_slice(),expected);
+    }
+
+    #[test]
+    fn test_write_section_header_with_changes() {
+        let b = read("assets/libvpf/libvpf.so.4.1");
+
+        // get the file header to find section headers
+        let file_header = FileHeader::parse(&b)
+            .unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+        
+        // parse all section headers in file
+        let section_headers = SectionHeader::parse_all(
+            &b,
+            count,
+            offset,
+            size,
+            layout,
+            width);
+
+        // get the first section header for testing
+        assert!(section_headers.is_ok());
+        let mut headers = section_headers.unwrap();
+
+        let header = &mut headers[0];
+
+        // change a field in the section header
+        header.set_address(123);
+
+        // initialize a buffer big enough for the header
+        let mut buffer: Vec<u8> = vec![];
+        buffer.resize(header.header_size(),0x00);        
+
+        // write to the new buffer
+        let result = header.write(buffer.as_mut_slice());
+        assert!(result.is_ok());
+
+        // get the expected result from the original buffer
+        let expected = &b[offset..offset + header.header_size()];
+
+        // verify that the written header is the same as original
+        assert_ne!(buffer.as_slice(),expected);
+
+        // read the modified data back from the buffer
+        let result = header.read(&buffer);
+        assert!(result.is_ok());
+
+        // check that the re-parsed header has changed value
+        assert_eq!(header.address(),123);
     }
 }
