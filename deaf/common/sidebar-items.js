@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["bytes",""],["field",""],["item",""],["ranges",""]]};
+window.SIDEBAR_ITEMS = {"mod":[["bytes",""],["constants",""],["field",""],["item",""],["macros",""],["ranges",""]]};

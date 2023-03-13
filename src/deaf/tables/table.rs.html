@@ -681,11 +681,10 @@
 <a href="#681" id="681">681</a>
 <a href="#682" id="682">682</a>
 <a href="#683" id="683">683</a>
-<a href="#684" id="684">684</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{Error,<span class="prelude-ty">Result</span>};
 <span class="kw">use </span><span class="kw">crate</span>::tables::common::ByteIter;
-<span class="kw">use </span><span class="kw">crate</span>::headers::common::constants::{Width,Layout,SHType};
-<span class="kw">use </span><span class="kw">crate</span>::headers::section::header::{SectionHeader};
+<span class="kw">use </span><span class="kw">crate</span>::common::{Width,Layout,SHType};
+<span class="kw">use </span><span class="kw">crate</span>::headers::SectionHeader;
 
 <span class="kw">use </span><span class="kw">crate</span>::tables::table_item::{
     TableItem,
@@ -929,8 +928,7 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span><span class="kw">crate</span>::headers::file::header::FileHeader;
-    <span class="kw">use </span><span class="kw">crate</span>::headers::section::header::SectionHeader;
+    <span class="kw">use </span><span class="kw">crate</span>::headers::{FileHeader,SectionHeader};
 
     <span class="kw">use </span><span class="kw">crate</span>::utilities::tests::{
         LIBVPF_DYNSYM <span class="kw">as </span>SYM_TEST,

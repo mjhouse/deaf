@@ -449,7 +449,7 @@
 <a href="#449" id="449">449</a>
 <a href="#450" id="450">450</a>
 <a href="#451" id="451">451</a>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::headers::common::constants::<span class="kw-2">*</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common::{Layout,Width,PHType,SHType,SHFlags};
 <span class="kw">use </span><span class="kw">crate</span>::errors::{<span class="prelude-ty">Result</span>};
 <span class="kw">use </span>num_enum::{TryFromPrimitive};
 <span class="kw">use </span>enumflags2::BitFlags;
@@ -466,7 +466,7 @@
 ///
 /// ```
 /// # use deaf::common::bytes::FromBytes;
-/// # use deaf::headers::common::constants::*;
+/// # use deaf::common::Layout;
 ///
 /// // layout doesn&#39;t matter for strings
 /// let layout = Layout::Little;
@@ -496,7 +496,7 @@
 ///
 /// ```
 /// # use deaf::common::bytes::IntoBytes;
-/// # use deaf::headers::common::constants::*;
+/// # use deaf::common::Layout;
 ///
 /// // layout doesn&#39;t matter for strings
 /// let layout = Layout::Little;
@@ -522,7 +522,7 @@
 ///
 /// ```
 /// # use deaf::common::bytes::Convert;
-/// # use deaf::headers::common::constants::*;
+/// # use deaf::common::Width;
 /// # use deaf::errors::Result;
 ///
 /// let expected = Width::X64;

@@ -8,24 +8,14 @@
 <a href="#8" id="8">8</a>
 <a href="#9" id="9">9</a>
 <a href="#10" id="10">10</a>
-<a href="#11" id="11">11</a>
-<a href="#12" id="12">12</a>
-<a href="#13" id="13">13</a>
-<a href="#14" id="14">14</a>
-<a href="#15" id="15">15</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Module that defines headers and associated items
 //!
-//! Also includes a lot of common functionality that is used everywhere 
-//! else and should probably be moved out into it&#39;s own module (like Field 
-//! and Ranges structs).
 
-</span><span class="kw">pub mod </span>common;
+</span><span class="kw">mod </span>file_header;
+<span class="kw">mod </span>program_header;
+<span class="kw">mod </span>section_header;
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>file;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>program;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>section;
-
-<span class="kw">pub use </span>file::header::FileHeader;
-<span class="kw">pub use </span>program::header::ProgramHeader;
-<span class="kw">pub use </span>section::header::SectionHeader;</code></pre></div>
+<span class="kw">pub use </span>file_header::FileHeader;
+<span class="kw">pub use </span>program_header::ProgramHeader;
+<span class="kw">pub use </span>section_header::SectionHeader;</code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>

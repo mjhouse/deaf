@@ -449,10 +449,9 @@
 <a href="#449" id="449">449</a>
 <a href="#450" id="450">450</a>
 <a href="#451" id="451">451</a>
-<a href="#452" id="452">452</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{Error, <span class="prelude-ty">Result</span>};
-<span class="kw">use </span><span class="kw">crate</span>::headers::common::constants::{Width,Layout,SHType};
-<span class="kw">use </span><span class="kw">crate</span>::headers::section::header::{SectionHeader};
+<span class="kw">use </span><span class="kw">crate</span>::common::{Width,Layout,SHType};
+<span class="kw">use </span><span class="kw">crate</span>::headers::SectionHeader;
 <span class="kw">use </span><span class="kw">crate</span>::arrays::array_item::ArrayItem;
 <span class="kw">use </span><span class="kw">crate</span>::tables::common::ByteIter;
 
@@ -613,8 +612,7 @@
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">use </span><span class="kw">crate</span>::headers::file::header::FileHeader;
-    <span class="kw">use </span><span class="kw">crate</span>::headers::section::header::SectionHeader;
+    <span class="kw">use </span><span class="kw">crate</span>::headers::{FileHeader,SectionHeader};
 
     <span class="kw">use </span><span class="kw">crate</span>::utilities::tests::{
         LIBQSCINTILLA_FINI_ARRAY <span class="kw">as </span>FINI_TEST,
