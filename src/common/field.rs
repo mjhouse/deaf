@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use crate::common::bytes::{FromBytes, IntoBytes, Convert};
-use crate::headers::common::constants::{Layout, Width};
+use crate::common::{Layout, Width};
 use crate::errors::{Error, Result};
 use crate::common::Ranges;
 

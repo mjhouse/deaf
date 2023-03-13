@@ -1,9 +1,7 @@
-use crate::headers::common::constants::{
+use crate::common::{
     Width,
     Layout,
-    PHType,
-    PH_SIZE_32,
-    PH_SIZE_64
+    PHType
 };
 
 use crate::common::field::Field;
@@ -59,12 +57,12 @@ impl ProgramHeaderValues {
 
 impl ProgramHeader {
 
-    pub fn new(offset: usize, layout: Layout, width: Width) -> Self {
+    pub fn new(offset: usize, size: usize, layout: Layout, width: Width) -> Self {
         Self {
             offset,
             layout,
             width,
-            size: 0,
+            size: size,
             p_type: Field::new(P_TYPE),
             p_flags: Field::new(P_FLAGS),
             p_offset: Field::new(P_OFFSET),
@@ -77,28 +75,21 @@ impl ProgramHeader {
         }
     }
 
-    pub fn parse(b: &[u8], offset: usize, layout: Layout, width: Width) -> Result<Self> {
-        let mut header = Self::new(offset,layout,width);
+    pub fn parse(b: &[u8], offset: usize, size: usize, layout: Layout, width: Width) -> Result<Self> {
+        let mut header = Self::new(offset,size,layout,width);
         header.read(b)?;
         Ok(header)
     }
 
-    pub fn parse_all(b: &[u8], count: usize, offset: usize, layout: Layout, width: Width) -> Result<Vec<Self>> {
+    pub fn parse_all(b: &[u8], count: usize, offset: usize, size: usize, layout: Layout, width: Width) -> Result<Vec<Self>> {
         let mut result = vec![];
         result.reserve_exact(count);
 
-        let size = match width {
-            Width::X64 => PH_SIZE_64,
-            Width::X32 => PH_SIZE_32,
-        };
-
-        // TODO: set the size on each ProgramHeader as they are parsed
-
         for i in 0..count {
-            let index = offset + i * size;
             result.push(Self::parse(
                 b,
-                index,
+                offset + i * size,
+                size,
                 layout,
                 width)?);
         }
@@ -177,23 +168,20 @@ impl ProgramHeader {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs::File;
-    use std::io::Read;
-    use crate::headers::file::header::FileHeader;
+    use crate::headers::FileHeader;
+
+    use crate::utilities::tests::read;
 
     #[test]
     fn test_extract_program_headers() {
-        let mut f = File::open("assets/libvpf/libvpf.so.4.1").unwrap();
-        let mut b = Vec::new();
-        
-        f.read_to_end(&mut b)
-            .unwrap();
+        let b = read("assets/libvpf/libvpf.so.4.1");
 
         let file_header = FileHeader::parse(&b)
             .unwrap();
 
         let count = file_header.phnum();
         let offset = file_header.phoff();
+        let size = file_header.phentsize();
         let layout = file_header.data();
         let width = file_header.class();
         
@@ -201,9 +189,11 @@ mod tests {
             &b,
             count,
             offset,
+            size,
             layout,
             width);
 
         assert!(program_headers.is_ok())
     }
+
 }

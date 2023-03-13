@@ -1,4 +1,4 @@
-use crate::headers::common::constants::*;
+use crate::common::{Layout,Width,PHType,SHType,SHFlags};
 use crate::errors::{Result};
 use num_enum::{TryFromPrimitive};
 use enumflags2::BitFlags;
@@ -15,7 +15,7 @@ use std::ffi::{CString,CStr};
 ///
 /// ```
 /// # use deaf::common::bytes::FromBytes;
-/// # use deaf::headers::common::constants::*;
+/// # use deaf::common::Layout;
 ///
 /// // layout doesn't matter for strings
 /// let layout = Layout::Little;
@@ -45,7 +45,7 @@ pub trait FromBytes {
 ///
 /// ```
 /// # use deaf::common::bytes::IntoBytes;
-/// # use deaf::headers::common::constants::*;
+/// # use deaf::common::Layout;
 ///
 /// // layout doesn't matter for strings
 /// let layout = Layout::Little;
@@ -71,7 +71,7 @@ pub trait IntoBytes {
 ///
 /// ```
 /// # use deaf::common::bytes::Convert;
-/// # use deaf::headers::common::constants::*;
+/// # use deaf::common::Width;
 /// # use deaf::errors::Result;
 ///
 /// let expected = Width::X64;

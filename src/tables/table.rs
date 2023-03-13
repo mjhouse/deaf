@@ -1,7 +1,7 @@
 use crate::errors::{Error,Result};
 use crate::tables::common::ByteIter;
-use crate::headers::common::constants::{Width,Layout,SHType};
-use crate::headers::section::header::{SectionHeader};
+use crate::common::{Width,Layout,SHType};
+use crate::headers::SectionHeader;
 
 use crate::tables::table_item::{
     TableItem,
@@ -245,8 +245,7 @@ impl TryFrom<SectionHeader> for RelocationTable {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::headers::file::header::FileHeader;
-    use crate::headers::section::header::SectionHeader;
+    use crate::headers::{FileHeader,SectionHeader};
 
     use crate::utilities::tests::{
         LIBVPF_DYNSYM as SYM_TEST,

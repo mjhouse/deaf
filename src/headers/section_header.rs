@@ -1,4 +1,4 @@
-use crate::headers::common::constants::{
+use crate::common::{
     Width,
     Layout,
     SHType,
@@ -216,7 +216,7 @@ mod tests {
     use super::*;
     use std::fs::File;
     use std::io::Read;
-    use crate::headers::file::header::FileHeader;
+    use crate::headers::FileHeader;
 
     #[test]
     fn test_extract_section_headers() {

@@ -30,10 +30,6 @@ macro_rules! impl_property {
                 self.values.$f.clone()
             }
 
-            pub fn [< get_ $n >](&self) -> $v< $( $N ),* > {
-                self.values.$f.clone()
-            }
-
             pub fn [< set_ $n >](&mut self, v: $v< $( $N ),* >) {
                 self.values.$f = v;
             }

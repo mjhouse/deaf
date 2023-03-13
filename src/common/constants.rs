@@ -1,22 +1,6 @@
 use num_enum::{IntoPrimitive, TryFromPrimitive, FromPrimitive};
 use enumflags2::bitflags;
 
-// global const sizes for various widths
-pub const FH_SIZE_32: usize = 52;
-pub const FH_SIZE_64: usize = 64;
-
-pub const PH_SIZE_32: usize = 32;
-pub const PH_SIZE_64: usize = 56;
-
-pub const SH_SIZE_32: usize = 40;
-pub const SH_SIZE_64: usize = 64;
-
-pub const ST_SIZE_32: usize = 16;
-pub const ST_SIZE_64: usize = 24;
-
-pub const RT_SIZE_32: usize = 16;
-pub const RT_SIZE_64: usize = 24;
-
 /// The mode of the ELF file
 ///
 /// This enum is generally parsed from the file header (ei_class) and then 

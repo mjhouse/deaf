@@ -1,5 +1,5 @@
 use crate::errors::{Result};
-use crate::headers::common::constants::{Width,Layout};
+use crate::common::{Width,Layout};
 use crate::common::ranges::ADDRESS;
 use crate::common::{Item};
 

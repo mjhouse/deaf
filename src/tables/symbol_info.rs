@@ -1,6 +1,6 @@
 use crate::errors::{Result};
 use crate::common::bytes::Convert;
-use crate::headers::common::constants::{STBind,STType};
+use crate::common::{STBind,STType};
 
 #[derive(Clone,Copy)]
 pub struct SymbolInfo {

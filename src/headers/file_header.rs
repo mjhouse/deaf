@@ -1,5 +1,5 @@
 use crate::errors::{Result};
-use crate::headers::common::constants::{Width,Layout};
+use crate::common::{Width,Layout};
 use crate::common::field::Field;
 use crate::common::ranges::*;
 use crate::impl_property;
@@ -22,7 +22,7 @@ pub struct FileHeaderValues {
     e_shoff: usize,
     e_flags: u32,
     e_ehsize: u16,
-    e_phentsize: u16,
+    e_phentsize: usize,
     e_phnum: usize,
     e_shentsize: usize,
     e_shnum: usize,
@@ -47,7 +47,7 @@ pub struct FileHeader {
     e_shoff: Field<u32,u64,usize>,
     e_flags: Field<u32>,
     e_ehsize: Field<u16>,
-    e_phentsize: Field<u16>,
+    e_phentsize: Field<u16,u16,usize>,
     e_phnum: Field<u16,u16,usize>,
     e_shentsize: Field<u16,u16,usize>,
     e_shnum: Field<u16,u16,usize>,
@@ -249,7 +249,7 @@ impl FileHeader {
     impl_property!(shoff,e_shoff,usize);
     impl_property!(flags,e_flags,u32);
     impl_property!(ehsize,e_ehsize,u16);
-    impl_property!(phentsize,e_phentsize,u16);
+    impl_property!(phentsize,e_phentsize,usize);
     impl_property!(phnum,e_phnum,usize);
     impl_property!(shentsize,e_shentsize,usize);
     impl_property!(shnum,e_shnum,usize);
@@ -262,7 +262,9 @@ mod tests {
     use super::*;
     use std::fs::File;
     use std::io::Read;
-    use crate::headers::common::constants::FH_SIZE_64;
+
+    const FH_SIZE_32: usize = 52;
+    const FH_SIZE_64: usize = 64;
 
     #[test]
     fn test_read_file_header() {

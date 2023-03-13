@@ -1,5 +1,5 @@
 use std::ops::Range;
-use crate::headers::common::constants::Width;
+use crate::common::Width;
 
 pub const EI_KEY:         Ranges = Ranges::new(0x00..0x01,0x00..0x01); // u8
 pub const EI_MAGIC:       Ranges = Ranges::new(0x01..0x04,0x01..0x04); // String

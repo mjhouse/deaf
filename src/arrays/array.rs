@@ -1,6 +1,6 @@
 use crate::errors::{Error, Result};
-use crate::headers::common::constants::{Width,Layout,SHType};
-use crate::headers::section::header::{SectionHeader};
+use crate::common::{Width,Layout,SHType};
+use crate::headers::SectionHeader;
 use crate::arrays::array_item::ArrayItem;
 use crate::tables::common::ByteIter;
 
@@ -161,8 +161,7 @@ impl TryFrom<SectionHeader> for Array {
 mod tests {
     use super::*;
 
-    use crate::headers::file::header::FileHeader;
-    use crate::headers::section::header::SectionHeader;
+    use crate::headers::{FileHeader,SectionHeader};
 
     use crate::utilities::tests::{
         LIBQSCINTILLA_FINI_ARRAY as FINI_TEST,

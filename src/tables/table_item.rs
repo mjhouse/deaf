@@ -1,4 +1,4 @@
-use crate::headers::common::constants::{Width,Layout};
+use crate::common::{Width,Layout};
 use crate::common::bytes::{IntoBytes,FromBytes};
 use crate::tables::common::ByteDelimiter;
 use crate::tables::RelocationInfo;
