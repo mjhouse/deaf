@@ -344,14 +344,51 @@
 <a href="#344" id="344">344</a>
 <a href="#345" id="345">345</a>
 <a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::marker::PhantomData;
 
-<span class="kw">use </span><span class="kw">crate</span>::common::bytes::{FromBytes, IntoBytes, Convert};
-<span class="kw">use </span><span class="kw">crate</span>::common::{Layout, Width};
+<span class="kw">use </span><span class="kw">crate</span>::common::{FromBytes, IntoBytes, Convert, Layout, Width, Ranges};
 <span class="kw">use </span><span class="kw">crate</span>::errors::{Error, <span class="prelude-ty">Result</span>};
-<span class="kw">use </span><span class="kw">crate</span>::common::Ranges;
 
-<span class="attr">#[derive(Debug,Clone)]
+<span class="doccomment">/// A single field in a section, table item etc.
+///
+/// Internally maintains ranges for various widths (32- or 64-bit)
+/// and layout (little- or big-endian) and allows bytes to be read 
+/// as values or values to be written to a byte buffer.
+</span><span class="attr">#[derive(Debug,Clone)]
 </span><span class="kw">pub struct </span>Field&lt;T32 = u8, T64 = T32, Out = T64&gt;
 <span class="kw">where
     </span>T32: FromBytes + IntoBytes + Convert&lt;Out&gt;,
@@ -361,8 +398,8 @@
     a: PhantomData&lt;T32&gt;,
     b: PhantomData&lt;T64&gt;,
     c: PhantomData&lt;Out&gt;,
-    <span class="kw">pub </span>ranges: Ranges,
-    <span class="kw">pub </span>layout: Layout,
+    ranges: Ranges,
+    layout: Layout,
 }
 
 <span class="kw">impl</span>&lt;T32, T64, Out&gt; Field&lt;T32, T64, Out&gt;
@@ -371,7 +408,8 @@
     T64: FromBytes + IntoBytes + Convert&lt;Out&gt;,
     Out: Convert&lt;T32&gt; + Convert&lt;T64&gt; + std::fmt::Debug,
 {
-    <span class="kw">pub const fn </span>new(ranges: Ranges) -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Create a new field from given ranges
+    </span><span class="kw">pub const fn </span>new(ranges: Ranges) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             a: PhantomData {},
             b: PhantomData {},
@@ -381,7 +419,8 @@
         }
     }
 
-    <span class="kw">pub const fn </span>empty() -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Create a new field with an empty range
+    </span><span class="kw">pub const fn </span>empty() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             a: PhantomData {},
             b: PhantomData {},
@@ -391,26 +430,48 @@
         }
     }
 
-    <span class="kw">pub const fn </span>with_width(<span class="kw-2">mut </span><span class="self">self</span>, width: Width) -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Builder method to set the width of the field
+    </span><span class="kw">pub const fn </span>with_width(<span class="kw-2">mut </span><span class="self">self</span>, width: Width) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.ranges.width = width;
         <span class="self">self
     </span>}
 
-    <span class="kw">pub const fn </span>with_layout(<span class="kw-2">mut </span><span class="self">self</span>, layout: Layout) -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Builder method to set the layout of the field
+    </span><span class="kw">pub const fn </span>with_layout(<span class="kw-2">mut </span><span class="self">self</span>, layout: Layout) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.layout = layout;
         <span class="self">self
     </span>}
+
+    <span class="doccomment">/// Get the width of the field
+    </span><span class="kw">pub fn </span>width(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Width {
+        <span class="self">self</span>.ranges.width
+    }
+
+    <span class="doccomment">/// Set the width of the field
+    </span><span class="kw">pub fn </span>set_width(<span class="kw-2">&amp;mut </span><span class="self">self</span>, width: Width) {
+        <span class="self">self</span>.ranges.width = width;
+    }
+
+    <span class="doccomment">/// Get the layout of the field
+    </span><span class="kw">pub fn </span>layout(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Layout {
+        <span class="self">self</span>.layout
+    }
+
+    <span class="doccomment">/// Set the layout of the field
+    </span><span class="kw">pub fn </span>set_layout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, layout: Layout) {
+        <span class="self">self</span>.layout = layout;
+    }
 
     <span class="doccomment">/// Get a constrained slice of bytes using the appropriate range
     ///
     /// If the slice is too short, this method will fail, otherwise
     /// it will just reduce the slice to fit the data.
-    </span><span class="kw">pub fn </span>slice&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt; {
+    </span><span class="kw">fn </span>slice&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt; {
         <span class="kw">let </span>range = <span class="self">self</span>.ranges.get();
-        <span class="kw">if </span>range.end &gt; b.len() {
+        <span class="kw">if </span>range.end &gt; bytes.len() {
             <span class="prelude-val">Err</span>(Error::OutOfBoundsError)
         } <span class="kw">else </span>{
-            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span>b[range])
+            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span>bytes[range])
         }
     }
 
@@ -418,56 +479,63 @@
     ///
     /// If the slice is too short, this method will fail, otherwise
     /// it will just reduce the slice to fit the data.
-    </span><span class="kw">pub fn </span>slice_mut&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8]&gt; {
+    </span><span class="kw">fn </span>slice_mut&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8]&gt; {
         <span class="kw">let </span>range = <span class="self">self</span>.ranges.get();
-        <span class="kw">if </span>range.end &gt; b.len() {
+        <span class="kw">if </span>range.end &gt; bytes.len() {
             <span class="prelude-val">Err</span>(Error::OutOfBoundsError)
         } <span class="kw">else </span>{
-            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;mut </span>b[range])
+            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;mut </span>bytes[range])
         }
     }
 
-    <span class="kw">pub fn </span>get_x32(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Out&gt; {
-        <span class="kw">let </span>bytes = <span class="self">self</span>.slice(b)<span class="question-mark">?</span>;
-        <span class="kw">let </span>layout = <span class="self">self</span>.layout.clone();
+    <span class="doccomment">/// Read the buffer as the output value with a 32-bit width
+    </span><span class="kw">fn </span>get_x32(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Out&gt; {
+        <span class="kw">let </span>bytes = <span class="self">self</span>.slice(bytes)<span class="question-mark">?</span>;
+        <span class="kw">let </span>layout = <span class="self">self</span>.layout();
         T32::from_bytes(bytes, layout)
             .and_then(|v| v.convert())
     }
 
-    <span class="kw">pub fn </span>get_x64(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Out&gt; {
-        <span class="kw">let </span>bytes = <span class="self">self</span>.slice(b)<span class="question-mark">?</span>;
-        <span class="kw">let </span>layout = <span class="self">self</span>.layout.clone();
+    <span class="doccomment">/// Read the buffer as the output value with a 64-bit width
+    </span><span class="kw">fn </span>get_x64(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Out&gt; {
+        <span class="kw">let </span>bytes = <span class="self">self</span>.slice(bytes)<span class="question-mark">?</span>;
+        <span class="kw">let </span>layout = <span class="self">self</span>.layout();
         T64::from_bytes(bytes, layout)
             .and_then(|v| v.convert())
     }
 
-    <span class="kw">pub fn </span>set_x32(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;mut </span>[u8], v: Out) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>bytes = <span class="self">self</span>.slice_mut(b)<span class="question-mark">?</span>;
-        <span class="kw">let </span>layout = <span class="self">self</span>.layout.clone();
+    <span class="doccomment">/// Write the output value to the buffer with a 32-bit width
+    </span><span class="kw">fn </span>set_x32(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>[u8], v: Out) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>bytes = <span class="self">self</span>.slice_mut(bytes)<span class="question-mark">?</span>;
+        <span class="kw">let </span>layout = <span class="self">self</span>.layout();
         &lt;Out <span class="kw">as </span>Convert&lt;T32&gt;&gt;::convert(v)<span class="question-mark">?</span>.to_bytes(bytes,layout)
     }
 
-    <span class="kw">pub fn </span>set_x64(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;mut </span>[u8], v: Out) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>bytes = <span class="self">self</span>.slice_mut(b)<span class="question-mark">?</span>;
-        <span class="kw">let </span>layout = <span class="self">self</span>.layout.clone();
+    <span class="doccomment">/// Write the output value to the buffer with a 64-bit width
+    </span><span class="kw">fn </span>set_x64(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>[u8], v: Out) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>bytes = <span class="self">self</span>.slice_mut(bytes)<span class="question-mark">?</span>;
+        <span class="kw">let </span>layout = <span class="self">self</span>.layout();
         &lt;Out <span class="kw">as </span>Convert&lt;T64&gt;&gt;::convert(v)<span class="question-mark">?</span>.to_bytes(bytes,layout)
     }
 
-    <span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Out&gt; {
-        <span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="self">self</span>.ranges.width {
-            Width::X32 =&gt; <span class="self">self</span>.get_x32(b)<span class="question-mark">?</span>,
-            Width::X64 =&gt; <span class="self">self</span>.get_x64(b)<span class="question-mark">?</span>,
+    <span class="doccomment">/// Read the buffer and convert into the output value
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Out&gt; {
+        <span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="self">self</span>.width() {
+            Width::X32 =&gt; <span class="self">self</span>.get_x32(bytes)<span class="question-mark">?</span>,
+            Width::X64 =&gt; <span class="self">self</span>.get_x64(bytes)<span class="question-mark">?</span>,
         })
     }
 
-    <span class="kw">pub fn </span>set(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;mut </span>[u8], v: Out) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="self">self</span>.ranges.width {
-            Width::X32 =&gt; <span class="self">self</span>.set_x32(b,v)<span class="question-mark">?</span>,
-            Width::X64 =&gt; <span class="self">self</span>.set_x64(b,v)<span class="question-mark">?</span>,
+    <span class="doccomment">/// Convert output value and write to the buffer
+    </span><span class="kw">pub fn </span>set(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>[u8], value: Out) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="self">self</span>.width() {
+            Width::X32 =&gt; <span class="self">self</span>.set_x32(bytes,value)<span class="question-mark">?</span>,
+            Width::X64 =&gt; <span class="self">self</span>.set_x64(bytes,value)<span class="question-mark">?</span>,
         })
     }
 
-    <span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+    <span class="doccomment">/// The expected size in bytes of the output/input buffers
+    </span><span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.ranges.size()
     }
 }

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Error",""]],"type":[["Result",""]]};
+window.SIDEBAR_ITEMS = {"enum":[["Error","Custom error type used everywhere in this crate"]],"type":[["Result","Type alias for ‘Result’ that uses our Error type"]]};

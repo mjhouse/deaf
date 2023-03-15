@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["FileHeader",""],["ProgramHeader",""],["SectionHeader",""]]};
+window.SIDEBAR_ITEMS = {"struct":[["FileHeader","The ELF file header parsed from the beginning of the file"],["ProgramHeader","Program headers extracted from an ELF file."],["SectionHeader","Section headers extracted from an ELF file."]]};

@@ -449,13 +449,37 @@
 <a href="#449" id="449">449</a>
 <a href="#450" id="450">450</a>
 <a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span><span class="kw">crate</span>::common::{Width,Layout,SHType};
 <span class="kw">use </span><span class="kw">crate</span>::headers::SectionHeader;
 <span class="kw">use </span><span class="kw">crate</span>::arrays::array_item::ArrayItem;
-<span class="kw">use </span><span class="kw">crate</span>::tables::common::ByteIter;
+<span class="kw">use </span><span class="kw">crate</span>::common::ByteIter;
 
-<span class="kw">pub struct </span>Array {
+<span class="doccomment">/// A section interpreted as an array
+///
+/// Each Array instance is considered to be 
+/// a series of ArrayItem structs. Arrays can
+/// be parsed from a SectionHeader and a byte
+/// buffer containing the body of the section.
+</span><span class="kw">pub struct </span>Array {
     offset: usize,
     layout: Layout,
     width: Width,
@@ -467,7 +491,8 @@
 
 <span class="kw">impl </span>Array {
 
-    <span class="kw">pub fn </span>new(offset: usize, size: usize, layout: Layout, width: Width, kind: SHType, entity_size: usize) -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Create a new array given type and position information
+    </span><span class="kw">pub fn </span>new(offset: usize, size: usize, layout: Layout, width: Width, kind: SHType, entity_size: usize) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             offset: offset,
             layout: layout,
@@ -479,7 +504,9 @@
         }
     }
 
-    <span class="comment">// reads from an offset to offset + section_size
+    <span class="doccomment">/// Read array items from a byte buffer 
+    ///
+    /// Reads from an offset to offset + section_size
     </span><span class="kw">pub fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
         <span class="kw">let </span>start = <span class="self">self</span>.offset;
         <span class="kw">let </span>end = <span class="self">self</span>.offset + <span class="self">self</span>.section_size;
@@ -519,7 +546,9 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.values.len())
     }
 
-    <span class="comment">// writes from the beginning of the given byte slice
+    <span class="doccomment">/// Write array items to a byte buffer 
+    ///
+    /// Writes from the *beginning* of the given byte slice
     </span><span class="kw">pub fn </span>write(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
 
         <span class="comment">// check buffer is big enough
@@ -546,35 +575,42 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.values.len())
     }
 
-    <span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+    <span class="doccomment">/// The number of items in this array
+    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.values.len()
     }
 
-    <span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+    <span class="doccomment">/// The calculated size of the array in bytes
+    </span><span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.len() * <span class="self">self</span>.entity_size
     }
 
-    <span class="kw">fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ArrayItem&gt; {
+    <span class="doccomment">/// Get a reference to an array item at index
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ArrayItem&gt; {
         <span class="self">self</span>.values.get(index)
     }
 
-    <span class="kw">fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>ArrayItem&gt; {
+    <span class="doccomment">/// Get a mutable reference to an array item at index
+    </span><span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>ArrayItem&gt; {
         <span class="self">self</span>.values.get_mut(index)
     }
 
-    <span class="kw">fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize, <span class="kw-2">mut </span>item: ArrayItem) {
+    <span class="doccomment">/// Insert an array item at index, pushing other items right
+    </span><span class="kw">pub fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize, <span class="kw-2">mut </span>item: ArrayItem) {
         item.set_layout(<span class="self">self</span>.layout);
         item.set_width(<span class="self">self</span>.width);
         <span class="self">self</span>.values.insert(index,item);
     }
 
-    <span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>item: ArrayItem) {
+    <span class="doccomment">/// Append an array item to the array
+    </span><span class="kw">pub fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>item: ArrayItem) {
         item.set_layout(<span class="self">self</span>.layout);
         item.set_width(<span class="self">self</span>.width);
         <span class="self">self</span>.values.push(item);
     }
 
-    <span class="kw">fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) -&gt; ArrayItem {
+    <span class="doccomment">/// Remove and return an array item from this array
+    </span><span class="kw">pub fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) -&gt; ArrayItem {
         <span class="self">self</span>.values.remove(index)
     }
 
@@ -584,16 +620,16 @@
     <span class="kw">type </span>Error = Error;
 
     <span class="kw">fn </span>try_from(header: <span class="kw-2">&amp;</span>SectionHeader) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">match </span>header.values.sh_type {
+        <span class="kw">match </span>header.kind().unwrap_or(SHType::SHT_NULL) {
             SHType::SHT_INIT_ARRAY | SHType::SHT_PREINIT_ARRAY | SHType::SHT_FINI_ARRAY 
             =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(
-                header.offset(),
-                header.size(),
+                header.offset().ok_or(Error::MalformedDataError)<span class="question-mark">?</span>,
+                header.body_size().ok_or(Error::MalformedDataError)<span class="question-mark">?</span>,
                 header.layout(),
                 header.width(),
-                header.kind(),
-                header.entsize()
-            )),
+                header.kind().ok_or(Error::MalformedDataError)<span class="question-mark">?</span>,
+                header.entsize().ok_or(Error::MalformedDataError)<span class="question-mark">?
+            </span>)),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::WrongSectionError)
         }
     }
@@ -627,11 +663,11 @@
         <span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
             .unwrap();
 
-        <span class="kw">let </span>count = file_header.shnum();
-        <span class="kw">let </span>offset = file_header.shoff();
-        <span class="kw">let </span>size = file_header.shentsize();
-        <span class="kw">let </span>layout = file_header.data();
-        <span class="kw">let </span>width = file_header.class();
+        <span class="kw">let </span>count = file_header.shnum().unwrap();
+        <span class="kw">let </span>offset = file_header.shoff().unwrap();
+        <span class="kw">let </span>size = file_header.shentsize().unwrap();
+        <span class="kw">let </span>layout = file_header.data().unwrap();
+        <span class="kw">let </span>width = file_header.class().unwrap();
         
         <span class="kw">let </span>section_headers = SectionHeader::parse_all(
             <span class="kw-2">&amp;</span>b,
@@ -645,7 +681,7 @@
         <span class="kw">let </span>headers = section_headers.unwrap();
 
         <span class="kw">let </span>result = headers.iter().find(|<span class="kw-2">&amp;</span>h| 
-            h.kind() == SHType::SHT_INIT_ARRAY);
+            h.kind() == <span class="prelude-val">Some</span>(SHType::SHT_INIT_ARRAY));
 
         <span class="macro">assert!</span>(result.is_some());
 
@@ -667,11 +703,11 @@
         <span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
             .unwrap();
 
-        <span class="kw">let </span>count = file_header.shnum();
-        <span class="kw">let </span>offset = file_header.shoff();
-        <span class="kw">let </span>size = file_header.shentsize();
-        <span class="kw">let </span>layout = file_header.data();
-        <span class="kw">let </span>width = file_header.class();
+        <span class="kw">let </span>count = file_header.shnum().unwrap();
+        <span class="kw">let </span>offset = file_header.shoff().unwrap();
+        <span class="kw">let </span>size = file_header.shentsize().unwrap();
+        <span class="kw">let </span>layout = file_header.data().unwrap();
+        <span class="kw">let </span>width = file_header.class().unwrap();
         
         <span class="kw">let </span>section_headers = SectionHeader::parse_all(
             <span class="kw-2">&amp;</span>b,
@@ -685,7 +721,7 @@
         <span class="kw">let </span>headers = section_headers.unwrap();
 
         <span class="kw">let </span>result = headers.iter().find(|<span class="kw-2">&amp;</span>h| 
-            h.kind() == SHType::SHT_FINI_ARRAY);
+            h.kind() == <span class="prelude-val">Some</span>(SHType::SHT_FINI_ARRAY));
 
         <span class="macro">assert!</span>(result.is_some());
 

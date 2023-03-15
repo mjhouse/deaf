@@ -132,6 +132,10 @@
 <a href="#132" id="132">132</a>
 <a href="#133" id="133">133</a>
 <a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::ops::Range;
 <span class="kw">use </span><span class="kw">crate</span>::common::Width;
 
@@ -204,7 +208,8 @@
 
 <span class="kw">impl </span>Ranges {
 
-    <span class="kw">pub const fn </span>new(a: Range&lt;usize&gt;, b: Range&lt;usize&gt;) -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Create a new set of ranges given a 32- and 64-bit Range
+    </span><span class="kw">pub const fn </span>new(a: Range&lt;usize&gt;, b: Range&lt;usize&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             width: Width::X32,
             x32: a,
@@ -212,7 +217,8 @@
         }
     }
 
-    <span class="kw">pub const fn </span>empty() -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Create an empty set of ranges
+    </span><span class="kw">pub const fn </span>empty() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             width: Width::X32,
             x32: <span class="number">0x00</span>..<span class="number">0x00</span>,
@@ -220,14 +226,16 @@
         }
     }
     
-    <span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Range&lt;usize&gt; {
+    <span class="doccomment">/// Get the active Range depending on the current Width
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Range&lt;usize&gt; {
         <span class="kw">match </span><span class="self">self</span>.width {
             Width::X32 =&gt; <span class="self">self</span>.x32.clone(),
             Width::X64 =&gt; <span class="self">self</span>.x64.clone(),
         }
     }
 
-    <span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+    <span class="doccomment">/// Get the expected size in bytes of the current range
+    </span><span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.get().len()
     }
 

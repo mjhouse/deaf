@@ -331,17 +331,40 @@
 <a href="#331" id="331">331</a>
 <a href="#332" id="332">332</a>
 <a href="#333" id="333">333</a>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common::{Width,Layout};
-<span class="kw">use </span><span class="kw">crate</span>::common::bytes::{IntoBytes,FromBytes};
-<span class="kw">use </span><span class="kw">crate</span>::tables::common::ByteDelimiter;
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common::{ByteDelimiter,Width,Layout,IntoBytes,FromBytes,Item,ranges::<span class="kw-2">*</span>};
 <span class="kw">use </span><span class="kw">crate</span>::tables::RelocationInfo;
 <span class="kw">use </span><span class="kw">crate</span>::tables::SymbolInfo;
-<span class="kw">use </span><span class="kw">crate</span>::common::ranges::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::errors::Result;
-<span class="kw">use </span><span class="kw">crate</span>::common::Item;
 <span class="kw">use </span>std::ffi::CString;
 
-<span class="kw">pub trait </span>TableItem {
+<span class="doccomment">/// A record that can be extracted from a table section
+</span><span class="kw">pub trait </span>TableItem {
 
     <span class="doccomment">/// Make a delimiter given expected entity size
     </span><span class="kw">fn </span>delimiter(size: usize) -&gt; ByteDelimiter {
@@ -365,12 +388,14 @@
 
 }
 
-<span class="attr">#[derive(Default,Clone)]
+<span class="doccomment">/// A String item found in string tables
+</span><span class="attr">#[derive(Default,Clone)]
 </span><span class="kw">pub struct </span>StringItem {
     value: CString,
 }
 
-<span class="attr">#[derive(Clone)]
+<span class="doccomment">/// A Symbol item found in symbol tables
+</span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>SymbolItem {
     st_name: Item&lt;u32,u32&gt;,
     st_value: Item&lt;u32,u64&gt;,
@@ -380,7 +405,8 @@
     st_shndx: Item&lt;u16,u16&gt;,
 }
 
-<span class="attr">#[derive(Clone)]
+<span class="doccomment">/// A Relocation item found in relocation tables
+</span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>RelocationItem {
     r_offset: Item&lt;u32,u64&gt;, 
     r_info: Item&lt;u32,u64,RelocationInfo&gt;,
@@ -418,75 +444,93 @@
 
 <span class="kw">impl </span>SymbolItem {
 
-    <span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
+    <span class="doccomment">/// Get the &#39;st_name&#39; attribute (name *index*) of the symbol
+    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
         <span class="self">self</span>.st_name.get()
     }
 
-    <span class="kw">pub fn </span>name_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+    <span class="doccomment">/// Get the &#39;st_name&#39; attribute and panic on failure
+    </span><span class="kw">pub fn </span>name_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="self">self</span>.st_name.get().expect(<span class="string">&quot;No name&quot;</span>)
     }
 
-    <span class="kw">pub fn </span>set_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: u32) {
+    <span class="doccomment">/// Set the &#39;st_name&#39; attribute (name *index*) of the symbol
+    </span><span class="kw">pub fn </span>set_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: u32) {
         <span class="self">self</span>.st_name.set(value);
     }
 
-    <span class="kw">pub fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
+    <span class="doccomment">/// Get the &#39;st_value&#39; attribute of the symbol
+    </span><span class="kw">pub fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
         <span class="self">self</span>.st_value.get()
     }
 
-    <span class="kw">pub fn </span>value_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+    <span class="doccomment">/// Get the &#39;st_value&#39; attribute of the symbol and panic on failure
+    </span><span class="kw">pub fn </span>value_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
         <span class="self">self</span>.st_value.get().expect(<span class="string">&quot;No value&quot;</span>)
     }
 
-    <span class="kw">pub fn </span>set_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: u64) {
+    <span class="doccomment">/// Set the &#39;st_value&#39; attribute of the symbol
+    </span><span class="kw">pub fn </span>set_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: u64) {
         <span class="self">self</span>.st_value.set(value);
     }
 
-    <span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
+    <span class="doccomment">/// Get the &#39;st_size&#39; attribute of the symbol
+    </span><span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
         <span class="self">self</span>.st_size.get()
     }
 
-    <span class="kw">pub fn </span>size_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+    <span class="doccomment">/// Get the &#39;st_size&#39; attribute of the symbol and panic on failure
+    </span><span class="kw">pub fn </span>size_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
         <span class="self">self</span>.st_size.get().expect(<span class="string">&quot;No size&quot;</span>)
     }
 
-    <span class="kw">pub fn </span>set_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: u64) {
+    <span class="doccomment">/// Set the &#39;st_size&#39; attribute of the symbol
+    </span><span class="kw">pub fn </span>set_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: u64) {
         <span class="self">self</span>.st_size.set(value);
     }
 
-    <span class="kw">pub fn </span>info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SymbolInfo&gt; {
+    <span class="doccomment">/// Get the &#39;st_info&#39; attribute of the symbol
+    </span><span class="kw">pub fn </span>info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SymbolInfo&gt; {
         <span class="self">self</span>.st_info.get()
     }
 
-    <span class="kw">pub fn </span>info_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SymbolInfo {
+    <span class="doccomment">/// Get the &#39;st_info&#39; attribute of the symbol and panic on failure
+    </span><span class="kw">pub fn </span>info_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SymbolInfo {
         <span class="self">self</span>.st_info.get().expect(<span class="string">&quot;No info&quot;</span>)
     }
 
-    <span class="kw">pub fn </span>set_info(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: SymbolInfo) {
+    <span class="doccomment">/// Set the &#39;st_info&#39; attribute of the symbol
+    </span><span class="kw">pub fn </span>set_info(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: SymbolInfo) {
         <span class="self">self</span>.st_info.set(value);
     }
 
-    <span class="kw">pub fn </span>other(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u8&gt; {
+    <span class="doccomment">/// Get the &#39;st_other&#39; attribute of the symbol
+    </span><span class="kw">pub fn </span>other(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u8&gt; {
         <span class="self">self</span>.st_other.get()
     }
 
-    <span class="kw">pub fn </span>other_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
+    <span class="doccomment">/// Get the &#39;st_other&#39; attribute of the symbol and panic on failure
+    </span><span class="kw">pub fn </span>other_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
         <span class="self">self</span>.st_other.get().expect(<span class="string">&quot;No other&quot;</span>)
     }
 
-    <span class="kw">pub fn </span>set_other(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: u8) {
+    <span class="doccomment">/// Set the &#39;st_other&#39; attribute of the symbol
+    </span><span class="kw">pub fn </span>set_other(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: u8) {
         <span class="self">self</span>.st_other.set(value);
     }
 
-    <span class="kw">pub fn </span>shndx(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u16&gt; {
+    <span class="doccomment">/// Get the &#39;st_shndx&#39; attribute of the symbol
+    </span><span class="kw">pub fn </span>shndx(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u16&gt; {
         <span class="self">self</span>.st_shndx.get()
     }
 
-    <span class="kw">pub fn </span>shndx_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
+    <span class="doccomment">/// Get the &#39;st_shndx&#39; attribute of the symbol and panic on failure
+    </span><span class="kw">pub fn </span>shndx_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
         <span class="self">self</span>.st_shndx.get().expect(<span class="string">&quot;No shndx&quot;</span>)
     }
 
-    <span class="kw">pub fn </span>set_shndx(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: u16) {
+    <span class="doccomment">/// Set the &#39;st_shndx&#39; attribute of the symbol
+    </span><span class="kw">pub fn </span>set_shndx(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: u16) {
         <span class="self">self</span>.st_shndx.set(value);
     }
 
@@ -494,42 +538,50 @@
 
 <span class="kw">impl </span>RelocationItem {
 
-    <span class="kw">pub fn </span>offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
+    <span class="doccomment">/// Get the &#39;r_offset&#39; attribute of the relocation
+    </span><span class="kw">pub fn </span>offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
         <span class="self">self</span>.r_offset.get()
     }
 
-    <span class="kw">pub fn </span>set_offset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: u64) {
-        <span class="self">self</span>.r_offset.set(value);
-    }
-
-    <span class="kw">pub fn </span>offset_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+    <span class="doccomment">/// Get the &#39;r_offset&#39; attribute of the relocation and panic on failure
+    </span><span class="kw">pub fn </span>offset_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
         <span class="self">self</span>.r_offset.get().expect(<span class="string">&quot;No offset&quot;</span>)
     }
 
-    <span class="kw">pub fn </span>info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;RelocationInfo&gt; {
+    <span class="doccomment">/// Set the &#39;r_offset&#39; attribute of the relocation
+    </span><span class="kw">pub fn </span>set_offset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: u64) {
+        <span class="self">self</span>.r_offset.set(value);
+    }
+
+    <span class="doccomment">/// Get the &#39;r_info&#39; attribute of the relocation
+    </span><span class="kw">pub fn </span>info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;RelocationInfo&gt; {
         <span class="self">self</span>.r_info.get()
     }
 
-    <span class="kw">pub fn </span>set_info(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: RelocationInfo) {
-        <span class="self">self</span>.r_info.set(value);
-    }
-
-    <span class="kw">pub fn </span>info_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RelocationInfo {
+    <span class="doccomment">/// Get the &#39;r_info&#39; attribute of the relocation and panic on failure
+    </span><span class="kw">pub fn </span>info_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RelocationInfo {
         <span class="self">self</span>.r_info.get().expect(<span class="string">&quot;No info&quot;</span>)
     }
 
-    <span class="kw">pub fn </span>addend(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i64&gt; {
+    <span class="doccomment">/// Set the &#39;r_info&#39; attribute of the relocation
+    </span><span class="kw">pub fn </span>set_info(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: RelocationInfo) {
+        <span class="self">self</span>.r_info.set(value);
+    }
+
+    <span class="doccomment">/// Get the &#39;r_addend&#39; attribute of the relocation
+    </span><span class="kw">pub fn </span>addend(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i64&gt; {
         <span class="self">self</span>.r_addend.get()
     }
 
-    <span class="kw">pub fn </span>set_addend(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: i64) {
-        <span class="self">self</span>.r_addend.set(value);
-    }
-
-    <span class="kw">pub fn </span>addend_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i64 {
+    <span class="doccomment">/// Get the &#39;r_addend&#39; attribute of the relocation and panic on failure
+    </span><span class="kw">pub fn </span>addend_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i64 {
         <span class="self">self</span>.r_addend.get().expect(<span class="string">&quot;No addend&quot;</span>)
     }
 
+    <span class="doccomment">/// Set the &#39;r_addend&#39; attribute of the relocation
+    </span><span class="kw">pub fn </span>set_addend(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: i64) {
+        <span class="self">self</span>.r_addend.set(value);
+    }
 
 }
 

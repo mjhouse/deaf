@@ -20,18 +20,34 @@
 <a href="#20" id="20">20</a>
 <a href="#21" id="21">21</a>
 <a href="#22" id="22">22</a>
-</pre><pre class="rust"><code>
-<span class="kw">pub mod </span>macros;
-<span class="kw">pub mod </span>constants;
-<span class="kw">pub mod </span>ranges; <span class="comment">// find byte slices to parse
-</span><span class="kw">pub mod </span>bytes;  <span class="comment">// parse bytes into values
-</span><span class="kw">pub mod </span>field;  <span class="comment">// read and write values
-</span><span class="kw">pub mod </span>item;   <span class="comment">// read and write with cache
+<a href="#23" id="23">23</a>
+<a href="#24" id="24">24</a>
+<a href="#25" id="25">25</a>
+<a href="#26" id="26">26</a>
+<a href="#27" id="27">27</a>
+<a href="#28" id="28">28</a>
+<a href="#29" id="29">29</a>
+<a href="#30" id="30">30</a>
+</pre><pre class="rust"><code><span class="doccomment">//! Common structs and types used by all other modules
+//!
 
-</span><span class="kw">pub use </span>bytes::{FromBytes,IntoBytes,Convert};
+</span><span class="kw">pub mod </span>ranges; <span class="comment">// find byte slices to parse
+</span><span class="kw">mod </span>bytes;  <span class="comment">// parse bytes into values
+</span><span class="kw">mod </span>field;  <span class="comment">// read and write values
+</span><span class="kw">mod </span>item;   <span class="comment">// read and write with cache
+
+</span><span class="kw">mod </span>iterator;
+<span class="kw">mod </span>constants;
+
+<span class="kw">pub use </span>bytes::{FromBytes,IntoBytes,Convert};
 <span class="kw">pub use </span>ranges::Ranges;
 <span class="kw">pub use </span>field::Field;
 <span class="kw">pub use </span>item::Item;
+
+<span class="kw">pub use </span>iterator::{
+    ByteIter,
+    ByteDelimiter,
+};
 
 <span class="kw">pub use </span>constants::{
     Width,

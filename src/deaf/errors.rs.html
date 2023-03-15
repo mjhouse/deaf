@@ -74,6 +74,13 @@
 <a href="#74" id="74">74</a>
 <a href="#75" id="75">75</a>
 <a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
 </pre><pre class="rust"><code><span class="doccomment">//! A custom error type that aggregates internal errors
 //!
 
@@ -82,54 +89,61 @@
 <span class="kw">use </span>num_enum::{TryFromPrimitiveError,TryFromPrimitive};
 <span class="kw">use </span>enumflags2::{FromBitsError,BitFlag};
 
-<span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T&gt; = std::result::Result&lt;T, Error&gt;;
+<span class="doccomment">/// Type alias for &#39;Result&#39; that uses our Error type
+</span><span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T&gt; = std::result::Result&lt;T, Error&gt;;
 
-<span class="attr">#[derive(ThisError, Debug)]
+<span class="doccomment">/// Custom error type used everywhere in this crate
+</span><span class="attr">#[derive(ThisError, Debug)]
 </span><span class="kw">pub enum </span>Error {
-    <span class="attr">#[error(<span class="string">&quot;Binary could not be parsed&quot;</span>)]
+
+    <span class="doccomment">/// Binary data could not be parsed into fields
+    </span><span class="attr">#[error(<span class="string">&quot;Binary could not be parsed&quot;</span>)]
     </span>ParseError,
 
-    <span class="attr">#[error(<span class="string">&quot;Binary is not an ELF file&quot;</span>)]
-    </span>FileTypeError,
-
-    <span class="attr">#[error(<span class="string">&quot;I can&#39;t let you do that, Dave&quot;</span>)]
-    </span>NotAllowedError,
-
-    <span class="attr">#[error(<span class="string">&quot;Slice or access is out of bounds&quot;</span>)]
+    <span class="doccomment">/// Collection was accessed with an out-of-bounds index
+    </span><span class="attr">#[error(<span class="string">&quot;Slice or access is out of bounds&quot;</span>)]
     </span>OutOfBoundsError,
 
-    <span class="attr">#[error(<span class="string">&quot;Given data has the wrong shape for operation&quot;</span>)]
+    <span class="doccomment">/// Given data has missing or wrong values for the action
+    </span><span class="attr">#[error(<span class="string">&quot;Given data has the wrong shape for operation&quot;</span>)]
     </span>MalformedDataError,
 
-    <span class="attr">#[error(<span class="string">&quot;Given section is of the wrong type&quot;</span>)]
+    <span class="doccomment">/// Filed to convert section to a table or array
+    </span><span class="attr">#[error(<span class="string">&quot;Given section is of the wrong type&quot;</span>)]
     </span>WrongSectionError,
 
-    <span class="attr">#[error(<span class="string">&quot;Could not convert from primitive value&quot;</span>)]
+    <span class="doccomment">/// Could not parse complex type from primitive
+    </span><span class="attr">#[error(<span class="string">&quot;Could not convert from primitive value&quot;</span>)]
     </span>FromPrimitiveError(String),
 
-    <span class="attr">#[error(<span class="string">&quot;Could not parse bytes into CStr representation&quot;</span>)]
+    <span class="doccomment">/// Bytes with no nul terminator could not be parsed as c-string
+    </span><span class="attr">#[error(<span class="string">&quot;Could not parse bytes into CStr representation&quot;</span>)]
     </span>FromBytesWithNulError(<span class="attr">#[from] </span>std::ffi::FromBytesWithNulError),
 
-    <span class="attr">#[error(<span class="string">&quot;Could not convert String to CString&quot;</span>)]
+    <span class="doccomment">/// String with no nul terminator could not be parsed as c-string
+    </span><span class="attr">#[error(<span class="string">&quot;Could not convert String to CString&quot;</span>)]
     </span>FromStringError(<span class="attr">#[from] </span>std::ffi::NulError),
 
-    <span class="attr">#[error(<span class="string">&quot;Could not convert CString to String&quot;</span>)]
+    <span class="doccomment">/// CString failed to convert to UTF-8 encoded String
+    </span><span class="attr">#[error(<span class="string">&quot;Could not convert CString to String&quot;</span>)]
     </span>IntoStringError(<span class="attr">#[from] </span>std::ffi::IntoStringError),
 
-    <span class="attr">#[error(<span class="string">&quot;This error will never actually be created&quot;</span>)]
+    <span class="doccomment">/// This error will never actually be created
+    </span><span class="attr">#[error(<span class="string">&quot;This error will never actually be created&quot;</span>)]
     </span>InfallibleError(<span class="attr">#[from] </span>std::convert::Infallible),
 
-    <span class="attr">#[error(<span class="string">&quot;Failed while converting bytes to integer values&quot;</span>)]
+    <span class="doccomment">/// Failed to convert bytes to a value representation
+    </span><span class="attr">#[error(<span class="string">&quot;Failed while converting bytes to integer values&quot;</span>)]
     </span>ParseValueError(<span class="attr">#[from] </span>std::array::TryFromSliceError),
 
-    <span class="attr">#[error(<span class="string">&quot;Failed while converting bytes to str&quot;</span>)]
+    <span class="doccomment">/// Bytes could not be converted to UTF-8 encoded String
+    </span><span class="attr">#[error(<span class="string">&quot;Failed while converting bytes to str&quot;</span>)]
     </span>ParseUtf8Error(<span class="attr">#[from] </span>std::str::Utf8Error),
 
-    <span class="attr">#[error(<span class="string">&quot;Failed while converting integer to different integer&quot;</span>)]
+    <span class="doccomment">/// Could not convert integer to a different integer type
+    </span><span class="attr">#[error(<span class="string">&quot;Failed while converting integer to different integer&quot;</span>)]
     </span>IntConvertError(<span class="attr">#[from] </span>std::num::TryFromIntError),
 
-    <span class="attr">#[error(transparent)]
-    </span>IOError(<span class="attr">#[from] </span>std::io::Error),
 }
 
 <span class="kw">impl</span>&lt;T&gt; From&lt;TryFromPrimitiveError&lt;T&gt;&gt; <span class="kw">for </span>Error

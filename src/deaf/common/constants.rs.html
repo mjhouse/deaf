@@ -139,6 +139,10 @@
 <a href="#139" id="139">139</a>
 <a href="#140" id="140">140</a>
 <a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
 </pre><pre class="rust"><code><span class="kw">use </span>num_enum::{IntoPrimitive, TryFromPrimitive, FromPrimitive};
 <span class="kw">use </span>enumflags2::bitflags;
 
@@ -150,8 +154,10 @@
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
 </span><span class="kw">pub enum </span>Width {
-    X32 = <span class="number">0x01</span>, <span class="comment">// Mode of the ELF file is 32-bit
-    </span>X64 = <span class="number">0x02  </span><span class="comment">// Mode of the ELF file is 64-bit
+    <span class="doccomment">/// Mode of the ELF file is 32-bit
+    </span>X32 = <span class="number">0x01</span>,
+    <span class="doccomment">/// Mode of the ELF file is 64-bit
+    </span>X64 = <span class="number">0x02 
 </span>}
 
 <span class="doccomment">/// The endianness of the ELF file
@@ -162,8 +168,10 @@
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
 </span><span class="kw">pub enum </span>Layout {
-    Little = <span class="number">0x01</span>, <span class="comment">// Little endian (e.g. 0xABCD is represented as &#39;CD AB&#39;)
-    </span>Big = <span class="number">0x02     </span><span class="comment">// Big endian (e.g. 0xABCD is represented as &#39;AB CD&#39; )
+    <span class="doccomment">/// Little endian (e.g. 0xABCD is represented as &#39;CD AB&#39;)
+    </span>Little = <span class="number">0x01</span>,
+    <span class="doccomment">/// Big endian (e.g. 0xABCD is represented as &#39;AB CD&#39; )
+    </span>Big = <span class="number">0x02
 </span>}
 
 <span class="doccomment">/// The type of a program header

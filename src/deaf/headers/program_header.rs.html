@@ -314,100 +314,126 @@
 <a href="#314" id="314">314</a>
 <a href="#315" id="315">315</a>
 <a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common::{
     Width,
     Layout,
     PHType
 };
 
-<span class="kw">use </span><span class="kw">crate</span>::common::field::Field;
-<span class="kw">use </span><span class="kw">crate</span>::common::ranges::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::common::{Item, ranges::<span class="kw-2">*</span>};
 <span class="kw">use </span><span class="kw">crate</span>::errors::{<span class="prelude-ty">Result</span>};
-<span class="kw">use </span><span class="kw">crate</span>::impl_property;
 
-<span class="attr">#[derive(Debug,Clone)]
-</span><span class="kw">pub struct </span>ProgramHeaderValues {
-    size: usize,  
-    p_type: PHType,
-    p_flags: u32,
-    p_offset: u64,
-    p_vaddr: u64,
-    p_paddr: u64,
-    p_filesz: u64,
-    p_memsz: u64,
-    p_align: u64,
-}
-
-<span class="attr">#[derive(Debug)]
+<span class="doccomment">/// Program headers extracted from an ELF file.
+/// 
+/// Normally found at the offset declared in the FileHeader 
+/// as &#39;phoff&#39;.
+</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>ProgramHeader {
-    offset: usize,
     layout: Layout,
     width: Width,
-    size: usize,
-    p_type: Field&lt;u32,u32,PHType&gt;,
-    p_flags: Field&lt;u32&gt;,
-    p_offset: Field&lt;u32,u64&gt;,
-    p_vaddr: Field&lt;u32,u64&gt;,
-    p_paddr: Field&lt;u32,u64&gt;,
-    p_filesz: Field&lt;u32,u64&gt;,
-    p_memsz: Field&lt;u32,u64&gt;,
-    p_align: Field&lt;u32,u64&gt;,
-    values: ProgramHeaderValues,
-}
-
-<span class="kw">impl </span>ProgramHeaderValues {
-
-    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            size: <span class="number">0</span>, 
-            p_type: PHType::PT_NULL,
-            p_flags: <span class="number">0</span>,
-            p_offset: <span class="number">0</span>,
-            p_vaddr: <span class="number">0</span>,
-            p_paddr: <span class="number">0</span>,
-            p_filesz: <span class="number">0</span>,
-            p_memsz: <span class="number">0</span>,
-            p_align: <span class="number">0</span>,
-        }
-    }
+    p_type: Item&lt;u32,u32,PHType&gt;,
+    p_flags: Item&lt;u32&gt;,
+    p_offset: Item&lt;u32,u64&gt;,
+    p_vaddr: Item&lt;u32,u64&gt;,
+    p_paddr: Item&lt;u32,u64&gt;,
+    p_filesz: Item&lt;u32,u64&gt;,
+    p_memsz: Item&lt;u32,u64&gt;,
+    p_align: Item&lt;u32,u64&gt;,
 }
 
 <span class="kw">impl </span>ProgramHeader {
 
-    <span class="kw">pub fn </span>new(offset: usize, size: usize, layout: Layout, width: Width) -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Create a new header with given Layout and Width
+    ///
+    /// All fields are None until read
+    </span><span class="kw">pub fn </span>new(layout: Layout, width: Width) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            offset,
             layout,
             width,
-            size: size,
-            p_type: Field::new(P_TYPE),
-            p_flags: Field::new(P_FLAGS),
-            p_offset: Field::new(P_OFFSET),
-            p_vaddr: Field::new(P_VADDR),
-            p_paddr: Field::new(P_PADDR),
-            p_filesz: Field::new(P_FILESZ),
-            p_memsz: Field::new(P_MEMSZ),
-            p_align: Field::new(P_ALIGN),
-            values: ProgramHeaderValues::new(),
+            p_type: Item::make(P_TYPE,width,layout),
+            p_flags: Item::make(P_FLAGS,width,layout),
+            p_offset: Item::make(P_OFFSET,width,layout),
+            p_vaddr: Item::make(P_VADDR,width,layout),
+            p_paddr: Item::make(P_PADDR,width,layout),
+            p_filesz: Item::make(P_FILESZ,width,layout),
+            p_memsz: Item::make(P_MEMSZ,width,layout),
+            p_align: Item::make(P_ALIGN,width,layout),
         }
     }
 
-    <span class="kw">pub fn </span>parse(b: <span class="kw-2">&amp;</span>[u8], offset: usize, size: usize, layout: Layout, width: Width) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>header = <span class="self">Self</span>::new(offset,size,layout,width);
+    <span class="doccomment">/// Parse a header from the provided byte buffer
+    </span><span class="kw">pub fn </span>parse(b: <span class="kw-2">&amp;</span>[u8], layout: Layout, width: Width) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>header = <span class="self">Self</span>::new(layout,width);
         header.read(b)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(header)
     }
 
-    <span class="kw">pub fn </span>parse_all(b: <span class="kw-2">&amp;</span>[u8], count: usize, offset: usize, size: usize, layout: Layout, width: Width) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;&gt; {
+    <span class="doccomment">/// Parse all headers for a byte array given count, offset etc.
+    </span><span class="kw">pub fn </span>parse_all(b: <span class="kw-2">&amp;</span>[u8], count: usize, offset: usize, size: usize, layout: Layout, width: Width) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>result = <span class="macro">vec!</span>[];
         result.reserve_exact(count);
 
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..count {
-            <span class="kw">let </span>offs = offset + i * size;
+            <span class="kw">let </span>start = offset + i * size;
             result.push(<span class="self">Self</span>::parse(
-                <span class="kw-2">&amp;</span>b[offs..],
-                offs,
-                size,
+                <span class="kw-2">&amp;</span>b[start..],
                 layout,
                 width)<span class="question-mark">?</span>);
         }
@@ -415,59 +441,40 @@
         <span class="prelude-val">Ok</span>(result)
     }
 
-    <span class="kw">pub fn </span>set_width(<span class="kw-2">&amp;mut </span><span class="self">self</span>, width: Width) {
-        <span class="self">self</span>.width = width;
-        <span class="self">self</span>.p_type.ranges.width = width;
-        <span class="self">self</span>.p_flags.ranges.width = width;
-        <span class="self">self</span>.p_offset.ranges.width = width;
-        <span class="self">self</span>.p_vaddr.ranges.width = width;
-        <span class="self">self</span>.p_paddr.ranges.width = width;
-        <span class="self">self</span>.p_filesz.ranges.width = width;
-        <span class="self">self</span>.p_memsz.ranges.width = width;
-        <span class="self">self</span>.p_align.ranges.width = width;
-    }
-
-    <span class="kw">pub fn </span>set_layout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, layout: Layout) {
-        <span class="self">self</span>.layout = layout;
-        <span class="self">self</span>.p_type.layout = layout;
-        <span class="self">self</span>.p_flags.layout = layout;
-        <span class="self">self</span>.p_offset.layout = layout;
-        <span class="self">self</span>.p_vaddr.layout = layout;
-        <span class="self">self</span>.p_paddr.layout = layout;
-        <span class="self">self</span>.p_filesz.layout = layout;
-        <span class="self">self</span>.p_memsz.layout = layout;
-        <span class="self">self</span>.p_align.layout = layout;
-    }
-
-    <span class="kw">pub fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;ProgramHeaderValues&gt; {
-        <span class="self">self</span>.set_layout(<span class="self">self</span>.layout);
-        <span class="self">self</span>.set_width(<span class="self">self</span>.width);
-
-        <span class="self">self</span>.values.p_type   = <span class="self">self</span>.p_type.get(b)<span class="question-mark">?</span>;
-        <span class="self">self</span>.values.p_flags  = <span class="self">self</span>.p_flags.get(b)<span class="question-mark">?</span>;
-        <span class="self">self</span>.values.p_offset = <span class="self">self</span>.p_offset.get(b)<span class="question-mark">?</span>;
-        <span class="self">self</span>.values.p_vaddr  = <span class="self">self</span>.p_vaddr.get(b)<span class="question-mark">?</span>;
-        <span class="self">self</span>.values.p_paddr  = <span class="self">self</span>.p_paddr.get(b)<span class="question-mark">?</span>;
-        <span class="self">self</span>.values.p_filesz = <span class="self">self</span>.p_filesz.get(b)<span class="question-mark">?</span>;
-        <span class="self">self</span>.values.p_memsz  = <span class="self">self</span>.p_memsz.get(b)<span class="question-mark">?</span>;
-        <span class="self">self</span>.values.p_align  = <span class="self">self</span>.p_align.get(b)<span class="question-mark">?</span>;
-
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.values.clone())
-    }
-
-    <span class="kw">pub fn </span>write(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.p_type.set(b,<span class="self">self</span>.values.p_type)<span class="question-mark">?</span>;
-        <span class="self">self</span>.p_flags.set(b,<span class="self">self</span>.values.p_flags)<span class="question-mark">?</span>;
-        <span class="self">self</span>.p_offset.set(b,<span class="self">self</span>.values.p_offset)<span class="question-mark">?</span>;
-        <span class="self">self</span>.p_vaddr.set(b,<span class="self">self</span>.values.p_vaddr)<span class="question-mark">?</span>;
-        <span class="self">self</span>.p_paddr.set(b,<span class="self">self</span>.values.p_paddr)<span class="question-mark">?</span>;
-        <span class="self">self</span>.p_filesz.set(b,<span class="self">self</span>.values.p_filesz)<span class="question-mark">?</span>;
-        <span class="self">self</span>.p_memsz.set(b,<span class="self">self</span>.values.p_memsz)<span class="question-mark">?</span>;
-        <span class="self">self</span>.p_align.set(b,<span class="self">self</span>.values.p_align)<span class="question-mark">?</span>;
+    <span class="doccomment">/// Read values from a byte buffer 
+    ///
+    /// Byte buffer is assumed to be sliced such that the
+    /// header is at the beginning of the buffer.
+    </span><span class="kw">pub fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.p_type.read(b)<span class="question-mark">?</span>;
+        <span class="self">self</span>.p_flags.read(b)<span class="question-mark">?</span>;
+        <span class="self">self</span>.p_offset.read(b)<span class="question-mark">?</span>;
+        <span class="self">self</span>.p_vaddr.read(b)<span class="question-mark">?</span>;
+        <span class="self">self</span>.p_paddr.read(b)<span class="question-mark">?</span>;
+        <span class="self">self</span>.p_filesz.read(b)<span class="question-mark">?</span>;
+        <span class="self">self</span>.p_memsz.read(b)<span class="question-mark">?</span>;
+        <span class="self">self</span>.p_align.read(b)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">pub fn </span>header_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+    <span class="doccomment">/// Write values to a byte buffer 
+    ///
+    /// Byte buffer is assumed to be sliced such that the
+    /// header will be written at the correct position.
+    </span><span class="kw">pub fn </span>write(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.p_type.write(b)<span class="question-mark">?</span>;
+        <span class="self">self</span>.p_flags.write(b)<span class="question-mark">?</span>;
+        <span class="self">self</span>.p_offset.write(b)<span class="question-mark">?</span>;
+        <span class="self">self</span>.p_vaddr.write(b)<span class="question-mark">?</span>;
+        <span class="self">self</span>.p_paddr.write(b)<span class="question-mark">?</span>;
+        <span class="self">self</span>.p_filesz.write(b)<span class="question-mark">?</span>;
+        <span class="self">self</span>.p_memsz.write(b)<span class="question-mark">?</span>;
+        <span class="self">self</span>.p_align.write(b)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// The size of the header in bytes
+    </span><span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.p_type.size() +
         <span class="self">self</span>.p_flags.size() +
         <span class="self">self</span>.p_offset.size() +
@@ -478,14 +485,121 @@
         <span class="self">self</span>.p_align.size()
     }
 
-    <span class="macro">impl_property!</span>(kind, p_type, PHType);
-    <span class="macro">impl_property!</span>(flags, p_flags, u32);
-    <span class="macro">impl_property!</span>(offset, p_offset, u64);
-    <span class="macro">impl_property!</span>(vaddr, p_vaddr, u64);
-    <span class="macro">impl_property!</span>(paddr, p_paddr, u64);
-    <span class="macro">impl_property!</span>(filesz, p_filesz, u64);
-    <span class="macro">impl_property!</span>(memsz, p_memsz, u64);
-    <span class="macro">impl_property!</span>(align, p_align, u64);
+    <span class="doccomment">/// Get the width (32 or 64-bit) of the header
+    </span><span class="kw">pub fn </span>width(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Width {
+        <span class="self">self</span>.width
+    }
+
+    <span class="doccomment">/// Set the width of the header
+    </span><span class="kw">pub fn </span>set_width(<span class="kw-2">&amp;mut </span><span class="self">self</span>, width: Width) {
+        <span class="self">self</span>.width = width;
+        <span class="self">self</span>.p_type.set_width(width);
+        <span class="self">self</span>.p_flags.set_width(width);
+        <span class="self">self</span>.p_offset.set_width(width);
+        <span class="self">self</span>.p_vaddr.set_width(width);
+        <span class="self">self</span>.p_paddr.set_width(width);
+        <span class="self">self</span>.p_filesz.set_width(width);
+        <span class="self">self</span>.p_memsz.set_width(width);
+        <span class="self">self</span>.p_align.set_width(width);
+    }
+
+    <span class="doccomment">/// Get the layout (little or big-endian) of the header
+    </span><span class="kw">pub fn </span>layout(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Layout {
+        <span class="self">self</span>.layout
+    }
+
+    <span class="doccomment">/// Set the layout of the header
+    </span><span class="kw">pub fn </span>set_layout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, layout: Layout) {
+        <span class="self">self</span>.layout = layout;
+        <span class="self">self</span>.p_type.set_layout(layout);
+        <span class="self">self</span>.p_flags.set_layout(layout);
+        <span class="self">self</span>.p_offset.set_layout(layout);
+        <span class="self">self</span>.p_vaddr.set_layout(layout);
+        <span class="self">self</span>.p_paddr.set_layout(layout);
+        <span class="self">self</span>.p_filesz.set_layout(layout);
+        <span class="self">self</span>.p_memsz.set_layout(layout);
+        <span class="self">self</span>.p_align.set_layout(layout);
+    }
+
+    <span class="doccomment">/// Get the `p_type` attribute of the header
+    </span><span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;PHType&gt; {
+        <span class="self">self</span>.p_type.get()
+    }
+
+    <span class="doccomment">/// Set the `p_type` attribute of the header 
+    </span><span class="kw">pub fn </span>set_kind(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: PHType) {
+        <span class="self">self</span>.p_type.set(kind);
+    }
+
+    <span class="doccomment">/// Get the `p_flags` attribute of the header
+    </span><span class="kw">pub fn </span>flags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
+        <span class="self">self</span>.p_flags.get()
+    }
+
+    <span class="doccomment">/// Set the `p_flags` attribute of the header 
+    </span><span class="kw">pub fn </span>set_flags(<span class="kw-2">&amp;mut </span><span class="self">self</span>, flags: u32) {
+        <span class="self">self</span>.p_flags.set(flags);
+    }
+
+    <span class="doccomment">/// Get the `p_offset` attribute of the header
+    </span><span class="kw">pub fn </span>offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
+        <span class="self">self</span>.p_offset.get()
+    }
+
+    <span class="doccomment">/// Set the `p_offset` attribute of the header 
+    </span><span class="kw">pub fn </span>set_offset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, offset: u64) {
+        <span class="self">self</span>.p_offset.set(offset);
+    }
+
+    <span class="doccomment">/// Get the `p_vaddr` attribute of the header
+    </span><span class="kw">pub fn </span>vaddr(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
+        <span class="self">self</span>.p_vaddr.get()
+    }
+
+    <span class="doccomment">/// Set the `p_vaddr` attribute of the header 
+    </span><span class="kw">pub fn </span>set_vaddr(<span class="kw-2">&amp;mut </span><span class="self">self</span>, vaddr: u64) {
+        <span class="self">self</span>.p_vaddr.set(vaddr);
+    }
+
+    <span class="doccomment">/// Get the `p_paddr` attribute of the header
+    </span><span class="kw">pub fn </span>paddr(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
+        <span class="self">self</span>.p_paddr.get()
+    }
+
+    <span class="doccomment">/// Set the `p_paddr` attribute of the header 
+    </span><span class="kw">pub fn </span>set_paddr(<span class="kw-2">&amp;mut </span><span class="self">self</span>, paddr: u64) {
+        <span class="self">self</span>.p_paddr.set(paddr);
+    }
+
+    <span class="doccomment">/// Get the `p_filesz` attribute of the header
+    </span><span class="kw">pub fn </span>filesz(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
+        <span class="self">self</span>.p_filesz.get()
+    }
+
+    <span class="doccomment">/// Set the `p_filesz` attribute of the header 
+    </span><span class="kw">pub fn </span>set_filesz(<span class="kw-2">&amp;mut </span><span class="self">self</span>, filesz: u64) {
+        <span class="self">self</span>.p_filesz.set(filesz);
+    }
+
+    <span class="doccomment">/// Get the `p_memsz` attribute of the header
+    </span><span class="kw">pub fn </span>memsz(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
+        <span class="self">self</span>.p_memsz.get()
+    }
+
+    <span class="doccomment">/// Set the `p_memsz` attribute of the header 
+    </span><span class="kw">pub fn </span>set_memsz(<span class="kw-2">&amp;mut </span><span class="self">self</span>, memsz: u64) {
+        <span class="self">self</span>.p_memsz.set(memsz);
+    }
+
+    <span class="doccomment">/// Get the `p_align` attribute of the header
+    </span><span class="kw">pub fn </span>align(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
+        <span class="self">self</span>.p_align.get()
+    }
+
+    <span class="doccomment">/// Set the `p_align` attribute of the header 
+    </span><span class="kw">pub fn </span>set_align(<span class="kw-2">&amp;mut </span><span class="self">self</span>, align: u64) {
+        <span class="self">self</span>.p_align.set(align);
+    }
 
 }
 
@@ -504,11 +618,11 @@
         </span><span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
             .unwrap();
 
-        <span class="kw">let </span>count = file_header.phnum();
-        <span class="kw">let </span>offset = file_header.phoff();
-        <span class="kw">let </span>size = file_header.phentsize();
-        <span class="kw">let </span>layout = file_header.data();
-        <span class="kw">let </span>width = file_header.class();
+        <span class="kw">let </span>count = file_header.phnum().unwrap();
+        <span class="kw">let </span>offset = file_header.phoff().unwrap();
+        <span class="kw">let </span>size = file_header.phentsize().unwrap();
+        <span class="kw">let </span>layout = file_header.data().unwrap();
+        <span class="kw">let </span>width = file_header.class().unwrap();
         
         <span class="comment">// parse all program headers in file
         </span><span class="kw">let </span>program_headers = ProgramHeader::parse_all(
@@ -526,9 +640,9 @@
         <span class="kw">let </span>header = <span class="kw-2">&amp;</span>headers[<span class="number">0</span>];
 
         <span class="comment">// check values are what we expected
-        </span><span class="macro">assert_eq!</span>(header.header_size(),size);
-        <span class="macro">assert_eq!</span>(header.filesz(),<span class="number">0x4348</span>);
-        <span class="macro">assert_eq!</span>(header.align(),<span class="number">0x1000</span>);
+        </span><span class="macro">assert_eq!</span>(header.size(),size);
+        <span class="macro">assert_eq!</span>(header.filesz(),<span class="prelude-val">Some</span>(<span class="number">0x4348</span>));
+        <span class="macro">assert_eq!</span>(header.align(),<span class="prelude-val">Some</span>(<span class="number">0x1000</span>));
     }
 
     <span class="attr">#[test]
@@ -539,11 +653,11 @@
         </span><span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
             .unwrap();
 
-        <span class="kw">let </span>count = file_header.phnum();
-        <span class="kw">let </span>offset = file_header.phoff();
-        <span class="kw">let </span>size = file_header.phentsize();
-        <span class="kw">let </span>layout = file_header.data();
-        <span class="kw">let </span>width = file_header.class();
+        <span class="kw">let </span>count = file_header.phnum().unwrap();
+        <span class="kw">let </span>offset = file_header.phoff().unwrap();
+        <span class="kw">let </span>size = file_header.phentsize().unwrap();
+        <span class="kw">let </span>layout = file_header.data().unwrap();
+        <span class="kw">let </span>width = file_header.class().unwrap();
         
         <span class="comment">// parse all program headers in file
         </span><span class="kw">let </span>program_headers = ProgramHeader::parse_all(
@@ -562,14 +676,14 @@
 
         <span class="comment">// initialize a buffer big enough for the header
         </span><span class="kw">let </span><span class="kw-2">mut </span>buffer: Vec&lt;u8&gt; = <span class="macro">vec!</span>[];
-        buffer.resize(header.header_size(),<span class="number">0x00</span>);        
+        buffer.resize(header.size(),<span class="number">0x00</span>);        
 
         <span class="comment">// write to the new buffer
         </span><span class="kw">let </span>result = header.write(buffer.as_mut_slice());
         <span class="macro">assert!</span>(result.is_ok());
 
         <span class="comment">// get the expected result from the original buffer
-        </span><span class="kw">let </span>expected = <span class="kw-2">&amp;</span>b[offset..offset + header.header_size()];
+        </span><span class="kw">let </span>expected = <span class="kw-2">&amp;</span>b[offset..offset + header.size()];
 
         <span class="comment">// verify that the written header is the same as original
         </span><span class="macro">assert_eq!</span>(buffer.as_slice(),expected);
@@ -583,11 +697,11 @@
         </span><span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
             .unwrap();
 
-        <span class="kw">let </span>count = file_header.phnum();
-        <span class="kw">let </span>offset = file_header.phoff();
-        <span class="kw">let </span>size = file_header.phentsize();
-        <span class="kw">let </span>layout = file_header.data();
-        <span class="kw">let </span>width = file_header.class();
+        <span class="kw">let </span>count = file_header.phnum().unwrap();
+        <span class="kw">let </span>offset = file_header.phoff().unwrap();
+        <span class="kw">let </span>size = file_header.phentsize().unwrap();
+        <span class="kw">let </span>layout = file_header.data().unwrap();
+        <span class="kw">let </span>width = file_header.class().unwrap();
         
         <span class="comment">// parse all program headers in file
         </span><span class="kw">let </span>program_headers = ProgramHeader::parse_all(
@@ -609,14 +723,14 @@
 
         <span class="comment">// initialize a buffer big enough for the header
         </span><span class="kw">let </span><span class="kw-2">mut </span>buffer: Vec&lt;u8&gt; = <span class="macro">vec!</span>[];
-        buffer.resize(header.header_size(),<span class="number">0x00</span>);        
+        buffer.resize(header.size(),<span class="number">0x00</span>);        
 
         <span class="comment">// write to the new buffer
         </span><span class="kw">let </span>result = header.write(buffer.as_mut_slice());
         <span class="macro">assert!</span>(result.is_ok());
 
         <span class="comment">// get the expected result from the original buffer
-        </span><span class="kw">let </span>expected = <span class="kw-2">&amp;</span>b[offset..offset + header.header_size()];
+        </span><span class="kw">let </span>expected = <span class="kw-2">&amp;</span>b[offset..offset + header.size()];
 
         <span class="comment">// verify that the written header is the same as original
         </span><span class="macro">assert_ne!</span>(buffer.as_slice(),expected);
@@ -626,7 +740,7 @@
         <span class="macro">assert!</span>(result.is_ok());
 
         <span class="comment">// check that the re-parsed header has changed value
-        </span><span class="macro">assert_eq!</span>(header.paddr(),<span class="number">123</span>);
+        </span><span class="macro">assert_eq!</span>(header.paddr(),<span class="prelude-val">Some</span>(<span class="number">123</span>));
     }
 
 }</code></pre></div>

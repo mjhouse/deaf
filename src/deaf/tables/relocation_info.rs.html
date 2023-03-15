@@ -129,10 +129,17 @@
 <a href="#129" id="129">129</a>
 <a href="#130" id="130">130</a>
 <a href="#131" id="131">131</a>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{<span class="prelude-ty">Result</span>};
-<span class="kw">use </span><span class="kw">crate</span>::common::bytes::Convert;
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::Result;
+<span class="kw">use </span><span class="kw">crate</span>::common::Convert;
 
-<span class="attr">#[derive(Clone,Copy)]
+<span class="doccomment">/// Representation of the info field in a Relocation record
+</span><span class="attr">#[derive(Clone,Copy)]
 </span><span class="kw">pub struct </span>RelocationInfo {
     symbol: u64,
     kind: u8,
@@ -140,29 +147,34 @@
 
 <span class="kw">impl </span>RelocationInfo {
 
-    <span class="kw">pub fn </span>empty() -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// Initialize an empty relocation info instance
+    </span><span class="kw">pub fn </span>empty() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ 
             symbol: <span class="number">0</span>,
             kind: <span class="number">0
         </span>}
     }
 
-    <span class="kw">pub fn </span>new(v: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="doccomment">/// Parse a combined value as an info struct
+    </span><span class="kw">pub fn </span>new(v: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             symbol: v &gt;&gt; <span class="number">8</span>,
             kind: v <span class="kw">as </span>u8,
         })
     }
 
-    <span class="kw">pub fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+    <span class="doccomment">/// Get the combined value of the info struct
+    </span><span class="kw">pub fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
         (<span class="self">self</span>.symbol &lt;&lt; <span class="number">8</span>) + (<span class="self">self</span>.kind <span class="kw">as </span>u64)
     }
 
-    <span class="kw">pub fn </span>symbol(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+    <span class="doccomment">/// Get the &#39;symbol&#39; component of the info struct
+    </span><span class="kw">pub fn </span>symbol(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
         <span class="self">self</span>.symbol
     }
 
-    <span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
+    <span class="doccomment">/// Get the &#39;kind&#39; component of the info struct
+    </span><span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
         <span class="self">self</span>.kind
     }
 
