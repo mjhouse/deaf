@@ -14,7 +14,7 @@ use std::ffi::{CString,CStr};
 /// # Examples
 ///
 /// ```
-/// # use deaf::common::bytes::FromBytes;
+/// # use deaf::common::FromBytes;
 /// # use deaf::common::Layout;
 ///
 /// // layout doesn't matter for strings
@@ -44,7 +44,7 @@ pub trait FromBytes {
 /// # Examples
 ///
 /// ```
-/// # use deaf::common::bytes::IntoBytes;
+/// # use deaf::common::IntoBytes;
 /// # use deaf::common::Layout;
 ///
 /// // layout doesn't matter for strings
@@ -70,7 +70,7 @@ pub trait IntoBytes {
 /// # Examples
 ///
 /// ```
-/// # use deaf::common::bytes::Convert;
+/// # use deaf::common::Convert;
 /// # use deaf::common::Width;
 /// # use deaf::errors::Result;
 ///

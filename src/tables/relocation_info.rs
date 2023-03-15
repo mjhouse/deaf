@@ -1,6 +1,7 @@
-use crate::errors::{Result};
-use crate::common::bytes::Convert;
+use crate::errors::Result;
+use crate::common::Convert;
 
+/// Representation of the info field in a Relocation record
 #[derive(Clone,Copy)]
 pub struct RelocationInfo {
     symbol: u64,
@@ -9,6 +10,7 @@ pub struct RelocationInfo {
 
 impl RelocationInfo {
 
+    /// Initialize an empty relocation info instance
     pub fn empty() -> Self {
         Self { 
             symbol: 0,
@@ -16,6 +18,7 @@ impl RelocationInfo {
         }
     }
 
+    /// Parse a combined value as an info struct
     pub fn new(v: u64) -> Result<Self> {
         Ok(Self {
             symbol: v >> 8,
@@ -23,14 +26,17 @@ impl RelocationInfo {
         })
     }
 
+    /// Get the combined value of the info struct
     pub fn value(&self) -> u64 {
         (self.symbol << 8) + (self.kind as u64)
     }
 
+    /// Get the 'symbol' component of the info struct
     pub fn symbol(&self) -> u64 {
         self.symbol
     }
 
+    /// Get the 'kind' component of the info struct
     pub fn kind(&self) -> u8 {
         self.kind
     }

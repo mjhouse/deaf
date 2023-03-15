@@ -20,6 +20,7 @@ where
     T64: FromBytes + IntoBytes + Convert<Out>,
     Out: Convert<T32> + Convert<T64> + Debug + Clone,
 {
+    /// Create a new item with given ranges
     pub fn new(ranges: Ranges) -> Self {
         Self {
             field: Field::new(ranges),
@@ -27,27 +28,32 @@ where
         }
     }
 
+    /// Create a new item with ranges, width and layout
     pub fn make(ranges: Ranges, width: Width, layout: Layout) -> Self {
         Self::new(ranges)
             .with_width(width)
             .with_layout(layout)
     }
 
+    /// Builder method to set the initial width
     pub fn with_width(mut self, width: Width) -> Self {
         self.set_width(width);
         self
     }
 
+    /// Builder method to set the initial layout
     pub fn with_layout(mut self, layout: Layout) -> Self {
         self.set_layout(layout);
         self
     }
 
+    /// Builder method to set the initial value
     pub fn with_value(mut self, value: Out) -> Self {
         self.set(value);
         self
     }
 
+    /// Builder method to parse a byte buffer
     pub fn parse(mut self, bytes: &[u8]) -> Result<Self> {
         self.read(bytes)?;
         Ok(self)
@@ -68,14 +74,17 @@ where
         Ok(())
     }
 
+    /// Get the output value of the item
     pub fn get(&self) -> Option<Out> {
         self.value.clone()
     }
 
+    /// Set the output value of the item
     pub fn set(&mut self, value: Out) {
         self.value = Some(value)
     }
 
+    /// Get the size of the item if there is a value
     pub fn size(&self) -> usize {
         match self.value {
             Some(_) => self.field.size(),
@@ -83,18 +92,22 @@ where
         }
     }
 
+    /// Get the width (32- or 64-bit) of the item
     pub fn width(&self) -> Width {
         self.field.ranges.width
     }
 
+    /// Set the width (32- or 64-bit) of the item
     pub fn set_width(&mut self, width: Width) {
         self.field.ranges.width = width;
     }
 
+    /// Get the layout (little- or big-endian) of the item
     pub fn layout(&self) -> Layout {
         self.field.layout
     }
 
+    /// Set the layout (little- or big-endian) of the item
     pub fn set_layout(&mut self, layout: Layout) {
         self.field.layout = layout;
     }

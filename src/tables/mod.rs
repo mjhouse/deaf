@@ -4,8 +4,6 @@
 //! struct. TryFrom will fail if the section isn't the correct type (e.g. non-SHT_SYMTAB
 //! section header cannot be converted into a Table<SymbolItem> struct).
 
-pub mod common;
-
 mod relocation_info;
 mod symbol_info;
 mod table_item;

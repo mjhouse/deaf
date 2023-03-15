@@ -6,106 +6,64 @@ use crate::common::{
 };
 use enumflags2::BitFlags;
 
-use crate::common::field::Field;
+use crate::common::Item;
 use crate::common::ranges::*;
-use crate::errors::{Error, Result};
-use crate::impl_property;
-
-#[derive(Debug,Clone)]
-pub struct SectionHeaderValues {
-    pub size: usize, 
-    pub sh_name: u32,
-    pub sh_type: SHType,
-    pub sh_flags: BitFlags<SHFlags>,
-    pub sh_address: u64,
-    pub sh_offset: usize,
-    pub sh_size: usize,
-    pub sh_link: u32,
-    pub sh_info: u32,
-    pub sh_addralign: u64,
-    pub sh_entsize: usize,
-}
+use crate::errors::Result;
 
 #[derive(Debug)]
 pub struct SectionHeader {
-    offset: usize,
     layout: Layout,
     width: Width,
-    size: usize, 
-
-    sh_name: Field<u32>,
-    sh_type: Field<u32,u32,SHType>,
-    sh_flags: Field<u32,u64,BitFlags<SHFlags>>,
-    sh_address: Field<u32,u64>,
-    sh_offset: Field<u32,u64,usize>,
-    sh_size: Field<u32,u64,usize>,
-    sh_link: Field<u32>,
-    sh_info: Field<u32>,
-    sh_addralign: Field<u32,u64>,
-    sh_entsize: Field<u32,u64,usize>,
-
-    pub values: SectionHeaderValues,
-}
-
-impl SectionHeaderValues {
-
-    pub fn new() -> Self {
-        Self {
-            size: 0, 
-            sh_name: 0,
-            sh_type: SHType::SHT_NULL,
-            sh_flags: BitFlags::EMPTY,
-            sh_address: 0,
-            sh_offset: 0,
-            sh_size: 0,
-            sh_link: 0,
-            sh_info: 0,
-            sh_addralign: 0,
-            sh_entsize: 0,
-        }
-    }
-    
+    sh_name: Item<u32>,
+    sh_type: Item<u32,u32,SHType>,
+    sh_flags: Item<u32,u64,BitFlags<SHFlags>>,
+    sh_address: Item<u32,u64>,
+    sh_offset: Item<u32,u64,usize>,
+    sh_size: Item<u32,u64,usize>,
+    sh_link: Item<u32>,
+    sh_info: Item<u32>,
+    sh_addralign: Item<u32,u64>,
+    sh_entsize: Item<u32,u64,usize>,
 }
 
 impl SectionHeader {
 
-    pub fn new(offset: usize, size: usize, layout: Layout, width: Width) -> Self {
+    /// Create a new header with given Layout and Width
+    ///
+    /// All fields are None until read
+    pub fn new(layout: Layout, width: Width) -> Self {
         Self {
-            offset,
             layout,
             width,
-            size,
-            sh_name: Field::new(SH_NAME),
-            sh_type: Field::new(SH_TYPE),
-            sh_flags: Field::new(SH_FLAGS),
-            sh_address: Field::new(SH_ADDR),
-            sh_offset: Field::new(SH_OFFSET),
-            sh_size: Field::new(SH_SIZE),
-            sh_link: Field::new(SH_LINK),
-            sh_info: Field::new(SH_INFO),
-            sh_addralign: Field::new(SH_ADDRALIGN),
-            sh_entsize: Field::new(SH_ENTSIZE),
-
-            values: SectionHeaderValues::new(),
+            sh_name: Item::make(SH_NAME,width,layout),
+            sh_type: Item::make(SH_TYPE,width,layout),
+            sh_flags: Item::make(SH_FLAGS,width,layout),
+            sh_address: Item::make(SH_ADDR,width,layout),
+            sh_offset: Item::make(SH_OFFSET,width,layout),
+            sh_size: Item::make(SH_SIZE,width,layout),
+            sh_link: Item::make(SH_LINK,width,layout),
+            sh_info: Item::make(SH_INFO,width,layout),
+            sh_addralign: Item::make(SH_ADDRALIGN,width,layout),
+            sh_entsize: Item::make(SH_ENTSIZE,width,layout),
         }
     }
 
-    pub fn parse(b: &[u8], offset: usize, size: usize, layout: Layout, width: Width) -> Result<Self> {
-        let mut header = Self::new(offset,size,layout,width);
+    /// Parse a header from the provided byte buffer
+    pub fn parse(b: &[u8], layout: Layout, width: Width) -> Result<Self> {
+        let mut header = Self::new(layout,width);
         header.read(b)?;
         Ok(header)
     }
 
+    /// Parse all headers for a byte array given count, offset etc.
     pub fn parse_all(b: &[u8], count: usize, offset: usize, size: usize, layout: Layout, width: Width) -> Result<Vec<Self>> {
         let mut result = vec![];
         result.reserve_exact(count);
 
         for i in 0..count {
-            let offs = offset + i * size;
+            let start = offset + i * size;
             result.push(Self::parse(
-                &b[offs..],
-                offs,
-                size,
+                &b[start..],
                 layout,
                 width)?);
         }
@@ -113,78 +71,44 @@ impl SectionHeader {
         Ok(result)
     }
 
-    pub fn set_width(&mut self, width: Width) {
-        self.width = width;
-        self.sh_name.ranges.width = width;
-        self.sh_type.ranges.width = width;
-        self.sh_flags.ranges.width = width;
-        self.sh_address.ranges.width = width;
-        self.sh_offset.ranges.width = width;
-        self.sh_size.ranges.width = width;
-        self.sh_link.ranges.width = width;
-        self.sh_info.ranges.width = width;
-        self.sh_addralign.ranges.width = width;
-        self.sh_entsize.ranges.width = width;
-    }
-
-    pub fn set_layout(&mut self, layout: Layout) {
-        self.layout = layout;
-        self.sh_name.layout = layout;
-        self.sh_type.layout = layout;
-        self.sh_flags.layout = layout;
-        self.sh_address.layout = layout;
-        self.sh_offset.layout = layout;
-        self.sh_size.layout = layout;
-        self.sh_link.layout = layout;
-        self.sh_info.layout = layout;
-        self.sh_addralign.layout = layout;
-        self.sh_entsize.layout = layout;
-    }
-
-    pub fn read(&mut self, b: &[u8]) -> Result<SectionHeaderValues> {
-        self.set_layout(self.layout);
-        self.set_width(self.width);
-
-        self.values.sh_name      = self.sh_name.get(b)?;
-        self.values.sh_type      = self.sh_type.get(b)?;
-        self.values.sh_flags     = self.sh_flags.get(b)?;
-        self.values.sh_address   = self.sh_address.get(b)?;
-        self.values.sh_offset    = self.sh_offset.get(b)?;
-        self.values.sh_size      = self.sh_size.get(b)?;
-        self.values.sh_link      = self.sh_link.get(b)?;
-        self.values.sh_info      = self.sh_info.get(b)?;
-        self.values.sh_addralign = self.sh_addralign.get(b)?;
-        self.values.sh_entsize   = self.sh_entsize.get(b)?;
-
-        Ok(self.values.clone())
-    }
-
-    pub fn write(&self, b: &mut [u8]) -> Result<()> {
-        self.sh_name.set(b,self.values.sh_name)?;
-        self.sh_type.set(b,self.values.sh_type)?;
-        self.sh_flags.set(b,self.values.sh_flags)?;
-        self.sh_address.set(b,self.values.sh_address)?;
-        self.sh_offset.set(b,self.values.sh_offset)?;
-        self.sh_size.set(b,self.values.sh_size)?;
-        self.sh_link.set(b,self.values.sh_link)?;
-        self.sh_info.set(b,self.values.sh_info)?;
-        self.sh_addralign.set(b,self.values.sh_addralign)?;
-        self.sh_entsize.set(b,self.values.sh_entsize)?;
+    /// Read values from a byte buffer 
+    ///
+    /// Byte buffer is assumed to be sliced such that the
+    /// header is at the beginning of the buffer.
+    pub fn read(&mut self, b: &[u8]) -> Result<()> {
+        self.sh_name.read(b)?;
+        self.sh_type.read(b)?;
+        self.sh_flags.read(b)?;
+        self.sh_address.read(b)?;
+        self.sh_offset.read(b)?;
+        self.sh_size.read(b)?;
+        self.sh_link.read(b)?;
+        self.sh_info.read(b)?;
+        self.sh_addralign.read(b)?;
+        self.sh_entsize.read(b)?;
         Ok(())
     }
 
-    pub fn body<'a>(&self, b: &'a [u8]) -> Result<&'a [u8]> {
-        let start = self.offset;
-        let end = start + self.values.sh_size;
-
-        if end < b.len() {
-            Ok(&b[start..end])
-        } else {
-            Err(Error::OutOfBoundsError)
-        }
+    /// Write values to a byte buffer 
+    ///
+    /// Byte buffer is assumed to be sliced such that the
+    /// header will be written at the correct position.
+    pub fn write(&self, b: &mut [u8]) -> Result<()> {
+        self.sh_name.write(b)?;
+        self.sh_type.write(b)?;
+        self.sh_flags.write(b)?;
+        self.sh_address.write(b)?;
+        self.sh_offset.write(b)?;
+        self.sh_size.write(b)?;
+        self.sh_link.write(b)?;
+        self.sh_info.write(b)?;
+        self.sh_addralign.write(b)?;
+        self.sh_entsize.write(b)?;
+        Ok(())
     }
 
-    pub fn header_size(&self) -> usize {
+    /// The size of the header in bytes
+    pub fn size(&self) -> usize {
         self.sh_name.size() +
         self.sh_type.size() +
         self.sh_flags.size() +
@@ -197,25 +121,156 @@ impl SectionHeader {
         self.sh_entsize.size()
     }
 
-    pub fn layout(&self) -> Layout {
-        self.layout.clone()
-    }
-
+    /// Get the width (32 or 64-bit) of the header
     pub fn width(&self) -> Width {
-        self.width.clone()
+        self.width
     }
 
-    impl_property!(name,sh_name,u32);
-    impl_property!(kind,sh_type,SHType);
-    impl_property!(flags,sh_flags,BitFlags<SHFlags>);
-    impl_property!(address,sh_address,u64);
-    impl_property!(offset,sh_offset,usize);
-    impl_property!(size,sh_size,usize);
-    impl_property!(link,sh_link,u32);
-    impl_property!(info,sh_info,u32);
-    impl_property!(addralign,sh_addralign,u64);
-    impl_property!(entsize,sh_entsize,usize);
+    /// Set the width of the header
+    pub fn set_width(&mut self, width: Width) {
+        self.width = width;
+        self.sh_name.set_width(width);
+        self.sh_type.set_width(width);
+        self.sh_flags.set_width(width);
+        self.sh_address.set_width(width);
+        self.sh_offset.set_width(width);
+        self.sh_size.set_width(width);
+        self.sh_link.set_width(width);
+        self.sh_info.set_width(width);
+        self.sh_addralign.set_width(width);
+        self.sh_entsize.set_width(width);
+    }
 
+    /// Get the layout (little or big-endian) of the header
+    pub fn layout(&self) -> Layout {
+        self.layout
+    }
+
+    /// Set the layout of the header
+    pub fn set_layout(&mut self, layout: Layout) {
+        self.layout = layout;
+        self.sh_name.set_layout(layout);
+        self.sh_type.set_layout(layout);
+        self.sh_flags.set_layout(layout);
+        self.sh_address.set_layout(layout);
+        self.sh_offset.set_layout(layout);
+        self.sh_size.set_layout(layout);
+        self.sh_link.set_layout(layout);
+        self.sh_info.set_layout(layout);
+        self.sh_addralign.set_layout(layout);
+        self.sh_entsize.set_layout(layout);
+    }
+
+    /// Get the `sh_name` attribute of the header
+    pub fn name(&self) -> Option<u32> {
+        self.sh_name.get()
+    }
+
+    /// Set the `sh_name` attribute of the header 
+    pub fn set_name(&mut self, name: u32) {
+        self.sh_name.set(name);
+    }
+
+    /// Get the `sh_type` attribute of the header
+    pub fn kind(&self) -> Option<SHType> {
+        self.sh_type.get()
+    }
+
+    /// Set the `sh_type` attribute of the header 
+    pub fn set_kind(&mut self, kind: SHType) {
+        self.sh_type.set(kind);
+    }
+
+    /// Get the `sh_flags` attribute of the header
+    pub fn flags(&self) -> Option<BitFlags<SHFlags>> {
+        self.sh_flags.get()
+    }
+
+    /// Set the `sh_flags` attribute of the header 
+    pub fn set_flags(&mut self, flags: BitFlags<SHFlags>) {
+        self.sh_flags.set(flags);
+    }
+
+    /// Get the `sh_address` attribute of the header
+    pub fn address(&self) -> Option<u64> {
+        self.sh_address.get()
+    }
+
+    /// Set the `sh_address` attribute of the header 
+    pub fn set_address(&mut self, address: u64) {
+        self.sh_address.set(address);
+    }
+
+    /// Get the `sh_offset` attribute of the header
+    pub fn offset(&self) -> Option<usize> {
+        self.sh_offset.get()
+    }
+
+    /// Set the `sh_offset` attribute of the header 
+    pub fn set_offset(&mut self, offset: usize) {
+        self.sh_offset.set(offset);
+    }
+
+    /// Get the `sh_size` attribute of the header
+    pub fn body_size(&self) -> Option<usize> {
+        self.sh_size.get()
+    }
+
+    /// Set the `sh_size` attribute of the header 
+    pub fn set_body_size(&mut self, body_size: usize) {
+        self.sh_size.set(body_size);
+    }
+
+    /// Get the `sh_link` attribute of the header
+    pub fn link(&self) -> Option<u32> {
+        self.sh_link.get()
+    }
+
+    /// Set the `sh_link` attribute of the header 
+    pub fn set_link(&mut self, link: u32) {
+        self.sh_link.set(link);
+    }
+
+    /// Get the `sh_info` attribute of the header
+    pub fn info(&self) -> Option<u32> {
+        self.sh_info.get()
+    }
+
+    /// Set the `sh_info` attribute of the header 
+    pub fn set_info(&mut self, info: u32) {
+        self.sh_info.set(info);
+    }
+
+    /// Get the `sh_addralign` attribute of the header
+    pub fn addralign(&self) -> Option<u64> {
+        self.sh_addralign.get()
+    }
+
+    /// Set the `sh_addralign` attribute of the header 
+    pub fn set_addralign(&mut self, addralign: u64) {
+        self.sh_addralign.set(addralign);
+    }
+
+    /// Get the `sh_entsize` attribute of the header
+    pub fn entsize(&self) -> Option<usize> {
+        self.sh_entsize.get()
+    }
+
+    /// Set the `sh_entsize` attribute of the header 
+    pub fn set_entsize(&mut self, entsize: usize) {
+        self.sh_entsize.set(entsize);
+    }
+
+    // pub fn body<'a>(&self, b: &'a [u8]) -> Result<&'a [u8]> {
+    //     let start = self.offset;
+    //     let end = start + self.values.sh_size;
+
+    //     if end < b.len() {
+    //         Ok(&b[start..end])
+    //     } else {
+    //         Err(Error::OutOfBoundsError)
+    //     }
+    // }
 }
 
 #[cfg(test)]
@@ -233,11 +288,11 @@ mod tests {
         let file_header = FileHeader::parse(&b)
             .unwrap();
 
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
+        let count = file_header.shnum().unwrap();
+        let offset = file_header.shoff().unwrap();
+        let size = file_header.shentsize().unwrap();
+        let layout = file_header.data().unwrap();
+        let width = file_header.class().unwrap();
         
         // parse all section headers in file
         let section_headers = SectionHeader::parse_all(
@@ -255,9 +310,9 @@ mod tests {
         let header = &headers[3];
 
         // check values are what we expected
-        assert_eq!(header.header_size(),size);
-        assert_eq!(header.size(),0x7c4);
-        assert_eq!(header.offset(),0x2f0);
+        assert_eq!(header.size(),size);
+        assert_eq!(header.body_size(),Some(0x7c4));
+        assert_eq!(header.offset(),Some(0x2f0));
     }
 
     #[test]
@@ -268,11 +323,11 @@ mod tests {
         let file_header = FileHeader::parse(&b)
             .unwrap();
 
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
+        let count = file_header.shnum().unwrap();
+        let offset = file_header.shoff().unwrap();
+        let size = file_header.shentsize().unwrap();
+        let layout = file_header.data().unwrap();
+        let width = file_header.class().unwrap();
         
         // parse all section headers in file
         let section_headers = SectionHeader::parse_all(
@@ -291,14 +346,14 @@ mod tests {
 
         // initialize a buffer big enough for the header
         let mut buffer: Vec<u8> = vec![];
-        buffer.resize(header.header_size(),0x00);        
+        buffer.resize(header.size(),0x00);        
 
         // write to the new buffer
         let result = header.write(buffer.as_mut_slice());
         assert!(result.is_ok());
 
         // get the expected result from the original buffer
-        let expected = &b[offset..offset + header.header_size()];
+        let expected = &b[offset..offset + header.size()];
 
         // verify that the written header is the same as original
         assert_eq!(buffer.as_slice(),expected);
@@ -312,11 +367,11 @@ mod tests {
         let file_header = FileHeader::parse(&b)
             .unwrap();
 
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
+        let count = file_header.shnum().unwrap();
+        let offset = file_header.shoff().unwrap();
+        let size = file_header.shentsize().unwrap();
+        let layout = file_header.data().unwrap();
+        let width = file_header.class().unwrap();
         
         // parse all section headers in file
         let section_headers = SectionHeader::parse_all(
@@ -338,14 +393,14 @@ mod tests {
 
         // initialize a buffer big enough for the header
         let mut buffer: Vec<u8> = vec![];
-        buffer.resize(header.header_size(),0x00);        
+        buffer.resize(header.size(),0x00);        
 
         // write to the new buffer
         let result = header.write(buffer.as_mut_slice());
         assert!(result.is_ok());
 
         // get the expected result from the original buffer
-        let expected = &b[offset..offset + header.header_size()];
+        let expected = &b[offset..offset + header.size()];
 
         // verify that the written header is the same as original
         assert_ne!(buffer.as_slice(),expected);
@@ -355,6 +410,6 @@ mod tests {
         assert!(result.is_ok());
 
         // check that the re-parsed header has changed value
-        assert_eq!(header.address(),123);
+        assert_eq!(header.address(),Some(123));
     }
 }

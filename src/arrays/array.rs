@@ -2,7 +2,7 @@ use crate::errors::{Error, Result};
 use crate::common::{Width,Layout,SHType};
 use crate::headers::SectionHeader;
 use crate::arrays::array_item::ArrayItem;
-use crate::tables::common::ByteIter;
+use crate::common::ByteIter;
 
 pub struct Array {
     offset: usize,
@@ -16,6 +16,7 @@ pub struct Array {
 
 impl Array {
 
+    /// Create a new array given type and position information
     pub fn new(offset: usize, size: usize, layout: Layout, width: Width, kind: SHType, entity_size: usize) -> Self {
         Self {
             offset: offset,
@@ -28,7 +29,9 @@ impl Array {
         }
     }
 
-    // reads from an offset to offset + section_size
+    /// Read array items from a byte buffer 
+    ///
+    /// Reads from an offset to offset + section_size
     pub fn read(&mut self, bytes: &[u8]) -> Result<usize> {
         let start = self.offset;
         let end = self.offset + self.section_size;
@@ -68,7 +71,9 @@ impl Array {
         Ok(self.values.len())
     }
 
-    // writes from the beginning of the given byte slice
+    /// Write array items to a byte buffer 
+    ///
+    /// Writes from the *beginning* of the given byte slice
     pub fn write(&self, bytes: &mut [u8]) -> Result<usize> {
 
         // check buffer is big enough
@@ -95,34 +100,41 @@ impl Array {
         Ok(self.values.len())
     }
 
+    /// The number of items in this array
     fn len(&self) -> usize {
         self.values.len()
     }
 
+    /// The calculated size in bytes of the array
     fn size(&self) -> usize {
         self.len() * self.entity_size
     }
 
+    /// Get a reference to an array item at index
     fn get(&self, index: usize) -> Option<&ArrayItem> {
         self.values.get(index)
     }
 
+    /// Get a mutable reference to an array item at index
     fn get_mut(&mut self, index: usize) -> Option<&mut ArrayItem> {
         self.values.get_mut(index)
     }
 
+    /// Insert an array item at index, pushing other items right
     fn insert(&mut self, index: usize, mut item: ArrayItem) {
         item.set_layout(self.layout);
         item.set_width(self.width);
         self.values.insert(index,item);
     }
 
+    /// Append an array item to the array
     fn push(&mut self, mut item: ArrayItem) {
         item.set_layout(self.layout);
         item.set_width(self.width);
         self.values.push(item);
     }
 
+    /// Remove and return an array item from this array
     fn remove(&mut self, index: usize) -> ArrayItem {
         self.values.remove(index)
     }
@@ -133,15 +145,15 @@ impl TryFrom<&SectionHeader> for Array {
     type Error = Error;
 
     fn try_from(header: &SectionHeader) -> Result<Self> {
-        match header.values.sh_type {
+        match header.kind().unwrap_or(SHType::SHT_NULL) {
             SHType::SHT_INIT_ARRAY | SHType::SHT_PREINIT_ARRAY | SHType::SHT_FINI_ARRAY 
             => Ok(Self::new(
-                header.offset(),
-                header.size(),
+                header.offset().ok_or(Error::MalformedDataError)?,
+                header.body_size().ok_or(Error::MalformedDataError)?,
                 header.layout(),
                 header.width(),
-                header.kind(),
-                header.entsize()
+                header.kind().ok_or(Error::MalformedDataError)?,
+                header.entsize().ok_or(Error::MalformedDataError)?
             )),
             _ => Err(Error::WrongSectionError)
         }
@@ -176,11 +188,11 @@ mod tests {
         let file_header = FileHeader::parse(&b)
             .unwrap();
 
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
+        let count = file_header.shnum().unwrap();
+        let offset = file_header.shoff().unwrap();
+        let size = file_header.shentsize().unwrap();
+        let layout = file_header.data().unwrap();
+        let width = file_header.class().unwrap();
         
         let section_headers = SectionHeader::parse_all(
             &b,
@@ -194,7 +206,7 @@ mod tests {
         let headers = section_headers.unwrap();
 
         let result = headers.iter().find(|&h| 
-            h.kind() == SHType::SHT_INIT_ARRAY);
+            h.kind() == Some(SHType::SHT_INIT_ARRAY));
 
         assert!(result.is_some());
 
@@ -216,11 +228,11 @@ mod tests {
         let file_header = FileHeader::parse(&b)
             .unwrap();
 
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
+        let count = file_header.shnum().unwrap();
+        let offset = file_header.shoff().unwrap();
+        let size = file_header.shentsize().unwrap();
+        let layout = file_header.data().unwrap();
+        let width = file_header.class().unwrap();
         
         let section_headers = SectionHeader::parse_all(
             &b,
@@ -234,7 +246,7 @@ mod tests {
         let headers = section_headers.unwrap();
 
         let result = headers.iter().find(|&h| 
-            h.kind() == SHType::SHT_FINI_ARRAY);
+            h.kind() == Some(SHType::SHT_FINI_ARRAY));
 
         assert!(result.is_some());
 

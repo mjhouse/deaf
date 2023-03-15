@@ -1,9 +1,7 @@
 use std::marker::PhantomData;
 
-use crate::common::bytes::{FromBytes, IntoBytes, Convert};
-use crate::common::{Layout, Width};
+use crate::common::{FromBytes, IntoBytes, Convert, Layout, Width, Ranges};
 use crate::errors::{Error, Result};
-use crate::common::Ranges;
 
 #[derive(Debug,Clone)]
 pub struct Field<T32 = u8, T64 = T32, Out = T64>
@@ -25,6 +23,7 @@ where
     T64: FromBytes + IntoBytes + Convert<Out>,
     Out: Convert<T32> + Convert<T64> + std::fmt::Debug,
 {
+    /// Create a new field from given ranges
     pub const fn new(ranges: Ranges) -> Self {
         Self {
             a: PhantomData {},
@@ -35,6 +34,7 @@ where
         }
     }
 
+    /// Create a new field with an empty range
     pub const fn empty() -> Self {
         Self {
             a: PhantomData {},
@@ -45,11 +45,13 @@ where
         }
     }
 
+    /// Builder method to set the width of the field
     pub const fn with_width(mut self, width: Width) -> Self {
         self.ranges.width = width;
         self
     }
 
+    /// Builder method to set the layout of the field
     pub const fn with_layout(mut self, layout: Layout) -> Self {
         self.layout = layout;
         self
@@ -59,12 +61,12 @@ where
     ///
     /// If the slice is too short, this method will fail, otherwise
     /// it will just reduce the slice to fit the data.
-    pub fn slice<'a>(&self, b: &'a [u8]) -> Result<&'a [u8]> {
+    fn slice<'a>(&self, bytes: &'a [u8]) -> Result<&'a [u8]> {
         let range = self.ranges.get();
-        if range.end > b.len() {
+        if range.end > bytes.len() {
             Err(Error::OutOfBoundsError)
         } else {
-            Ok(&b[range])
+            Ok(&bytes[range])
         }
     }
 
@@ -72,55 +74,62 @@ where
     ///
     /// If the slice is too short, this method will fail, otherwise
     /// it will just reduce the slice to fit the data.
-    pub fn slice_mut<'a>(&self, b: &'a mut [u8]) -> Result<&'a mut [u8]> {
+    fn slice_mut<'a>(&self, bytes: &'a mut [u8]) -> Result<&'a mut [u8]> {
         let range = self.ranges.get();
-        if range.end > b.len() {
+        if range.end > bytes.len() {
             Err(Error::OutOfBoundsError)
         } else {
-            Ok(&mut b[range])
+            Ok(&mut bytes[range])
         }
     }
 
-    pub fn get_x32(&self, b: &[u8]) -> Result<Out> {
-        let bytes = self.slice(b)?;
+    /// Read the buffer as the output value with a 32-bit width
+    fn get_x32(&self, bytes: &[u8]) -> Result<Out> {
+        let bytes = self.slice(bytes)?;
         let layout = self.layout.clone();
         T32::from_bytes(bytes, layout)
             .and_then(|v| v.convert())
     }
 
-    pub fn get_x64(&self, b: &[u8]) -> Result<Out> {
-        let bytes = self.slice(b)?;
+    /// Read the buffer as the output value with a 64-bit width
+    fn get_x64(&self, bytes: &[u8]) -> Result<Out> {
+        let bytes = self.slice(bytes)?;
         let layout = self.layout.clone();
         T64::from_bytes(bytes, layout)
             .and_then(|v| v.convert())
     }
 
-    pub fn set_x32(&self, b: &mut [u8], v: Out) -> Result<()> {
-        let bytes = self.slice_mut(b)?;
+    /// Write the output value to the buffer with a 32-bit width
+    fn set_x32(&self, bytes: &mut [u8], v: Out) -> Result<()> {
+        let bytes = self.slice_mut(bytes)?;
         let layout = self.layout.clone();
         <Out as Convert<T32>>::convert(v)?.to_bytes(bytes,layout)
     }
 
-    pub fn set_x64(&self, b: &mut [u8], v: Out) -> Result<()> {
-        let bytes = self.slice_mut(b)?;
+    /// Write the output value to the buffer with a 64-bit width
+    fn set_x64(&self, bytes: &mut [u8], v: Out) -> Result<()> {
+        let bytes = self.slice_mut(bytes)?;
         let layout = self.layout.clone();
         <Out as Convert<T64>>::convert(v)?.to_bytes(bytes,layout)
     }
 
-    pub fn get(&self, b: &[u8]) -> Result<Out> {
+    /// Read the buffer and convert into the output value
+    pub fn get(&self, bytes: &[u8]) -> Result<Out> {
         Ok(match self.ranges.width {
-            Width::X32 => self.get_x32(b)?,
-            Width::X64 => self.get_x64(b)?,
+            Width::X32 => self.get_x32(bytes)?,
+            Width::X64 => self.get_x64(bytes)?,
         })
     }
 
-    pub fn set(&self, b: &mut [u8], v: Out) -> Result<()> {
+    /// Convert output value and write to the buffer
+    pub fn set(&self, bytes: &mut [u8], v: Out) -> Result<()> {
         Ok(match self.ranges.width {
-            Width::X32 => self.set_x32(b,v)?,
-            Width::X64 => self.set_x64(b,v)?,
+            Width::X32 => self.set_x32(bytes,v)?,
+            Width::X64 => self.set_x64(bytes,v)?,
         })
     }
 
+    /// The expected size in bytes of the output/input buffers
     pub fn size(&self) -> usize {
         self.ranges.size()
     }

@@ -1,11 +1,7 @@
-use crate::common::{Width,Layout};
-use crate::common::bytes::{IntoBytes,FromBytes};
-use crate::tables::common::ByteDelimiter;
+use crate::common::{ByteDelimiter,Width,Layout,IntoBytes,FromBytes,Item,ranges::*};
 use crate::tables::RelocationInfo;
 use crate::tables::SymbolInfo;
-use crate::common::ranges::*;
 use crate::errors::Result;
-use crate::common::Item;
 use std::ffi::CString;
 
 pub trait TableItem {
@@ -85,74 +81,92 @@ impl StringItem {
 
 impl SymbolItem {
 
+    /// Get the 'st_name' attribute (name *index*) of the symbol
     pub fn name(&self) -> Option<u32> {
         self.st_name.get()
     }
 
+    /// Get the 'st_name' attribute and panic on failure
     pub fn name_unchecked(&self) -> u32 {
         self.st_name.get().expect("No name")
     }
 
+    /// Set the 'st_name' attribute (name *index*) of the symbol
     pub fn set_name(&mut self, value: u32) {
         self.st_name.set(value);
     }
 
+    /// Get the 'st_value' attribute of the symbol
     pub fn value(&self) -> Option<u64> {
         self.st_value.get()
     }
 
+    /// Get the 'st_value' attribute of the symbol and panic on failure
     pub fn value_unchecked(&self) -> u64 {
         self.st_value.get().expect("No value")
     }
 
+    /// Set the 'st_value' attribute of the symbol
     pub fn set_value(&mut self, value: u64) {
         self.st_value.set(value);
     }
 
+    /// Get the 'st_size' attribute of the symbol
     pub fn size(&self) -> Option<u64> {
         self.st_size.get()
     }
 
+    /// Get the 'st_size' attribute of the symbol and panic on failure
     pub fn size_unchecked(&self) -> u64 {
         self.st_size.get().expect("No size")
     }
 
+    /// Set the 'st_size' attribute of the symbol
     pub fn set_size(&mut self, value: u64) {
         self.st_size.set(value);
     }
 
+    /// Get the 'st_info' attribute of the symbol
     pub fn info(&self) -> Option<SymbolInfo> {
         self.st_info.get()
     }
 
+    /// Get the 'st_info' attribute of the symbol and panic on failure
     pub fn info_unchecked(&self) -> SymbolInfo {
         self.st_info.get().expect("No info")
     }
 
+    /// Set the 'st_info' attribute of the symbol
     pub fn set_info(&mut self, value: SymbolInfo) {
         self.st_info.set(value);
     }
 
+    /// Get the 'st_other' attribute of the symbol
     pub fn other(&self) -> Option<u8> {
         self.st_other.get()
     }
 
+    /// Get the 'st_other' attribute of the symbol and panic on failure
     pub fn other_unchecked(&self) -> u8 {
         self.st_other.get().expect("No other")
     }
 
+    /// Set the 'st_other' attribute of the symbol
     pub fn set_other(&mut self, value: u8) {
         self.st_other.set(value);
     }
 
+    /// Get the 'st_shndx' attribute of the symbol
     pub fn shndx(&self) -> Option<u16> {
         self.st_shndx.get()
     }
 
+    /// Get the 'st_shndx' attribute of the symbol and panic on failure
     pub fn shndx_unchecked(&self) -> u16 {
         self.st_shndx.get().expect("No shndx")
     }
 
+    /// Set the 'st_shndx' attribute of the symbol
     pub fn set_shndx(&mut self, value: u16) {
         self.st_shndx.set(value);
     }
@@ -161,42 +175,50 @@ impl SymbolItem {
 
 impl RelocationItem {
 
+    /// Get the 'r_offset' attribute of the relocation
     pub fn offset(&self) -> Option<u64> {
         self.r_offset.get()
     }
 
-    pub fn set_offset(&mut self, value: u64) {
-        self.r_offset.set(value);
-    }
-
+    /// Get the 'r_offset' attribute of the relocation and panic on failure
     pub fn offset_unchecked(&self) -> u64 {
         self.r_offset.get().expect("No offset")
     }
 
+    /// Set the 'r_offset' attribute of the relocation
+    pub fn set_offset(&mut self, value: u64) {
+        self.r_offset.set(value);
+    }
+
+    /// Get the 'r_info' attribute of the relocation
     pub fn info(&self) -> Option<RelocationInfo> {
         self.r_info.get()
     }
 
-    pub fn set_info(&mut self, value: RelocationInfo) {
-        self.r_info.set(value);
-    }
-
+    /// Get the 'r_info' attribute of the relocation and panic on failure
     pub fn info_unchecked(&self) -> RelocationInfo {
         self.r_info.get().expect("No info")
     }
 
+    /// Set the 'r_info' attribute of the relocation
+    pub fn set_info(&mut self, value: RelocationInfo) {
+        self.r_info.set(value);
+    }
+
+    /// Get the 'r_addend' attribute of the relocation
     pub fn addend(&self) -> Option<i64> {
         self.r_addend.get()
     }
 
-    pub fn set_addend(&mut self, value: i64) {
-        self.r_addend.set(value);
-    }
-
+    /// Get the 'r_addend' attribute of the relocation and panic on failure
     pub fn addend_unchecked(&self) -> i64 {
         self.r_addend.get().expect("No addend")
     }
 
+    /// Set the 'r_addend' attribute of the relocation
+    pub fn set_addend(&mut self, value: i64) {
+        self.r_addend.set(value);
+    }
 
 }
 

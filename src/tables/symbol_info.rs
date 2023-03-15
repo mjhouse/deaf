@@ -1,7 +1,7 @@
-use crate::errors::{Result};
-use crate::common::bytes::Convert;
-use crate::common::{STBind,STType};
+use crate::errors::Result;
+use crate::common::{Convert, STBind, STType};
 
+/// Representation of the info field in a Symbol record
 #[derive(Clone,Copy)]
 pub struct SymbolInfo {
     bind: STBind,
@@ -10,6 +10,7 @@ pub struct SymbolInfo {
 
 impl SymbolInfo {
 
+    /// Initialize an empty relocation info instance
     pub fn empty() -> Self {
         Self { 
             bind: STBind::STB_LOCAL,
@@ -17,22 +18,26 @@ impl SymbolInfo {
         }
     }
 
+    /// Parse a combined value as an info struct
     pub fn new(v: u8) -> Result<Self> {
         let bind = STBind::try_from(v >> 4)?;
         let kind = STType::try_from(v & 0xf)?;
         Ok(Self { bind, kind })
     }
 
+    /// Get the combined value of the info struct
     pub fn value(&self) -> u8 {
         let b: u8 = self.bind.into();
         let t: u8 = self.kind.into();
         (b << 4) | t
     }
 
+    /// Get the 'kind' component of the info struct
     pub fn kind(&self) -> STType {
         self.kind.clone()
     }
 
+    /// Get the 'bind' component of the info struct
     pub fn bind(&self) -> STBind {
         self.bind.clone()
     }

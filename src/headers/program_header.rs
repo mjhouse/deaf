@@ -4,8 +4,7 @@ use crate::common::{
     PHType
 };
 
-use crate::common::Item;
-use crate::common::ranges::*;
+use crate::common::{Item, ranges::*};
 use crate::errors::{Result};
 
 #[derive(Debug)]
@@ -24,9 +23,9 @@ pub struct ProgramHeader {
 
 impl ProgramHeader {
 
-    /// Create a new ProgramHeader with given Layout and Width
+    /// Create a new header with given Layout and Width
     ///
-    /// All values are None until read
+    /// All fields are None until read
     pub fn new(layout: Layout, width: Width) -> Self {
         Self {
             layout,
@@ -42,14 +41,14 @@ impl ProgramHeader {
         }
     }
 
-    /// Parse a program header from the provided byte buffer
+    /// Parse a header from the provided byte buffer
     pub fn parse(b: &[u8], layout: Layout, width: Width) -> Result<Self> {
         let mut header = Self::new(layout,width);
         header.read(b)?;
         Ok(header)
     }
 
-    /// Parse all program headers for a byte array given count, offset etc.
+    /// Parse all headers for a byte array given count, offset etc.
     pub fn parse_all(b: &[u8], count: usize, offset: usize, size: usize, layout: Layout, width: Width) -> Result<Vec<Self>> {
         let mut result = vec![];
         result.reserve_exact(count);
@@ -67,7 +66,7 @@ impl ProgramHeader {
 
     /// Read values from a byte buffer 
     ///
-    /// Byte buffer is assumed to be sliced such that the program
+    /// Byte buffer is assumed to be sliced such that the
     /// header is at the beginning of the buffer.
     pub fn read(&mut self, b: &[u8]) -> Result<()> {
         self.p_type.read(b)?;
@@ -83,7 +82,7 @@ impl ProgramHeader {
 
     /// Write values to a byte buffer 
     ///
-    /// Byte buffer is assumed to be sliced such that the program
+    /// Byte buffer is assumed to be sliced such that the
     /// header will be written at the correct position.
     pub fn write(&self, b: &mut [u8]) -> Result<()> {
         self.p_type.write(b)?;
@@ -242,11 +241,11 @@ mod tests {
         let file_header = FileHeader::parse(&b)
             .unwrap();
 
-        let count = file_header.phnum();
-        let offset = file_header.phoff();
-        let size = file_header.phentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
+        let count = file_header.phnum().unwrap();
+        let offset = file_header.phoff().unwrap();
+        let size = file_header.phentsize().unwrap();
+        let layout = file_header.data().unwrap();
+        let width = file_header.class().unwrap();
         
         // parse all program headers in file
         let program_headers = ProgramHeader::parse_all(
@@ -277,11 +276,11 @@ mod tests {
         let file_header = FileHeader::parse(&b)
             .unwrap();
 
-        let count = file_header.phnum();
-        let offset = file_header.phoff();
-        let size = file_header.phentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
+        let count = file_header.phnum().unwrap();
+        let offset = file_header.phoff().unwrap();
+        let size = file_header.phentsize().unwrap();
+        let layout = file_header.data().unwrap();
+        let width = file_header.class().unwrap();
         
         // parse all program headers in file
         let program_headers = ProgramHeader::parse_all(
@@ -321,11 +320,11 @@ mod tests {
         let file_header = FileHeader::parse(&b)
             .unwrap();
 
-        let count = file_header.phnum();
-        let offset = file_header.phoff();
-        let size = file_header.phentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
+        let count = file_header.phnum().unwrap();
+        let offset = file_header.phoff().unwrap();
+        let size = file_header.phentsize().unwrap();
+        let layout = file_header.data().unwrap();
+        let width = file_header.class().unwrap();
         
         // parse all program headers in file
         let program_headers = ProgramHeader::parse_all(

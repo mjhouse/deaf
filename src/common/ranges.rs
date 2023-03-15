@@ -70,6 +70,7 @@ pub struct Ranges {
 
 impl Ranges {
 
+    /// Create a new set of ranges given a 32- and 64-bit Range
     pub const fn new(a: Range<usize>, b: Range<usize>) -> Self {
         Self {
             width: Width::X32,
@@ -78,6 +79,7 @@ impl Ranges {
         }
     }
 
+    /// Create an empty set of ranges
     pub const fn empty() -> Self {
         Self {
             width: Width::X32,
@@ -86,6 +88,7 @@ impl Ranges {
         }
     }
     
+    /// Get the active Range depending on the current Width
     pub fn get(&self) -> Range<usize> {
         match self.width {
             Width::X32 => self.x32.clone(),
@@ -93,6 +96,7 @@ impl Ranges {
         }
     }
 
+    /// Get the expected size in bytes of the current range
     pub fn size(&self) -> usize {
         self.get().len()
     }

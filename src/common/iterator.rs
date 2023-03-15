@@ -13,8 +13,10 @@ pub struct ByteIter<'a> {
 
 impl<'a> ByteIter<'a> {
 
-    // if you want to limit the max length, slice the data before
-    // iteration
+    /// Create a new byte iterator with data and a delimiter
+    ///
+    /// if you want to limit the max length, slice the data before
+    /// iteration
     pub fn new(data: &'a [u8], delim: ByteDelimiter) -> Self {
         Self { 
             data: data,
@@ -24,14 +26,17 @@ impl<'a> ByteIter<'a> {
         }
     }
 
+    /// Create a new iterator with a value delimiter
     pub fn value(data: &'a [u8], value: u8) -> Self {
         Self::new(data,ByteDelimiter::Value(value))
     }
 
+    /// Create a new iterator with a length delimiter
     pub fn length(data: &'a [u8], length: usize) -> Self {
         Self::new(data,ByteDelimiter::Length(length))
     }
 
+    /// Get a slice that excludes already-seen bytes
     fn take_slice(&self) -> Option<&'a [u8]> {
         if self.index <= self.limit {
             Some(&self.data[self.index..])
@@ -41,6 +46,7 @@ impl<'a> ByteIter<'a> {
         }
     }
 
+    /// Find the ending index when iterating by value
     fn find_value(&mut self, value: u8) -> Option<usize> {
         self.take_slice()
             .and_then(|d| d
@@ -49,6 +55,7 @@ impl<'a> ByteIter<'a> {
                 .map(|i| i + 1))
     }
 
+    /// Find the ending index when iterating by length
     fn find_length(&mut self, value: usize) -> Option<usize> {
         self.take_slice()
             .and_then(|d| if d.len() >= value {
@@ -58,6 +65,7 @@ impl<'a> ByteIter<'a> {
             })
     }
 
+    /// Take a slice using a given value
     fn take_value(&mut self, value: u8) -> Option<&'a [u8]> {
         self.find_value(value)
             .and_then(|i| self
@@ -65,6 +73,7 @@ impl<'a> ByteIter<'a> {
                 .map(|d| &d[..i]))
     }
 
+    /// Take a slice using a given length
     fn take_length(&mut self, length: usize) -> Option<&'a [u8]> {
         self.find_length(length)
             .and_then(|i| self
