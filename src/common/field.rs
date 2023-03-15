@@ -3,6 +3,11 @@ use std::marker::PhantomData;
 use crate::common::{FromBytes, IntoBytes, Convert, Layout, Width, Ranges};
 use crate::errors::{Error, Result};
 
+/// A single field in a section, table item etc.
+///
+/// Internally maintains ranges for various widths (32- or 64-bit)
+/// and layout (little- or big-endian) and allows bytes to be read 
+/// as values or values to be written to a byte buffer.
 #[derive(Debug,Clone)]
 pub struct Field<T32 = u8, T64 = T32, Out = T64>
 where
@@ -13,8 +18,8 @@ where
     a: PhantomData<T32>,
     b: PhantomData<T64>,
     c: PhantomData<Out>,
-    pub ranges: Ranges,
-    pub layout: Layout,
+    ranges: Ranges,
+    layout: Layout,
 }
 
 impl<T32, T64, Out> Field<T32, T64, Out>
@@ -57,6 +62,26 @@ where
         self
     }
 
+    /// Get the width of the field
+    pub fn width(&self) -> Width {
+        self.ranges.width
+    }
+
+    /// Set the width of the field
+    pub fn set_width(&mut self, width: Width) {
+        self.ranges.width = width;
+    }
+
+    /// Get the layout of the field
+    pub fn layout(&self) -> Layout {
+        self.layout
+    }
+
+    /// Set the layout of the field
+    pub fn set_layout(&mut self, layout: Layout) {
+        self.layout = layout;
+    }
+
     /// Get a constrained slice of bytes using the appropriate range
     ///
     /// If the slice is too short, this method will fail, otherwise
@@ -86,7 +111,7 @@ where
     /// Read the buffer as the output value with a 32-bit width
     fn get_x32(&self, bytes: &[u8]) -> Result<Out> {
         let bytes = self.slice(bytes)?;
-        let layout = self.layout.clone();
+        let layout = self.layout();
         T32::from_bytes(bytes, layout)
             .and_then(|v| v.convert())
     }
@@ -94,7 +119,7 @@ where
     /// Read the buffer as the output value with a 64-bit width
     fn get_x64(&self, bytes: &[u8]) -> Result<Out> {
         let bytes = self.slice(bytes)?;
-        let layout = self.layout.clone();
+        let layout = self.layout();
         T64::from_bytes(bytes, layout)
             .and_then(|v| v.convert())
     }
@@ -102,30 +127,30 @@ where
     /// Write the output value to the buffer with a 32-bit width
     fn set_x32(&self, bytes: &mut [u8], v: Out) -> Result<()> {
         let bytes = self.slice_mut(bytes)?;
-        let layout = self.layout.clone();
+        let layout = self.layout();
         <Out as Convert<T32>>::convert(v)?.to_bytes(bytes,layout)
     }
 
     /// Write the output value to the buffer with a 64-bit width
     fn set_x64(&self, bytes: &mut [u8], v: Out) -> Result<()> {
         let bytes = self.slice_mut(bytes)?;
-        let layout = self.layout.clone();
+        let layout = self.layout();
         <Out as Convert<T64>>::convert(v)?.to_bytes(bytes,layout)
     }
 
     /// Read the buffer and convert into the output value
     pub fn get(&self, bytes: &[u8]) -> Result<Out> {
-        Ok(match self.ranges.width {
+        Ok(match self.width() {
             Width::X32 => self.get_x32(bytes)?,
             Width::X64 => self.get_x64(bytes)?,
         })
     }
 
     /// Convert output value and write to the buffer
-    pub fn set(&self, bytes: &mut [u8], v: Out) -> Result<()> {
-        Ok(match self.ranges.width {
-            Width::X32 => self.set_x32(bytes,v)?,
-            Width::X64 => self.set_x64(bytes,v)?,
+    pub fn set(&self, bytes: &mut [u8], value: Out) -> Result<()> {
+        Ok(match self.width() {
+            Width::X32 => self.set_x32(bytes,value)?,
+            Width::X64 => self.set_x64(bytes,value)?,
         })
     }
 

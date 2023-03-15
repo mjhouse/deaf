@@ -8,15 +8,15 @@ use std::ffi::{CString,CStr};
 ///
 /// # Arguments
 ///
-/// * `b` - A slice of bytes to parse
-/// * `l` - The endianness of the bytes
+/// * `bytes`  - A slice of bytes to parse
+/// * `layout` - The endianness of the bytes
 ///
 /// # Examples
 ///
 /// ```
 /// # use deaf::common::FromBytes;
 /// # use deaf::common::Layout;
-///
+/// #
 /// // layout doesn't matter for strings
 /// let layout = Layout::Little;
 /// let bytes = &[ b'E', b'L', b'F' ];
@@ -29,7 +29,7 @@ use std::ffi::{CString,CStr};
 /// assert_eq!(string,"ELF");
 /// ```
 pub trait FromBytes {
-    fn from_bytes(b: &[u8], l: Layout) -> Result<Self>
+    fn from_bytes(bytes: &[u8], layout: Layout) -> Result<Self>
     where
         Self: Sized;
 }
@@ -38,15 +38,15 @@ pub trait FromBytes {
 ///
 /// # Arguments
 ///
-/// * `b` - A slice of bytes to write to
-/// * `l` - The endianness to use during write
+/// * `bytes`  - A slice of bytes to write to
+/// * `layout` - The endianness to use during write
 ///
 /// # Examples
 ///
 /// ```
 /// # use deaf::common::IntoBytes;
 /// # use deaf::common::Layout;
-///
+/// #
 /// // layout doesn't matter for strings
 /// let layout = Layout::Little;
 /// let expected = &[ b'E', b'L', b'F' ];
@@ -62,7 +62,7 @@ pub trait FromBytes {
 /// assert_eq!(found,expected);
 /// ```
 pub trait IntoBytes {
-    fn to_bytes(&self, b: &mut [u8], l: Layout) -> Result<()>;
+    fn to_bytes(&self, bytes: &mut [u8], layout: Layout) -> Result<()>;
 }
 
 /// Convert a value into another value
@@ -73,7 +73,7 @@ pub trait IntoBytes {
 /// # use deaf::common::Convert;
 /// # use deaf::common::Width;
 /// # use deaf::errors::Result;
-///
+/// #
 /// let expected = Width::X64;
 /// let found: Result<Width> = 2_u8.convert();
 ///

@@ -1,3 +1,5 @@
+//! Common structs and types used by all other modules
+//!
 
 pub mod ranges; // find byte slices to parse
 mod bytes;  // parse bytes into values

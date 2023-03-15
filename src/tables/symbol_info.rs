@@ -10,7 +10,7 @@ pub struct SymbolInfo {
 
 impl SymbolInfo {
 
-    /// Initialize an empty relocation info instance
+    /// Initialize an empty symbol info instance
     pub fn empty() -> Self {
         Self { 
             bind: STBind::STB_LOCAL,

@@ -1,3 +1,5 @@
+//! Utility functions for both testing and execution
+//!
 
 #[cfg(test)]
 pub mod tests {  

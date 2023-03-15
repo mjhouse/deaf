@@ -3,6 +3,8 @@ use crate::errors::{Result};
 
 use std::fmt::Debug;
 
+/// An item in a section, table item etc that contains a field 
+/// and associated value.
 #[derive(Debug,Clone)]
 pub struct Item<T32 = u8, T64 = T32, Out = T64>
 where
@@ -94,22 +96,22 @@ where
 
     /// Get the width (32- or 64-bit) of the item
     pub fn width(&self) -> Width {
-        self.field.ranges.width
+        self.field.width()
     }
 
     /// Set the width (32- or 64-bit) of the item
     pub fn set_width(&mut self, width: Width) {
-        self.field.ranges.width = width;
+        self.field.set_width(width);
     }
 
     /// Get the layout (little- or big-endian) of the item
     pub fn layout(&self) -> Layout {
-        self.field.layout
+        self.field.layout()
     }
 
     /// Set the layout (little- or big-endian) of the item
     pub fn set_layout(&mut self, layout: Layout) {
-        self.field.layout = layout;
+        self.field.set_layout(layout);
     }
 
 }

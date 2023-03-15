@@ -4,6 +4,7 @@ use crate::tables::SymbolInfo;
 use crate::errors::Result;
 use std::ffi::CString;
 
+/// A record that can be extracted from a table section
 pub trait TableItem {
 
     /// Make a delimiter given expected entity size
@@ -28,11 +29,13 @@ pub trait TableItem {
 
 }
 
+/// A String item found in string tables
 #[derive(Default,Clone)]
 pub struct StringItem {
     value: CString,
 }
 
+/// A Symbol item found in symbol tables
 #[derive(Clone)]
 pub struct SymbolItem {
     st_name: Item<u32,u32>,
@@ -43,6 +46,7 @@ pub struct SymbolItem {
     st_shndx: Item<u16,u16>,
 }
 
+/// A Relocation item found in relocation tables
 #[derive(Clone)]
 pub struct RelocationItem {
     r_offset: Item<u32,u64>, 

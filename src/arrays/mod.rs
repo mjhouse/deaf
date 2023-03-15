@@ -1,3 +1,5 @@
+//! Module that defines arrays (init, fini etc.) and array items
+//!
 
 mod array_item;
 mod array;

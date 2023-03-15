@@ -2,6 +2,7 @@ use crate::errors::{Error,Result};
 use crate::common::{Width,Layout};
 use crate::common::{Item,ranges::*};
 
+/// The ELF file header parsed from the beginning of the file
 #[derive(Debug)]
 pub struct FileHeader {
     layout: Layout,

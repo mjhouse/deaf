@@ -9,8 +9,10 @@ use enumflags2::bitflags;
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
 pub enum Width {
-    X32 = 0x01, // Mode of the ELF file is 32-bit
-    X64 = 0x02  // Mode of the ELF file is 64-bit
+    /// Mode of the ELF file is 32-bit
+    X32 = 0x01,
+    /// Mode of the ELF file is 64-bit
+    X64 = 0x02 
 }
 
 /// The endianness of the ELF file
@@ -21,8 +23,10 @@ pub enum Width {
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
 pub enum Layout {
-    Little = 0x01, // Little endian (e.g. 0xABCD is represented as 'CD AB')
-    Big = 0x02     // Big endian (e.g. 0xABCD is represented as 'AB CD' )
+    /// Little endian (e.g. 0xABCD is represented as 'CD AB')
+    Little = 0x01,
+    /// Big endian (e.g. 0xABCD is represented as 'AB CD' )
+    Big = 0x02
 }
 
 /// The type of a program header

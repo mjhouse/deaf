@@ -4,6 +4,12 @@ use crate::headers::SectionHeader;
 use crate::arrays::array_item::ArrayItem;
 use crate::common::ByteIter;
 
+/// A section interpreted as an array
+///
+/// Each Array instance is considered to be 
+/// a series of ArrayItem structs. Arrays can
+/// be parsed from a SectionHeader and a byte
+/// buffer containing the body of the section.
 pub struct Array {
     offset: usize,
     layout: Layout,
@@ -101,41 +107,41 @@ impl Array {
     }
 
     /// The number of items in this array
-    fn len(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.values.len()
     }
 
-    /// The calculated size in bytes of the array
-    fn size(&self) -> usize {
+    /// The calculated size of the array in bytes
+    pub fn size(&self) -> usize {
         self.len() * self.entity_size
     }
 
     /// Get a reference to an array item at index
-    fn get(&self, index: usize) -> Option<&ArrayItem> {
+    pub fn get(&self, index: usize) -> Option<&ArrayItem> {
         self.values.get(index)
     }
 
     /// Get a mutable reference to an array item at index
-    fn get_mut(&mut self, index: usize) -> Option<&mut ArrayItem> {
+    pub fn get_mut(&mut self, index: usize) -> Option<&mut ArrayItem> {
         self.values.get_mut(index)
     }
 
     /// Insert an array item at index, pushing other items right
-    fn insert(&mut self, index: usize, mut item: ArrayItem) {
+    pub fn insert(&mut self, index: usize, mut item: ArrayItem) {
         item.set_layout(self.layout);
         item.set_width(self.width);
         self.values.insert(index,item);
     }
 
     /// Append an array item to the array
-    fn push(&mut self, mut item: ArrayItem) {
+    pub fn push(&mut self, mut item: ArrayItem) {
         item.set_layout(self.layout);
         item.set_width(self.width);
         self.values.push(item);
     }
 
     /// Remove and return an array item from this array
-    fn remove(&mut self, index: usize) -> ArrayItem {
+    pub fn remove(&mut self, index: usize) -> ArrayItem {
         self.values.remove(index)
     }
 

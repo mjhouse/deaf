@@ -1,4 +1,4 @@
-//! Module that defines headers and associated items
+//! File, program and section header definitions
 //!
 
 mod file_header;

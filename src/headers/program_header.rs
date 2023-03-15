@@ -7,6 +7,10 @@ use crate::common::{
 use crate::common::{Item, ranges::*};
 use crate::errors::{Result};
 
+/// Program headers extracted from an ELF file.
+/// 
+/// Normally found at the offset declared in the FileHeader 
+/// as 'phoff'.
 #[derive(Debug)]
 pub struct ProgramHeader {
     layout: Layout,

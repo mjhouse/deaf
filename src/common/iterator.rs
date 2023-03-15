@@ -1,9 +1,13 @@
 
+/// The delimiter used to determine the ending index of
+/// sub-slices returned by ByteIter.
 pub enum ByteDelimiter {
     Value(u8),
     Length(usize),
 }
 
+/// An iterator that uses a delimiting value or length to
+/// convert a byte buffer into a series of slices.
 pub struct ByteIter<'a> {
     data: &'a [u8],
     delim: ByteDelimiter,

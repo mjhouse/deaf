@@ -9,13 +9,18 @@ use crate::tables::table_item::{
     RelocationItem
 };
 
+/// Alias for a Table that contains StringItem records
 pub type StringTable = Table<StringItem>;
+
+/// Alias for a Table that contains SymbolItem records
 pub type SymbolTable = Table<SymbolItem>;
+
+/// Alias for a Table that contains RelocationItem records
 pub type RelocationTable = Table<RelocationItem>;
 
 /// A section interpreted as a table
 ///
-/// Each Table<T> instance is considered to be 
+/// Each Table instance is considered to be 
 /// a series of records of type `T`. Tables can
 /// be parsed from a SectionHeader and a byte
 /// buffer containing the body of the section.
@@ -123,24 +128,24 @@ where
     }
 
     /// Get the number of items in the table
-    fn len(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.items.len()
     }
 
-    /// Get the calculated size of the table
-    fn size(&self) -> usize {
+    /// Get the calculated size of the table in bytes
+    pub fn size(&self) -> usize {
         self.items
             .iter()
             .fold(0,|a,v| a + v.size())
     }
 
     /// Get an item at a given index
-    fn get(&self, index: usize) -> Option<&T> {
+    pub fn get(&self, index: usize) -> Option<&T> {
         self.items.get(index)
     }
 
     /// Set index to item, returning the index
-    fn set(&mut self, index: usize, item: T) -> Result<usize> {
+    pub fn set(&mut self, index: usize, item: T) -> Result<usize> {
         if self.items.len() > index {
             self.items[index] = item;
             Ok(index)
@@ -150,13 +155,13 @@ where
     }
 
     /// Add item, returning the index
-    fn add(&mut self, item: T) -> Result<usize> {
+    pub fn add(&mut self, item: T) -> Result<usize> {
         self.items.push(item);
         Ok(self.len().saturating_sub(1))
     }
 
     /// Delete and return an item
-    fn del(&mut self, index: usize) -> Option<T> {
+    pub fn del(&mut self, index: usize) -> Option<T> {
         if self.items.len() > index {
             Some(self.items.remove(index))
         } else {

@@ -8,8 +8,12 @@ use enumflags2::BitFlags;
 
 use crate::common::Item;
 use crate::common::ranges::*;
-use crate::errors::Result;
+use crate::errors::{Error,Result};
 
+/// Section headers extracted from an ELF file.
+/// 
+/// Normally found at the offset declared in the FileHeader 
+/// as 'shoff'.
 #[derive(Debug)]
 pub struct SectionHeader {
     layout: Layout,
@@ -261,16 +265,25 @@ impl SectionHeader {
         self.sh_entsize.set(entsize);
     }
 
-    // pub fn body<'a>(&self, b: &'a [u8]) -> Result<&'a [u8]> {
-    //     let start = self.offset;
-    //     let end = start + self.values.sh_size;
+    /// Get the body of the section given a byte buffer
+    pub fn body<'a>(&self, bytes: &'a [u8]) -> Result<&'a [u8]> {
+        let size = self
+            .body_size()
+            .ok_or(Error::MalformedDataError)?;
 
-    //     if end < b.len() {
-    //         Ok(&b[start..end])
-    //     } else {
-    //         Err(Error::OutOfBoundsError)
-    //     }
-    // }
+        let offset = self
+            .offset()
+            .ok_or(Error::MalformedDataError)?;
+
+        let start = offset;
+        let end = start + size;
+
+        if end < bytes.len() {
+            Ok(&bytes[start..end])
+        } else {
+            Err(Error::OutOfBoundsError)
+        }
+    }
 }
 
 #[cfg(test)]
