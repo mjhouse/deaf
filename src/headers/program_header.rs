@@ -4,94 +4,60 @@ use crate::common::{
     PHType
 };
 
-use crate::common::field::Field;
+use crate::common::Item;
 use crate::common::ranges::*;
 use crate::errors::{Result};
-use crate::impl_property;
-
-#[derive(Debug,Clone)]
-pub struct ProgramHeaderValues {
-    size: usize,  
-    p_type: PHType,
-    p_flags: u32,
-    p_offset: u64,
-    p_vaddr: u64,
-    p_paddr: u64,
-    p_filesz: u64,
-    p_memsz: u64,
-    p_align: u64,
-}
 
 #[derive(Debug)]
 pub struct ProgramHeader {
-    offset: usize,
     layout: Layout,
     width: Width,
-    size: usize,
-    p_type: Field<u32,u32,PHType>,
-    p_flags: Field<u32>,
-    p_offset: Field<u32,u64>,
-    p_vaddr: Field<u32,u64>,
-    p_paddr: Field<u32,u64>,
-    p_filesz: Field<u32,u64>,
-    p_memsz: Field<u32,u64>,
-    p_align: Field<u32,u64>,
-    values: ProgramHeaderValues,
-}
-
-impl ProgramHeaderValues {
-
-    pub fn new() -> Self {
-        Self {
-            size: 0, 
-            p_type: PHType::PT_NULL,
-            p_flags: 0,
-            p_offset: 0,
-            p_vaddr: 0,
-            p_paddr: 0,
-            p_filesz: 0,
-            p_memsz: 0,
-            p_align: 0,
-        }
-    }
+    p_type: Item<u32,u32,PHType>,
+    p_flags: Item<u32>,
+    p_offset: Item<u32,u64>,
+    p_vaddr: Item<u32,u64>,
+    p_paddr: Item<u32,u64>,
+    p_filesz: Item<u32,u64>,
+    p_memsz: Item<u32,u64>,
+    p_align: Item<u32,u64>,
 }
 
 impl ProgramHeader {
 
-    pub fn new(offset: usize, size: usize, layout: Layout, width: Width) -> Self {
+    /// Create a new ProgramHeader with given Layout and Width
+    ///
+    /// All values are None until read
+    pub fn new(layout: Layout, width: Width) -> Self {
         Self {
-            offset,
             layout,
             width,
-            size: size,
-            p_type: Field::new(P_TYPE),
-            p_flags: Field::new(P_FLAGS),
-            p_offset: Field::new(P_OFFSET),
-            p_vaddr: Field::new(P_VADDR),
-            p_paddr: Field::new(P_PADDR),
-            p_filesz: Field::new(P_FILESZ),
-            p_memsz: Field::new(P_MEMSZ),
-            p_align: Field::new(P_ALIGN),
-            values: ProgramHeaderValues::new(),
+            p_type: Item::make(P_TYPE,width,layout),
+            p_flags: Item::make(P_FLAGS,width,layout),
+            p_offset: Item::make(P_OFFSET,width,layout),
+            p_vaddr: Item::make(P_VADDR,width,layout),
+            p_paddr: Item::make(P_PADDR,width,layout),
+            p_filesz: Item::make(P_FILESZ,width,layout),
+            p_memsz: Item::make(P_MEMSZ,width,layout),
+            p_align: Item::make(P_ALIGN,width,layout),
         }
     }
 
-    pub fn parse(b: &[u8], offset: usize, size: usize, layout: Layout, width: Width) -> Result<Self> {
-        let mut header = Self::new(offset,size,layout,width);
+    /// Parse a program header from the provided byte buffer
+    pub fn parse(b: &[u8], layout: Layout, width: Width) -> Result<Self> {
+        let mut header = Self::new(layout,width);
         header.read(b)?;
         Ok(header)
     }
 
+    /// Parse all program headers for a byte array given count, offset etc.
     pub fn parse_all(b: &[u8], count: usize, offset: usize, size: usize, layout: Layout, width: Width) -> Result<Vec<Self>> {
         let mut result = vec![];
         result.reserve_exact(count);
 
         for i in 0..count {
-            let offs = offset + i * size;
+            let start = offset + i * size;
             result.push(Self::parse(
-                &b[offs..],
-                offs,
-                size,
+                &b[start..],
                 layout,
                 width)?);
         }
@@ -99,59 +65,40 @@ impl ProgramHeader {
         Ok(result)
     }
 
-    pub fn set_width(&mut self, width: Width) {
-        self.width = width;
-        self.p_type.ranges.width = width;
-        self.p_flags.ranges.width = width;
-        self.p_offset.ranges.width = width;
-        self.p_vaddr.ranges.width = width;
-        self.p_paddr.ranges.width = width;
-        self.p_filesz.ranges.width = width;
-        self.p_memsz.ranges.width = width;
-        self.p_align.ranges.width = width;
-    }
-
-    pub fn set_layout(&mut self, layout: Layout) {
-        self.layout = layout;
-        self.p_type.layout = layout;
-        self.p_flags.layout = layout;
-        self.p_offset.layout = layout;
-        self.p_vaddr.layout = layout;
-        self.p_paddr.layout = layout;
-        self.p_filesz.layout = layout;
-        self.p_memsz.layout = layout;
-        self.p_align.layout = layout;
-    }
-
-    pub fn read(&mut self, b: &[u8]) -> Result<ProgramHeaderValues> {
-        self.set_layout(self.layout);
-        self.set_width(self.width);
-
-        self.values.p_type   = self.p_type.get(b)?;
-        self.values.p_flags  = self.p_flags.get(b)?;
-        self.values.p_offset = self.p_offset.get(b)?;
-        self.values.p_vaddr  = self.p_vaddr.get(b)?;
-        self.values.p_paddr  = self.p_paddr.get(b)?;
-        self.values.p_filesz = self.p_filesz.get(b)?;
-        self.values.p_memsz  = self.p_memsz.get(b)?;
-        self.values.p_align  = self.p_align.get(b)?;
-
-        Ok(self.values.clone())
-    }
-
-    pub fn write(&self, b: &mut [u8]) -> Result<()> {
-        self.p_type.set(b,self.values.p_type)?;
-        self.p_flags.set(b,self.values.p_flags)?;
-        self.p_offset.set(b,self.values.p_offset)?;
-        self.p_vaddr.set(b,self.values.p_vaddr)?;
-        self.p_paddr.set(b,self.values.p_paddr)?;
-        self.p_filesz.set(b,self.values.p_filesz)?;
-        self.p_memsz.set(b,self.values.p_memsz)?;
-        self.p_align.set(b,self.values.p_align)?;
+    /// Read values from a byte buffer 
+    ///
+    /// Byte buffer is assumed to be sliced such that the program
+    /// header is at the beginning of the buffer.
+    pub fn read(&mut self, b: &[u8]) -> Result<()> {
+        self.p_type.read(b)?;
+        self.p_flags.read(b)?;
+        self.p_offset.read(b)?;
+        self.p_vaddr.read(b)?;
+        self.p_paddr.read(b)?;
+        self.p_filesz.read(b)?;
+        self.p_memsz.read(b)?;
+        self.p_align.read(b)?;
         Ok(())
     }
 
-    pub fn header_size(&self) -> usize {
+    /// Write values to a byte buffer 
+    ///
+    /// Byte buffer is assumed to be sliced such that the program
+    /// header will be written at the correct position.
+    pub fn write(&self, b: &mut [u8]) -> Result<()> {
+        self.p_type.write(b)?;
+        self.p_flags.write(b)?;
+        self.p_offset.write(b)?;
+        self.p_vaddr.write(b)?;
+        self.p_paddr.write(b)?;
+        self.p_filesz.write(b)?;
+        self.p_memsz.write(b)?;
+        self.p_align.write(b)?;
+        Ok(())
+    }
+
+    /// The size of the header in bytes
+    pub fn size(&self) -> usize {
         self.p_type.size() +
         self.p_flags.size() +
         self.p_offset.size() +
@@ -162,14 +109,121 @@ impl ProgramHeader {
         self.p_align.size()
     }
 
-    impl_property!(kind, p_type, PHType);
-    impl_property!(flags, p_flags, u32);
-    impl_property!(offset, p_offset, u64);
-    impl_property!(vaddr, p_vaddr, u64);
-    impl_property!(paddr, p_paddr, u64);
-    impl_property!(filesz, p_filesz, u64);
-    impl_property!(memsz, p_memsz, u64);
-    impl_property!(align, p_align, u64);
+    /// Get the width (32 or 64-bit) of the header
+    pub fn width(&self) -> Width {
+        self.width
+    }
+
+    /// Set the width of the header
+    pub fn set_width(&mut self, width: Width) {
+        self.width = width;
+        self.p_type.set_width(width);
+        self.p_flags.set_width(width);
+        self.p_offset.set_width(width);
+        self.p_vaddr.set_width(width);
+        self.p_paddr.set_width(width);
+        self.p_filesz.set_width(width);
+        self.p_memsz.set_width(width);
+        self.p_align.set_width(width);
+    }
+
+    /// Get the layout (little or big-endian) of the header
+    pub fn layout(&self) -> Layout {
+        self.layout
+    }
+
+    /// Set the layout of the header
+    pub fn set_layout(&mut self, layout: Layout) {
+        self.layout = layout;
+        self.p_type.set_layout(layout);
+        self.p_flags.set_layout(layout);
+        self.p_offset.set_layout(layout);
+        self.p_vaddr.set_layout(layout);
+        self.p_paddr.set_layout(layout);
+        self.p_filesz.set_layout(layout);
+        self.p_memsz.set_layout(layout);
+        self.p_align.set_layout(layout);
+    }
+
+    /// Get the `p_type` attribute of the header
+    pub fn kind(&self) -> Option<PHType> {
+        self.p_type.get()
+    }
+
+    /// Set the `p_type` attribute of the header 
+    pub fn set_kind(&mut self, kind: PHType) {
+        self.p_type.set(kind);
+    }
+
+    /// Get the `p_flags` attribute of the header
+    pub fn flags(&self) -> Option<u32> {
+        self.p_flags.get()
+    }
+
+    /// Set the `p_flags` attribute of the header 
+    pub fn set_flags(&mut self, flags: u32) {
+        self.p_flags.set(flags);
+    }
+
+    /// Get the `p_offset` attribute of the header
+    pub fn offset(&self) -> Option<u64> {
+        self.p_offset.get()
+    }
+
+    /// Set the `p_offset` attribute of the header 
+    pub fn set_offset(&mut self, offset: u64) {
+        self.p_offset.set(offset);
+    }
+
+    /// Get the `p_vaddr` attribute of the header
+    pub fn vaddr(&self) -> Option<u64> {
+        self.p_vaddr.get()
+    }
+
+    /// Set the `p_vaddr` attribute of the header 
+    pub fn set_vaddr(&mut self, vaddr: u64) {
+        self.p_vaddr.set(vaddr);
+    }
+
+    /// Get the `p_paddr` attribute of the header
+    pub fn paddr(&self) -> Option<u64> {
+        self.p_paddr.get()
+    }
+
+    /// Set the `p_paddr` attribute of the header 
+    pub fn set_paddr(&mut self, paddr: u64) {
+        self.p_paddr.set(paddr);
+    }
+
+    /// Get the `p_filesz` attribute of the header
+    pub fn filesz(&self) -> Option<u64> {
+        self.p_filesz.get()
+    }
+
+    /// Set the `p_filesz` attribute of the header 
+    pub fn set_filesz(&mut self, filesz: u64) {
+        self.p_filesz.set(filesz);
+    }
+
+    /// Get the `p_memsz` attribute of the header
+    pub fn memsz(&self) -> Option<u64> {
+        self.p_memsz.get()
+    }
+
+    /// Set the `p_memsz` attribute of the header 
+    pub fn set_memsz(&mut self, memsz: u64) {
+        self.p_memsz.set(memsz);
+    }
+
+    /// Get the `p_align` attribute of the header
+    pub fn align(&self) -> Option<u64> {
+        self.p_align.get()
+    }
+
+    /// Set the `p_align` attribute of the header 
+    pub fn set_align(&mut self, align: u64) {
+        self.p_align.set(align);
+    }
 
 }
 
@@ -210,9 +264,9 @@ mod tests {
         let header = &headers[0];
 
         // check values are what we expected
-        assert_eq!(header.header_size(),size);
-        assert_eq!(header.filesz(),0x4348);
-        assert_eq!(header.align(),0x1000);
+        assert_eq!(header.size(),size);
+        assert_eq!(header.filesz(),Some(0x4348));
+        assert_eq!(header.align(),Some(0x1000));
     }
 
     #[test]
@@ -246,14 +300,14 @@ mod tests {
 
         // initialize a buffer big enough for the header
         let mut buffer: Vec<u8> = vec![];
-        buffer.resize(header.header_size(),0x00);        
+        buffer.resize(header.size(),0x00);        
 
         // write to the new buffer
         let result = header.write(buffer.as_mut_slice());
         assert!(result.is_ok());
 
         // get the expected result from the original buffer
-        let expected = &b[offset..offset + header.header_size()];
+        let expected = &b[offset..offset + header.size()];
 
         // verify that the written header is the same as original
         assert_eq!(buffer.as_slice(),expected);
@@ -293,14 +347,14 @@ mod tests {
 
         // initialize a buffer big enough for the header
         let mut buffer: Vec<u8> = vec![];
-        buffer.resize(header.header_size(),0x00);        
+        buffer.resize(header.size(),0x00);        
 
         // write to the new buffer
         let result = header.write(buffer.as_mut_slice());
         assert!(result.is_ok());
 
         // get the expected result from the original buffer
-        let expected = &b[offset..offset + header.header_size()];
+        let expected = &b[offset..offset + header.size()];
 
         // verify that the written header is the same as original
         assert_ne!(buffer.as_slice(),expected);
@@ -310,7 +364,7 @@ mod tests {
         assert!(result.is_ok());
 
         // check that the re-parsed header has changed value
-        assert_eq!(header.paddr(),123);
+        assert_eq!(header.paddr(),Some(123));
     }
 
 }

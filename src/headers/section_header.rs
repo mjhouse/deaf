@@ -185,7 +185,16 @@ impl SectionHeader {
     }
 
     pub fn header_size(&self) -> usize {
-        self.size.clone()
+        self.sh_name.size() +
+        self.sh_type.size() +
+        self.sh_flags.size() +
+        self.sh_address.size() +
+        self.sh_offset.size() +
+        self.sh_size.size() +
+        self.sh_link.size() +
+        self.sh_info.size() +
+        self.sh_addralign.size() +
+        self.sh_entsize.size()
     }
 
     pub fn layout(&self) -> Layout {

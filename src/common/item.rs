@@ -27,6 +27,12 @@ where
         }
     }
 
+    pub fn make(ranges: Ranges, width: Width, layout: Layout) -> Self {
+        Self::new(ranges)
+            .with_width(width)
+            .with_layout(layout)
+    }
+
     pub fn with_width(mut self, width: Width) -> Self {
         self.set_width(width);
         self
