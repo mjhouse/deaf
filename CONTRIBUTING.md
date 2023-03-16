@@ -19,8 +19,7 @@ All types of contributions are encouraged and valued. See the [Table of Contents
 - [I Want To Contribute](#i-want-to-contribute)
   - [Submitting A Bug Report](#submitting-a-bug-report)
   - [Submitting A Feature Request](#submitting-a-feature-request)
-  - [Your First Code Contribution](#your-first-code-contribution)
-  - [Improving The Documentation](#improving-the-documentation)
+  - [Submitting Improvements](#submitting-improvements)
 - [Styleguides](#styleguides)
   - [Commit Messages](#commit-messages)
 - [Join The Project Team](#join-the-project-team)
@@ -36,9 +35,9 @@ to <mjhouse@protonmail.com>.
 
 ## I Have a Question
 
-> If you want to ask a question, we assume that you have read the available [Documentation](https://mjhouse.github.io/deaf/deaf/index.html).
+> If you want to ask a question, we assume that you have read the available [documentation](https://mjhouse.github.io/deaf/deaf/index.html).
 
-Before you ask a question, it is best to search for existing [Issues](https://github.com/mjhouse/deaf/issues) that might help you. In case you have found a suitable issue and still need clarification, you can write your question in this issue. It is also advisable to search the internet for answers first.
+Before you ask a question, it is best to search for existing [issues](https://github.com/mjhouse/deaf/issues) that might help you. In case you have found a suitable issue and still need clarification, you can write your question in this issue. It is also advisable to search the internet for answers first.
 
 If you then still feel the need to ask a question and need clarification, we recommend the following:
 
@@ -100,42 +99,55 @@ Once you have a clear description of the feature, add a feature request issue in
 - Open an [Issue](https://github.com/mjhouse/deaf/issues/new) using the "Feature request" template.
 - Fill out the feature with the information you collected above.
 
-### Your First Code Contribution
+### Submitting Improvements
 
-**Discuss your changes via an issue FIRST**.  
+> **Discuss your changes via an issue FIRST**. You may need to create a bug report or a feature request, or there might already be one that you can comment on. Regardless, it's very important that you get some amount of buy-in from other contributors before you start working- it would be terrible if you went to a lot of trouble implementing some cool feature only to find that it doesn't fit with the goals of the project and won't be accepted.
 
-You may need to create a bug report or a feature request, or there might already be one that you can comment on. Regardless, it's very important that you get some amount of buy-in from other contributors before you start working- it would be terrible if you went to a lot of trouble implementing some cool feature only to find that it doesn't fit with the goals of the project and won't be accepted.  
+If a new issue is necessary, submit it using the following procedure:
 
-Once you have that buy-in though, you can make your changes by:
+- Open a new [issue](https://github.com/mjhouse/deaf/issues/new).
+- Describe the changes you want to see (doc comments, bug fix, or feature).
+- Assign the issue to yourself (if that doesn't work, ask to have it assigned to you)
+- Tag your issue with the appropriate label (`documentation`,`bug`, or `feature request`).
 
-1. Forking the DEAF repository (see the [docs](https://docs.github.com/en/get-started/quickstart/fork-a-repo))
-2. Cloning your fork locally (`git clone git@github.com:<YOUR_NAME>/deaf.git`)
-3. Switching to the `development` branch (`git checkout development`)
-4. Implementing your feature:
-    1. Make the necessary changes in the codebase
-    2. Validate your changes by writing and running tests
-    3. Add documentation comments to any new structs/methods
-    4. Resolve any warnings emitted in the console
-7. And finally- submitting a PR against the `development` branch of DEAF
+Once you've discussed the changes and gotten some amount of buy-in from other contributors, you can begin to implement your changes. All changes to the code base will use this general workflow
+
+1. Fork the DEAF repository (if you haven't already).
+2. Clone your fork locally.
+3. Switch to the `development` branch.
+4. Implement your changes.
+5. Submit a PR against the `development` branch of DEAF
 
 After any issues have been resolved and your PR is accepted:
 
-* Your changes will be merged into `development`
-* At some point (once a day, or every few days) master will be merged to `testing`
-* All tests in the codebase will be run after the changes are pushed to `testing`
-* On success, your changes will be merged with master
-* Documentation will be rebuilt and deployed
+* Your changes will be merged into `development`.
+* At some point (once a day, or every few days) master will be merged to `testing`.
+* All tests in the codebase will be run after the changes are pushed to `testing`.
+* On success, your changes will be merged with master.
+* Documentation will be rebuilt and deployed.
 
 Congratulations! You helped make DEAF a bit more awesome!
 
-### Improving The Documentation
+#### Improving The Code
 
-TBD
+Follow the above general workflow in order to submit changes to DEAF. When you get to step #4 (implementing your changes), do this:
 
-<!-- TODO
-Updating, improving and correcting the documentation
+1. Make your code changes (to implement the feature or fix the bug)
+2. Validate your changes by writing and running tests
+3. Add documentation comments to any new structs/methods
+4. Resolve any warnings emitted in the console
 
--->
+Then continue on with step #5.
+
+#### Improving The Documentation
+
+Follow the above general workflow in order to submit changes to DEAF. When you get to step #4 (implementing your changes), do this:
+
+1. Add or change whatever documentation necessary to resolve your issue
+2. Verify that any new doc-tests work correctly (just run `cargo test`)
+3. Resolve any warnings emitted in the console
+
+Then continue on with step #5.
 
 ## Styleguides
 
