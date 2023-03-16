@@ -17,8 +17,8 @@ All types of contributions are encouraged and valued. See the [Table of Contents
 - [Code of Conduct](#code-of-conduct)
 - [I Have a Question](#i-have-a-question)
 - [I Want To Contribute](#i-want-to-contribute)
-  - [Reporting Bugs](#reporting-bugs)
-  - [Suggesting Enhancements](#suggesting-enhancements)
+  - [Submitting A Bug Report](#submitting-a-bug-report)
+  - [Submitting A Feature Request](#submitting-a-feature-request)
   - [Your First Code Contribution](#your-first-code-contribution)
   - [Improving The Documentation](#improving-the-documentation)
 - [Styleguides](#styleguides)
@@ -102,12 +102,27 @@ Once you have a clear description of the feature, add a feature request issue in
 
 ### Your First Code Contribution
 
-TBD
+**Discuss your changes via an issue FIRST**. You may need to create a bug report or a feature request, or there might already be one that you can comment on. Regardless, it's very important that you get some amount of buy-in from other contributors before you start working- it would be terrible if you went to a lot of trouble implementing some cool feature only to find that it doesn't fit with the goals of the project and won't be accepted. Once you have that buy-in though, you can make your changes by:
 
-<!-- TODO
-include Setup of env, IDE and typical getting started instructions?
+1. Forking the DEAF repository (see the [docs](https://docs.github.com/en/get-started/quickstart/fork-a-repo))
+2. Cloning your fork locally (`git clone git@github.com:<YOUR_NAME>/deaf.git`)
+3. Switching to the `development` branch (`git checkout development`)
+4. Implementing your feature:
+    1. Make the necessary changes in the codebase
+    2. Validate your changes by writing and running tests
+    3. Add documentation comments to any new structs/methods
+    4. Resolving any warnings emitted in the console
+7. And finally- submitting a PR against the `development` branch of DEAF
 
--->
+After any issues have been resolved and your PR is accepted:
+
+* Your changes will be merged into `development`
+* At some point (once a day, or every few days) master will be merged to `testing`
+* All tests in the codebase will be run after the changes are pushed to `testing`
+* On success, your changes will be merged with master
+* Documentation will be rebuilt and deployed
+
+Congratulations! You helped make DEAF a bit more awesome!
 
 ### Improving The Documentation
 
