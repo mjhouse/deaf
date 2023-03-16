@@ -71,7 +71,7 @@ Once you've determined that a bug report is necessary:
 
 Once you have a clear description of the problem, add a bug report in the [issue tracker](https://github.com/mjhouse/deaf/issues):
 
-- Open an [Issue](https://github.com/mjhouse/deaf/issues/new) using the "Bug report" template.
+- Open an [issue](https://github.com/mjhouse/deaf/issues/new) using the "Bug report" template.
 - Fill out the report with the information you collected above.
 
 ### Submitting A Feature Request
@@ -92,7 +92,7 @@ Once you've determined that your feature is not already available and fits the p
 
 Once you have a clear description of the feature, add a feature request issue in the [issue tracker](https://github.com/mjhouse/deaf/issues):
 
-- Open an [Issue](https://github.com/mjhouse/deaf/issues/new) using the "Feature request" template.
+- Open an [issue](https://github.com/mjhouse/deaf/issues/new) using the "Feature request" template.
 - Fill out the feature with the information you collected above.
 
 ### Submitting Improvements
