@@ -110,20 +110,20 @@ If a new issue is necessary, submit it using the following procedure:
 - Assign the issue to yourself (if that doesn't work, ask to have it assigned to you)
 - Tag your issue with the appropriate label (`documentation`,`bug`, or `feature request`).
 
-Once you've discussed the changes and gotten some amount of buy-in from other contributors, you can begin to implement your changes. All changes to the code base will use this general workflow
+Once you've discussed the changes and gotten buy-in from other contributors, you can begin to implement your changes. All changes to the code base will use this general workflow
 
 1. Fork the DEAF repository (if you haven't already).
 2. Clone your fork locally.
 3. Switch to the `development` branch.
-4. Implement your changes.
+4. Implement your changes (see [code](#improving-the-code) and [doc](#improving-the-documentation) sections).
 5. Submit a PR against the `development` branch of DEAF
 
 After any issues have been resolved and your PR is accepted:
 
 * Your changes will be merged into `development`.
-* At some point (once a day, or every few days) master will be merged to `testing`.
+* At some point (once a day, or every few days) `development` will be merged to `testing`.
 * All tests in the codebase will be run after the changes are pushed to `testing`.
-* On success, your changes will be merged with master.
+* On success, your changes will be merged with `master`.
 * Documentation will be rebuilt and deployed.
 
 Congratulations! You helped make DEAF a bit more awesome!
@@ -149,18 +149,6 @@ Follow the above general workflow in order to submit changes to DEAF. When you g
 
 Then continue on with step #5.
 
-## Styleguides
-
-### Commit Messages
-
-TBD
-
-<!-- TODO
-
--->
-
 ## Join The Project Team
 
-TBD
-
-<!-- TODO -->
+Send me (Michael House) an email at mjhouse@protonmail.com with the subject "DEAF - Join The Project Team". You may be asked a few questions and if you haven't contributed anything to the code base, you probably won't be accepted. There's not currently any serious evaluation or onboarding process for new team members because there's only one or two real contributors at the moment, although this may change in the future.
