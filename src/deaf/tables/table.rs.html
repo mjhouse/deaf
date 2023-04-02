@@ -683,8 +683,6 @@
 <a href="#683" id="683">683</a>
 <a href="#684" id="684">684</a>
 <a href="#685" id="685">685</a>
-<a href="#686" id="686">686</a>
-<a href="#687" id="687">687</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{Error,<span class="prelude-ty">Result</span>};
 <span class="kw">use </span><span class="kw">crate</span>::common::{ByteIter,Width,Layout,SHType};
 <span class="kw">use </span><span class="kw">crate</span>::headers::SectionHeader;
@@ -938,21 +936,21 @@
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span><span class="kw">crate</span>::headers::{FileHeader,SectionHeader};
 
+    <span class="kw">use </span><span class="kw">crate</span>::utilities::read;
+
     <span class="kw">use </span><span class="kw">crate</span>::utilities::tests::{
         LIBVPF_DYNSYM <span class="kw">as </span>SYM_TEST,
         LIBVPF_SHSTRTAB <span class="kw">as </span>STR_TEST,
         LIBVPF_RELA_DYN <span class="kw">as </span>REL_TEST,
-        read
     };
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_extract_real_relocation_section_as_table() {
         <span class="kw">const </span>SYMBOL_COUNT: usize = <span class="number">210</span>;
 
-        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libjpeg/libjpeg.so.9&quot;</span>);
+        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libjpeg/libjpeg.so.9&quot;</span>).unwrap();
 
-        <span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
-            .unwrap();
+        <span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b).unwrap();
 
         <span class="kw">let </span>count = file_header.shnum().unwrap();
         <span class="kw">let </span>offset = file_header.shoff().unwrap();
@@ -1089,11 +1087,10 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_extract_real_shstrtab_section_as_table() {
-        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>);
+        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>).unwrap();
 
         <span class="comment">// get the fileheader and use it to find section headers
-        </span><span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
-            .unwrap();
+        </span><span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b).unwrap();
 
         <span class="kw">let </span>count = file_header.shnum().unwrap();
         <span class="kw">let </span>offset = file_header.shoff().unwrap();
@@ -1233,10 +1230,9 @@
     </span><span class="kw">fn </span>test_extract_real_symtab_section_as_table() {
         <span class="kw">const </span>SYMBOL_COUNT: usize = <span class="number">525</span>;
 
-        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libjpeg/libjpeg.so.9&quot;</span>);
+        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libjpeg/libjpeg.so.9&quot;</span>).unwrap();
 
-        <span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
-            .unwrap();
+        <span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b).unwrap();
 
         <span class="kw">let </span>count = file_header.shnum().unwrap();
         <span class="kw">let </span>offset = file_header.shoff().unwrap();
@@ -1372,4 +1368,4 @@
         <span class="macro">assert_eq!</span>(item.value_unchecked(),<span class="number">20</span>);
     }
 }</code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0 (2c8cc3432 2023-03-06)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

@@ -107,14 +107,29 @@
 <a href="#107" id="107">107</a>
 <a href="#108" id="108">108</a>
 <a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Utility functions for both testing and execution
 //!
 
-</span><span class="attr">#[cfg(test)]
+</span><span class="kw">use </span>std::path::PathBuf;
+<span class="kw">use </span>std::fs::File;
+<span class="kw">use </span>std::io::Read;
+<span class="kw">use </span>std::io::BufReader;
+
+<span class="kw">use </span><span class="kw">crate</span>::errors::Result;
+
+<span class="kw">pub fn </span>read&lt;T: Into&lt;PathBuf&gt;&gt;(path: T) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
+    <span class="prelude-val">Ok</span>(File::open(path.into())
+        .map(BufReader::new)
+        .and_then(|b| b
+            .bytes()
+            .collect())<span class="question-mark">?</span>)
+}
+
+<span class="attr">#[cfg(test)]
 </span><span class="kw">pub mod </span>tests {  
-    <span class="kw">use </span>std::fs::File;
-    <span class="kw">use </span>std::io::Read;
-    <span class="kw">use </span>std::io::BufReader;
 
     <span class="kw">pub struct </span>TestSection {
         <span class="kw">pub </span>bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8],
@@ -206,14 +221,5 @@
         entsize: <span class="number">0</span>,
     };
 
-    <span class="kw">pub fn </span>read(path: <span class="kw-2">&amp;</span>str) -&gt; Vec&lt;u8&gt; {
-        File::open(path)
-            .map(BufReader::new)
-            .and_then(|b| b
-                .bytes()
-                .collect())
-            .expect(<span class="string">&quot;Could not read file&quot;</span>)
-    }
-
 }</code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0 (2c8cc3432 2023-03-06)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

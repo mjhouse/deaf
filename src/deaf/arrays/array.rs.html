@@ -466,7 +466,6 @@
 <a href="#466" id="466">466</a>
 <a href="#467" id="467">467</a>
 <a href="#468" id="468">468</a>
-<a href="#469" id="469">469</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{Error, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span><span class="kw">crate</span>::common::{Width,Layout,SHType};
 <span class="kw">use </span><span class="kw">crate</span>::headers::SectionHeader;
@@ -650,18 +649,18 @@
 
     <span class="kw">use </span><span class="kw">crate</span>::headers::{FileHeader,SectionHeader};
 
+    <span class="kw">use </span><span class="kw">crate</span>::utilities::read;
+
     <span class="kw">use </span><span class="kw">crate</span>::utilities::tests::{
         LIBQSCINTILLA_FINI_ARRAY <span class="kw">as </span>FINI_TEST,
         LIBQSCINTILLA_INIT_ARRAY <span class="kw">as </span>INIT_TEST, 
-        read
     };
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_extract_real_init_array() {
-        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0&quot;</span>); 
+        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0&quot;</span>).unwrap(); 
 
-        <span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
-            .unwrap();
+        <span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b).unwrap();
 
         <span class="kw">let </span>count = file_header.shnum().unwrap();
         <span class="kw">let </span>offset = file_header.shoff().unwrap();
@@ -698,10 +697,9 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_extract_real_fini_array() {
-        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0&quot;</span>); 
+        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0&quot;</span>).unwrap(); 
 
-        <span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
-            .unwrap();
+        <span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b).unwrap();
 
         <span class="kw">let </span>count = file_header.shnum().unwrap();
         <span class="kw">let </span>offset = file_header.shoff().unwrap();
@@ -936,4 +934,4 @@
         <span class="macro">assert_eq!</span>(item.value(),<span class="prelude-val">Some</span>(<span class="number">123</span>));
     }
 }</code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0 (2c8cc3432 2023-03-06)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

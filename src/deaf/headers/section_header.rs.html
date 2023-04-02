@@ -404,28 +404,6 @@
 <a href="#404" id="404">404</a>
 <a href="#405" id="405">405</a>
 <a href="#406" id="406">406</a>
-<a href="#407" id="407">407</a>
-<a href="#408" id="408">408</a>
-<a href="#409" id="409">409</a>
-<a href="#410" id="410">410</a>
-<a href="#411" id="411">411</a>
-<a href="#412" id="412">412</a>
-<a href="#413" id="413">413</a>
-<a href="#414" id="414">414</a>
-<a href="#415" id="415">415</a>
-<a href="#416" id="416">416</a>
-<a href="#417" id="417">417</a>
-<a href="#418" id="418">418</a>
-<a href="#419" id="419">419</a>
-<a href="#420" id="420">420</a>
-<a href="#421" id="421">421</a>
-<a href="#422" id="422">422</a>
-<a href="#423" id="423">423</a>
-<a href="#424" id="424">424</a>
-<a href="#425" id="425">425</a>
-<a href="#426" id="426">426</a>
-<a href="#427" id="427">427</a>
-<a href="#428" id="428">428</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common::{
     Width,
     Layout,
@@ -436,7 +414,7 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::common::Item;
 <span class="kw">use </span><span class="kw">crate</span>::common::ranges::<span class="kw-2">*</span>;
-<span class="kw">use </span><span class="kw">crate</span>::errors::{Error,<span class="prelude-ty">Result</span>};
+<span class="kw">use </span><span class="kw">crate</span>::errors::Result;
 
 <span class="doccomment">/// Section headers extracted from an ELF file.
 /// 
@@ -693,25 +671,6 @@
         <span class="self">self</span>.sh_entsize.set(entsize);
     }
 
-    <span class="doccomment">/// Get the body of the section given a byte buffer
-    </span><span class="kw">pub fn </span>body&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt; {
-        <span class="kw">let </span>size = <span class="self">self
-            </span>.body_size()
-            .ok_or(Error::MalformedDataError)<span class="question-mark">?</span>;
-
-        <span class="kw">let </span>offset = <span class="self">self
-            </span>.offset()
-            .ok_or(Error::MalformedDataError)<span class="question-mark">?</span>;
-
-        <span class="kw">let </span>start = offset;
-        <span class="kw">let </span>end = start + size;
-
-        <span class="kw">if </span>end &lt; bytes.len() {
-            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span>bytes[start..end])
-        } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(Error::OutOfBoundsError)
-        }
-    }
 }
 
 <span class="attr">#[cfg(test)]
@@ -719,15 +678,14 @@
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span><span class="kw">crate</span>::headers::FileHeader;
 
-    <span class="kw">use </span><span class="kw">crate</span>::utilities::tests::read;
+    <span class="kw">use </span><span class="kw">crate</span>::utilities::read;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_read_section_headers() {
-        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>);
+        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>).unwrap();
 
         <span class="comment">// get the file header to find section headers
-        </span><span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
-            .unwrap();
+        </span><span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b).unwrap();
 
         <span class="kw">let </span>count = file_header.shnum().unwrap();
         <span class="kw">let </span>offset = file_header.shoff().unwrap();
@@ -758,11 +716,10 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_section_header_with_no_changes() {
-        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>);
+        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>).unwrap();
 
         <span class="comment">// get the file header to find section headers
-        </span><span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
-            .unwrap();
+        </span><span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b).unwrap();
 
         <span class="kw">let </span>count = file_header.shnum().unwrap();
         <span class="kw">let </span>offset = file_header.shoff().unwrap();
@@ -802,11 +759,10 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_section_header_with_changes() {
-        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>);
+        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>).unwrap();
 
         <span class="comment">// get the file header to find section headers
-        </span><span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
-            .unwrap();
+        </span><span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b).unwrap();
 
         <span class="kw">let </span>count = file_header.shnum().unwrap();
         <span class="kw">let </span>offset = file_header.shoff().unwrap();
@@ -854,4 +810,4 @@
         </span><span class="macro">assert_eq!</span>(header.address(),<span class="prelude-val">Some</span>(<span class="number">123</span>));
     }
 }</code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0 (2c8cc3432 2023-03-06)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

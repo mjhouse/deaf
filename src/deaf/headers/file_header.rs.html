@@ -871,12 +871,12 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span><span class="kw">crate</span>::utilities::tests::read;
+    <span class="kw">use </span><span class="kw">crate</span>::utilities::read;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_read_file_header() {
         <span class="comment">// read file as byte array
-        </span><span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>);
+        </span><span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>).unwrap();
 
         <span class="comment">// parse the file header from the bytes
         </span><span class="kw">let </span>result = FileHeader::parse(<span class="kw-2">&amp;</span>b);
@@ -897,7 +897,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_file_header_with_no_changes() {
         <span class="comment">// read file as byte array
-        </span><span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>);
+        </span><span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>).unwrap();
 
         <span class="comment">// parse the file header from the bytes
         </span><span class="kw">let </span>result = FileHeader::parse(<span class="kw-2">&amp;</span>b);
@@ -920,7 +920,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_file_header_with_changes() {
         <span class="comment">// read file as byte array
-        </span><span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>);
+        </span><span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>).unwrap();
 
         <span class="comment">// parse the file header from the bytes
         </span><span class="kw">let </span>result = FileHeader::parse(<span class="kw-2">&amp;</span>b);
@@ -952,4 +952,4 @@
         </span><span class="macro">assert_eq!</span>(header.shentsize(),<span class="prelude-val">Some</span>(<span class="number">123</span>));
     }
 }</code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0 (2c8cc3432 2023-03-06)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

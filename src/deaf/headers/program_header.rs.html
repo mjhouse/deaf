@@ -371,6 +371,13 @@
 <a href="#371" id="371">371</a>
 <a href="#372" id="372">372</a>
 <a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common::{
     Width,
     Layout,
@@ -390,10 +397,10 @@
     width: Width,
     p_type: Item&lt;u32,u32,PHType&gt;,
     p_flags: Item&lt;u32&gt;,
-    p_offset: Item&lt;u32,u64&gt;,
+    p_offset: Item&lt;u32,u64,usize&gt;,
     p_vaddr: Item&lt;u32,u64&gt;,
     p_paddr: Item&lt;u32,u64&gt;,
-    p_filesz: Item&lt;u32,u64&gt;,
+    p_filesz: Item&lt;u32,u64,usize&gt;,
     p_memsz: Item&lt;u32,u64&gt;,
     p_align: Item&lt;u32,u64&gt;,
 }
@@ -542,12 +549,12 @@
     }
 
     <span class="doccomment">/// Get the `p_offset` attribute of the header
-    </span><span class="kw">pub fn </span>offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
+    </span><span class="kw">pub fn </span>offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
         <span class="self">self</span>.p_offset.get()
     }
 
     <span class="doccomment">/// Set the `p_offset` attribute of the header 
-    </span><span class="kw">pub fn </span>set_offset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, offset: u64) {
+    </span><span class="kw">pub fn </span>set_offset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, offset: usize) {
         <span class="self">self</span>.p_offset.set(offset);
     }
 
@@ -572,12 +579,12 @@
     }
 
     <span class="doccomment">/// Get the `p_filesz` attribute of the header
-    </span><span class="kw">pub fn </span>filesz(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
+    </span><span class="kw">pub fn </span>filesz(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
         <span class="self">self</span>.p_filesz.get()
     }
 
     <span class="doccomment">/// Set the `p_filesz` attribute of the header 
-    </span><span class="kw">pub fn </span>set_filesz(<span class="kw-2">&amp;mut </span><span class="self">self</span>, filesz: u64) {
+    </span><span class="kw">pub fn </span>set_filesz(<span class="kw-2">&amp;mut </span><span class="self">self</span>, filesz: usize) {
         <span class="self">self</span>.p_filesz.set(filesz);
     }
 
@@ -601,6 +608,16 @@
         <span class="self">self</span>.p_align.set(align);
     }
 
+    <span class="doccomment">/// Get the `p_filesz` attribute of the header
+    </span><span class="kw">pub fn </span>body_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
+        <span class="self">self</span>.p_filesz.get()
+    }
+
+    <span class="doccomment">/// Set the `p_filesz` attribute of the header 
+    </span><span class="kw">pub fn </span>set_body_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>, body_size: usize) {
+        <span class="self">self</span>.p_filesz.set(body_size);
+    }
+
 }
 
 <span class="attr">#[cfg(test)]
@@ -608,15 +625,14 @@
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span><span class="kw">crate</span>::headers::FileHeader;
 
-    <span class="kw">use </span><span class="kw">crate</span>::utilities::tests::read;
+    <span class="kw">use </span><span class="kw">crate</span>::utilities::read;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_read_program_headers() {
-        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>);
+        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>).unwrap();
 
         <span class="comment">// get the file header to find program headers
-        </span><span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
-            .unwrap();
+        </span><span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b).unwrap();
 
         <span class="kw">let </span>count = file_header.phnum().unwrap();
         <span class="kw">let </span>offset = file_header.phoff().unwrap();
@@ -647,11 +663,10 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_program_header_with_no_changes() {
-        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>);
+        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>).unwrap();
 
         <span class="comment">// get the file header to find program headers
-        </span><span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
-            .unwrap();
+        </span><span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b).unwrap();
 
         <span class="kw">let </span>count = file_header.phnum().unwrap();
         <span class="kw">let </span>offset = file_header.phoff().unwrap();
@@ -691,11 +706,10 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_program_header_with_changes() {
-        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>);
+        <span class="kw">let </span>b = read(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>).unwrap();
 
         <span class="comment">// get the file header to find program headers
-        </span><span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b)
-            .unwrap();
+        </span><span class="kw">let </span>file_header = FileHeader::parse(<span class="kw-2">&amp;</span>b).unwrap();
 
         <span class="kw">let </span>count = file_header.phnum().unwrap();
         <span class="kw">let </span>offset = file_header.phoff().unwrap();
@@ -744,4 +758,4 @@
     }
 
 }</code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0 (2c8cc3432 2023-03-06)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
