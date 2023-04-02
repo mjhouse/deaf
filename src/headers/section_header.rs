@@ -291,15 +291,14 @@ mod tests {
     use super::*;
     use crate::headers::FileHeader;
 
-    use crate::utilities::tests::read;
+    use crate::utilities::read;
 
     #[test]
     fn test_read_section_headers() {
-        let b = read("assets/libvpf/libvpf.so.4.1");
+        let b = read("assets/libvpf/libvpf.so.4.1").unwrap();
 
         // get the file header to find section headers
-        let file_header = FileHeader::parse(&b)
-            .unwrap();
+        let file_header = FileHeader::parse(&b).unwrap();
 
         let count = file_header.shnum().unwrap();
         let offset = file_header.shoff().unwrap();
@@ -330,11 +329,10 @@ mod tests {
 
     #[test]
     fn test_write_section_header_with_no_changes() {
-        let b = read("assets/libvpf/libvpf.so.4.1");
+        let b = read("assets/libvpf/libvpf.so.4.1").unwrap();
 
         // get the file header to find section headers
-        let file_header = FileHeader::parse(&b)
-            .unwrap();
+        let file_header = FileHeader::parse(&b).unwrap();
 
         let count = file_header.shnum().unwrap();
         let offset = file_header.shoff().unwrap();
@@ -374,11 +372,10 @@ mod tests {
 
     #[test]
     fn test_write_section_header_with_changes() {
-        let b = read("assets/libvpf/libvpf.so.4.1");
+        let b = read("assets/libvpf/libvpf.so.4.1").unwrap();
 
         // get the file header to find section headers
-        let file_header = FileHeader::parse(&b)
-            .unwrap();
+        let file_header = FileHeader::parse(&b).unwrap();
 
         let count = file_header.shnum().unwrap();
         let offset = file_header.shoff().unwrap();

@@ -181,18 +181,18 @@ mod tests {
 
     use crate::headers::{FileHeader,SectionHeader};
 
+    use crate::utilities::read;
+
     use crate::utilities::tests::{
         LIBQSCINTILLA_FINI_ARRAY as FINI_TEST,
         LIBQSCINTILLA_INIT_ARRAY as INIT_TEST, 
-        read
     };
 
     #[test]
     fn test_extract_real_init_array() {
-        let b = read("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0"); 
+        let b = read("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0").unwrap(); 
 
-        let file_header = FileHeader::parse(&b)
-            .unwrap();
+        let file_header = FileHeader::parse(&b).unwrap();
 
         let count = file_header.shnum().unwrap();
         let offset = file_header.shoff().unwrap();
@@ -229,10 +229,9 @@ mod tests {
 
     #[test]
     fn test_extract_real_fini_array() {
-        let b = read("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0"); 
+        let b = read("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0").unwrap(); 
 
-        let file_header = FileHeader::parse(&b)
-            .unwrap();
+        let file_header = FileHeader::parse(&b).unwrap();
 
         let count = file_header.shnum().unwrap();
         let offset = file_header.shoff().unwrap();

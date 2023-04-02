@@ -1,11 +1,23 @@
 //! Utility functions for both testing and execution
 //!
 
+use std::path::PathBuf;
+use std::fs::File;
+use std::io::Read;
+use std::io::BufReader;
+
+use crate::errors::Result;
+
+pub fn read<T: Into<PathBuf>>(path: T) -> Result<Vec<u8>> {
+    Ok(File::open(path.into())
+        .map(BufReader::new)
+        .and_then(|b| b
+            .bytes()
+            .collect())?)
+}
+
 #[cfg(test)]
 pub mod tests {  
-    use std::fs::File;
-    use std::io::Read;
-    use std::io::BufReader;
 
     pub struct TestSection {
         pub bytes: &'static [u8],
@@ -96,14 +108,5 @@ pub mod tests {
         length: 26,
         entsize: 0,
     };
-
-    pub fn read(path: &str) -> Vec<u8> {
-        File::open(path)
-            .map(BufReader::new)
-            .and_then(|b| b
-                .bytes()
-                .collect())
-            .expect("Could not read file")
-    }
 
 }

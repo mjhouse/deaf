@@ -7,3 +7,9 @@ pub mod common;
 pub mod headers;
 pub mod tables;
 pub mod arrays;
+
+mod section;
+mod binary;
+
+pub use section::Section;
+pub use binary::Binary;

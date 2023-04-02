@@ -251,21 +251,21 @@ mod tests {
     use super::*;
     use crate::headers::{FileHeader,SectionHeader};
 
+    use crate::utilities::read;
+
     use crate::utilities::tests::{
         LIBVPF_DYNSYM as SYM_TEST,
         LIBVPF_SHSTRTAB as STR_TEST,
         LIBVPF_RELA_DYN as REL_TEST,
-        read
     };
 
     #[test]
     fn test_extract_real_relocation_section_as_table() {
         const SYMBOL_COUNT: usize = 210;
 
-        let b = read("assets/libjpeg/libjpeg.so.9");
+        let b = read("assets/libjpeg/libjpeg.so.9").unwrap();
 
-        let file_header = FileHeader::parse(&b)
-            .unwrap();
+        let file_header = FileHeader::parse(&b).unwrap();
 
         let count = file_header.shnum().unwrap();
         let offset = file_header.shoff().unwrap();
@@ -402,11 +402,10 @@ mod tests {
 
     #[test]
     fn test_extract_real_shstrtab_section_as_table() {
-        let b = read("assets/libvpf/libvpf.so.4.1");
+        let b = read("assets/libvpf/libvpf.so.4.1").unwrap();
 
         // get the fileheader and use it to find section headers
-        let file_header = FileHeader::parse(&b)
-            .unwrap();
+        let file_header = FileHeader::parse(&b).unwrap();
 
         let count = file_header.shnum().unwrap();
         let offset = file_header.shoff().unwrap();
@@ -546,10 +545,9 @@ mod tests {
     fn test_extract_real_symtab_section_as_table() {
         const SYMBOL_COUNT: usize = 525;
 
-        let b = read("assets/libjpeg/libjpeg.so.9");
+        let b = read("assets/libjpeg/libjpeg.so.9").unwrap();
 
-        let file_header = FileHeader::parse(&b)
-            .unwrap();
+        let file_header = FileHeader::parse(&b).unwrap();
 
         let count = file_header.shnum().unwrap();
         let offset = file_header.shoff().unwrap();

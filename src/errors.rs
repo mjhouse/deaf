@@ -57,6 +57,10 @@ pub enum Error {
     #[error("Failed while converting bytes to str")]
     ParseUtf8Error(#[from] std::str::Utf8Error),
 
+    /// Could not open a file for reading
+    #[error("Could not open a file for reading")]
+    IOError(#[from] std::io::Error),
+
     /// Could not convert integer to a different integer type
     #[error("Failed while converting integer to different integer")]
     IntConvertError(#[from] std::num::TryFromIntError),
