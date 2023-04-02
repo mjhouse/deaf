@@ -394,12 +394,12 @@ impl FileHeader {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utilities::tests::read;
+    use crate::utilities::read;
 
     #[test]
     fn test_read_file_header() {
         // read file as byte array
-        let b = read("assets/libvpf/libvpf.so.4.1");
+        let b = read("assets/libvpf/libvpf.so.4.1").unwrap();
 
         // parse the file header from the bytes
         let result = FileHeader::parse(&b);
@@ -420,7 +420,7 @@ mod tests {
     #[test]
     fn test_write_file_header_with_no_changes() {
         // read file as byte array
-        let b = read("assets/libvpf/libvpf.so.4.1");
+        let b = read("assets/libvpf/libvpf.so.4.1").unwrap();
 
         // parse the file header from the bytes
         let result = FileHeader::parse(&b);
@@ -443,7 +443,7 @@ mod tests {
     #[test]
     fn test_write_file_header_with_changes() {
         // read file as byte array
-        let b = read("assets/libvpf/libvpf.so.4.1");
+        let b = read("assets/libvpf/libvpf.so.4.1").unwrap();
 
         // parse the file header from the bytes
         let result = FileHeader::parse(&b);

@@ -13,6 +13,10 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(ThisError, Debug)]
 pub enum Error {
 
+    /// A resource could not be found
+    #[error("That resource or value could not be found")]
+    NotFound,
+
     /// Binary data could not be parsed into fields
     #[error("Binary could not be parsed")]
     ParseError,
@@ -56,6 +60,10 @@ pub enum Error {
     /// Bytes could not be converted to UTF-8 encoded String
     #[error("Failed while converting bytes to str")]
     ParseUtf8Error(#[from] std::str::Utf8Error),
+
+    /// Could not open a file for reading
+    #[error("Could not open a file for reading")]
+    IOError(#[from] std::io::Error),
 
     /// Could not convert integer to a different integer type
     #[error("Failed while converting integer to different integer")]

@@ -8,7 +8,7 @@ use enumflags2::BitFlags;
 
 use crate::common::Item;
 use crate::common::ranges::*;
-use crate::errors::{Error,Result};
+use crate::errors::Result;
 
 /// Section headers extracted from an ELF file.
 /// 
@@ -265,25 +265,6 @@ impl SectionHeader {
         self.sh_entsize.set(entsize);
     }
 
-    /// Get the body of the section given a byte buffer
-    pub fn body<'a>(&self, bytes: &'a [u8]) -> Result<&'a [u8]> {
-        let size = self
-            .body_size()
-            .ok_or(Error::MalformedDataError)?;
-
-        let offset = self
-            .offset()
-            .ok_or(Error::MalformedDataError)?;
-
-        let start = offset;
-        let end = start + size;
-
-        if end < bytes.len() {
-            Ok(&bytes[start..end])
-        } else {
-            Err(Error::OutOfBoundsError)
-        }
-    }
 }
 
 #[cfg(test)]
@@ -291,15 +272,14 @@ mod tests {
     use super::*;
     use crate::headers::FileHeader;
 
-    use crate::utilities::tests::read;
+    use crate::utilities::read;
 
     #[test]
     fn test_read_section_headers() {
-        let b = read("assets/libvpf/libvpf.so.4.1");
+        let b = read("assets/libvpf/libvpf.so.4.1").unwrap();
 
         // get the file header to find section headers
-        let file_header = FileHeader::parse(&b)
-            .unwrap();
+        let file_header = FileHeader::parse(&b).unwrap();
 
         let count = file_header.shnum().unwrap();
         let offset = file_header.shoff().unwrap();
@@ -330,11 +310,10 @@ mod tests {
 
     #[test]
     fn test_write_section_header_with_no_changes() {
-        let b = read("assets/libvpf/libvpf.so.4.1");
+        let b = read("assets/libvpf/libvpf.so.4.1").unwrap();
 
         // get the file header to find section headers
-        let file_header = FileHeader::parse(&b)
-            .unwrap();
+        let file_header = FileHeader::parse(&b).unwrap();
 
         let count = file_header.shnum().unwrap();
         let offset = file_header.shoff().unwrap();
@@ -374,11 +353,10 @@ mod tests {
 
     #[test]
     fn test_write_section_header_with_changes() {
-        let b = read("assets/libvpf/libvpf.so.4.1");
+        let b = read("assets/libvpf/libvpf.so.4.1").unwrap();
 
         // get the file header to find section headers
-        let file_header = FileHeader::parse(&b)
-            .unwrap();
+        let file_header = FileHeader::parse(&b).unwrap();
 
         let count = file_header.shnum().unwrap();
         let offset = file_header.shoff().unwrap();
