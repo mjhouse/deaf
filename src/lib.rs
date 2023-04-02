@@ -8,8 +8,10 @@ pub mod headers;
 pub mod tables;
 pub mod arrays;
 
+mod segment;
 mod section;
 mod binary;
 
+pub use segment::Segment;
 pub use section::Section;
 pub use binary::Binary;

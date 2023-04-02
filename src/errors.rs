@@ -13,6 +13,10 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(ThisError, Debug)]
 pub enum Error {
 
+    /// A resource could not be found
+    #[error("That resource or value could not be found")]
+    NotFound,
+
     /// Binary data could not be parsed into fields
     #[error("Binary could not be parsed")]
     ParseError,

@@ -1,19 +1,19 @@
-use crate::headers::SectionHeader;
+use crate::headers::ProgramHeader;
 use crate::errors::{Error,Result};
 
-/// A Section extracted from an ELF file
-pub struct Section {
-    header: SectionHeader
+/// A Segment extracted from an ELF file
+pub struct Segment {
+    header: ProgramHeader
 }
 
-impl Section {
+impl Segment {
 
-    /// Create a new section from a section header
-    pub fn new(header: SectionHeader) -> Self {
+    /// Create a new segment from a program header
+    pub fn new(header: ProgramHeader) -> Self {
         Self { header }
     }
 
-    /// Get the body of the section given a byte buffer
+    /// Get the body of the segment given a byte buffer
     pub fn body<'a>(&self, bytes: &'a [u8]) -> Result<&'a [u8]> {
         let size = self
             .header

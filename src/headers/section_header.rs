@@ -8,7 +8,7 @@ use enumflags2::BitFlags;
 
 use crate::common::Item;
 use crate::common::ranges::*;
-use crate::errors::{Error,Result};
+use crate::errors::Result;
 
 /// Section headers extracted from an ELF file.
 /// 
@@ -265,25 +265,6 @@ impl SectionHeader {
         self.sh_entsize.set(entsize);
     }
 
-    /// Get the body of the section given a byte buffer
-    pub fn body<'a>(&self, bytes: &'a [u8]) -> Result<&'a [u8]> {
-        let size = self
-            .body_size()
-            .ok_or(Error::MalformedDataError)?;
-
-        let offset = self
-            .offset()
-            .ok_or(Error::MalformedDataError)?;
-
-        let start = offset;
-        let end = start + size;
-
-        if end < bytes.len() {
-            Ok(&bytes[start..end])
-        } else {
-            Err(Error::OutOfBoundsError)
-        }
-    }
 }
 
 #[cfg(test)]

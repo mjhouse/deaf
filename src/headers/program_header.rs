@@ -17,10 +17,10 @@ pub struct ProgramHeader {
     width: Width,
     p_type: Item<u32,u32,PHType>,
     p_flags: Item<u32>,
-    p_offset: Item<u32,u64>,
+    p_offset: Item<u32,u64,usize>,
     p_vaddr: Item<u32,u64>,
     p_paddr: Item<u32,u64>,
-    p_filesz: Item<u32,u64>,
+    p_filesz: Item<u32,u64,usize>,
     p_memsz: Item<u32,u64>,
     p_align: Item<u32,u64>,
 }
@@ -169,12 +169,12 @@ impl ProgramHeader {
     }
 
     /// Get the `p_offset` attribute of the header
-    pub fn offset(&self) -> Option<u64> {
+    pub fn offset(&self) -> Option<usize> {
         self.p_offset.get()
     }
 
     /// Set the `p_offset` attribute of the header 
-    pub fn set_offset(&mut self, offset: u64) {
+    pub fn set_offset(&mut self, offset: usize) {
         self.p_offset.set(offset);
     }
 
@@ -199,12 +199,12 @@ impl ProgramHeader {
     }
 
     /// Get the `p_filesz` attribute of the header
-    pub fn filesz(&self) -> Option<u64> {
+    pub fn filesz(&self) -> Option<usize> {
         self.p_filesz.get()
     }
 
     /// Set the `p_filesz` attribute of the header 
-    pub fn set_filesz(&mut self, filesz: u64) {
+    pub fn set_filesz(&mut self, filesz: usize) {
         self.p_filesz.set(filesz);
     }
 
@@ -226,6 +226,16 @@ impl ProgramHeader {
     /// Set the `p_align` attribute of the header 
     pub fn set_align(&mut self, align: u64) {
         self.p_align.set(align);
+    }
+
+    /// Get the `p_filesz` attribute of the header
+    pub fn body_size(&self) -> Option<usize> {
+        self.p_filesz.get()
+    }
+
+    /// Set the `p_filesz` attribute of the header 
+    pub fn set_body_size(&mut self, body_size: usize) {
+        self.p_filesz.set(body_size);
     }
 
 }
