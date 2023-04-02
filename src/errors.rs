@@ -37,6 +37,10 @@ pub enum Error {
     #[error("Could not convert from primitive value")]
     FromPrimitiveError(String),
 
+    /// Failed to access shared data because Mutex is poisoned
+    #[error("Mutex is poisoned and data is unavailable")]
+    PoisonError(String),
+
     /// Bytes with no nul terminator could not be parsed as c-string
     #[error("Could not parse bytes into CStr representation")]
     FromBytesWithNulError(#[from] std::ffi::FromBytesWithNulError),
@@ -69,6 +73,12 @@ pub enum Error {
     #[error("Failed while converting integer to different integer")]
     IntConvertError(#[from] std::num::TryFromIntError),
 
+}
+
+impl<T> From<std::sync::PoisonError<T>> for Error {
+    fn from(e: std::sync::PoisonError<T>) -> Self {
+        Error::PoisonError(format!("std::sync::PoisonError: {}",e.to_string()))
+    }
 }
 
 impl<T> From<TryFromPrimitiveError<T>> for Error

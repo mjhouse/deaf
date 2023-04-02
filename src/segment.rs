@@ -1,20 +1,24 @@
+use crate::common::Data;
 use crate::headers::ProgramHeader;
 use crate::errors::{Error,Result};
 
 /// A Segment extracted from an ELF file
 pub struct Segment {
-    header: ProgramHeader
+    header: ProgramHeader,
+    data: Data
 }
 
 impl Segment {
 
     /// Create a new segment from a program header
-    pub fn new(header: ProgramHeader) -> Self {
-        Self { header }
+    pub fn new(header: ProgramHeader, data: Data) -> Self {
+        Self { header, data }
     }
 
     /// Get the body of the segment given a byte buffer
-    pub fn body<'a>(&self, bytes: &'a [u8]) -> Result<&'a [u8]> {
+    pub fn body(&self) -> Result<Vec<u8>> {
+        let data = &self.data.lock()?;
+
         let size = self
             .header
             .body_size()
@@ -28,8 +32,8 @@ impl Segment {
         let start = offset;
         let end = start + size;
 
-        if end < bytes.len() {
-            Ok(&bytes[start..end])
+        if end < data.len() {
+            Ok(data[start..end].into())
         } else {
             Err(Error::OutOfBoundsError)
         }

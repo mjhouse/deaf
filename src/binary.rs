@@ -1,14 +1,15 @@
 use std::path::Path;
+use std::sync::{Arc,Mutex};
 
 use crate::{Section,Segment};
 use crate::headers::{FileHeader,SectionHeader,ProgramHeader};
 use crate::errors::{Result,Error};
-use crate::common::{ Width, Layout };
+use crate::common::{ Width, Layout, Data };
 
 /// An ELF formatted binary file
 pub struct Binary {
     header: FileHeader,
-    data: Vec<u8>,
+    data: Data,
 }
 
 impl Binary {
@@ -17,10 +18,10 @@ impl Binary {
     pub fn new<T: AsRef<Path>>(path: T) -> Result<Self> {
         let data = std::fs::read(path.as_ref())?;
         let header = FileHeader::parse(&data)?;
-        Ok(Self { header, data })
+        Ok(Self { header, data: Arc::new(Mutex::new(data)) })
     }
 
-    /// Get a vector of all Sections in the binary
+    /// Get a vector of all sections in the binary
     pub fn sections(&self) -> Result<Vec<Section>> {
         let count = self.shnum()?;
         let offset = self.shoff()?;
@@ -28,8 +29,10 @@ impl Binary {
         let layout = self.layout()?;
         let width = self.width()?;
 
+        let data: &[u8] = &self.data.lock()?;
+
         SectionHeader::parse_all(
-            &self.data,
+            data,
             count,
             offset,
             size,
@@ -37,11 +40,13 @@ impl Binary {
             width
         ).map(|v| v
             .into_iter()
-            .map(|h| Section::new(h))
+            .map(|header| Section::new(
+                header,
+                self.data.clone()))
             .collect())
     }
 
-    /// Get a vector of all Segments in the binary
+    /// Get a vector of all segments in the binary
     pub fn segments(&self) -> Result<Vec<Segment>> {
         let count = self.phnum()?;
         let offset = self.phoff()?;
@@ -49,8 +54,10 @@ impl Binary {
         let layout = self.layout()?;
         let width = self.width()?;
 
+        let data: &[u8] = &self.data.lock()?;
+
         ProgramHeader::parse_all(
-            &self.data,
+            data,
             count,
             offset,
             size,
@@ -58,18 +65,10 @@ impl Binary {
             width
         ).map(|v| v
             .into_iter()
-            .map(|h| Segment::new(h))
+            .map(|header| Segment::new(
+                header,
+                self.data.clone()))
             .collect())
-    }
-
-    /// Get an immutable reference to the binary buffer
-    pub fn data(&self) -> &[u8] {
-        &self.data
-    }
-
-    /// Get a mutable reference to the binary buffer
-    pub fn data_mut(&mut self) -> &mut [u8] {
-        &mut self.data
     }
 
     /// Get the number of section headers in the file
