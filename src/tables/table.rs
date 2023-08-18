@@ -40,6 +40,16 @@ impl<T> Table<T>
 where
     T: TableItem + Default
 {
+    pub fn empty() -> Self {
+        Self {
+            table_offset: 0,
+            table_size: 0,
+            item_size: 0,
+            layout: Layout::Little,
+            width: Width::X64,
+            items: vec![]
+        }
+    }
 
     /// Create a new table from section information taken from
     /// a section header.
@@ -426,11 +436,7 @@ mod tests {
         assert!(section_headers.is_ok());
         let headers = section_headers.unwrap();
 
-        let result = headers
-            .iter()
-            .enumerate()
-            .find(|(i,_)| *i == index)
-            .map(|(_,h)| h);
+        let result = headers.get(index);
 
         assert!(result.is_some());
 

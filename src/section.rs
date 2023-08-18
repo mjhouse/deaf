@@ -1,4 +1,5 @@
 use crate::common::Data;
+use crate::binary::Binary;
 use crate::headers::SectionHeader;
 use crate::errors::{Error,Result};
 use std::ops::DerefMut;
@@ -16,7 +17,23 @@ impl Section {
         Self { header, data }
     }
 
-    /// Get the body of the segment given a byte buffer
+    pub fn header(&self) -> &SectionHeader {
+        &self.header
+    }
+
+    pub fn header_mut(&mut self) -> &mut SectionHeader {
+        &mut self.header
+    }
+
+    pub fn name(&self, binary: &Binary) -> String {
+        // parse string buffers
+
+        // get self 
+
+        unimplemented!();
+    }
+
+    /// Get the body of the section
     pub fn body(&self) -> Result<Vec<u8>> {
         let data = &self.data.lock()?;
 

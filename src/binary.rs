@@ -1,15 +1,18 @@
 use std::path::Path;
 use std::sync::{Arc,Mutex};
 
-use crate::{Section,Segment};
-use crate::headers::{FileHeader,SectionHeader,ProgramHeader};
+use crate::{Section, Segment};
+use crate::headers::{FileHeader, SectionHeader, ProgramHeader};
 use crate::errors::{Result,Error};
-use crate::common::{ Width, Layout, Data };
+use crate::common::{Width, Layout, Data};
+use crate::tables::{StringTable};
 
 /// An ELF formatted binary file
 pub struct Binary {
     header: FileHeader,
     data: Data,
+    sections: Vec<Section>,
+    names: Option<StringTable>
 }
 
 impl Binary {
@@ -18,57 +21,72 @@ impl Binary {
     pub fn new<T: AsRef<Path>>(path: T) -> Result<Self> {
         let data = std::fs::read(path.as_ref())?;
         let header = FileHeader::parse(&data)?;
-        Ok(Self { header, data: Arc::new(Mutex::new(data)) })
+
+        Ok(Self { 
+            header: header, 
+            data: Arc::new(Mutex::new(data)),
+            sections: Vec::new(),
+            names: None,
+        })
     }
 
     /// Get a vector of all sections in the binary
-    pub fn sections(&self) -> Result<Vec<Section>> {
-        let count = self.shnum()?;
-        let offset = self.shoff()?;
-        let size = self.shentsize()?;
-        let layout = self.layout()?;
-        let width = self.width()?;
-
-        let data: &[u8] = &self.data.lock()?;
-
-        SectionHeader::parse_all(
-            data,
-            count,
-            offset,
-            size,
-            layout,
-            width
-        ).map(|v| v
-            .into_iter()
-            .map(|header| Section::new(
-                header,
-                self.data.clone()))
-            .collect())
+    pub fn sections(&mut self) -> Result<&Vec<Section>> {
+        if self.sections.len() == 0 {
+            let count = self.shnum()?;
+            let offset = self.shoff()?;
+            let size = self.shentsize()?;
+            let layout = self.layout()?;
+            let width = self.width()?;
+    
+            let data: &[u8] = &self.data.lock()?;
+    
+            self.sections = SectionHeader::parse_all(
+                data,
+                count,
+                offset,
+                size,
+                layout,
+                width
+            ).map(|v| v
+                .into_iter()
+                .map(|header| Section::new(
+                    header,
+                    self.data.clone()))
+                .collect())
+            .unwrap_or(Vec::new());
+        }
+        Ok(&self.sections)
     }
 
-    /// Get a vector of all segments in the binary
-    pub fn segments(&self) -> Result<Vec<Segment>> {
-        let count = self.phnum()?;
-        let offset = self.phoff()?;
-        let size = self.phentsize()?;
-        let layout = self.layout()?;
-        let width = self.width()?;
+    // Get a single section by index
+    pub fn section(&mut self, index: usize) -> Option<&Section> {
+        self.sections()
+            .ok()?
+            .get(index)
+    }
 
-        let data: &[u8] = &self.data.lock()?;
+    /// Get a vector of all string tables in the binary
+    pub fn section_names(&mut self) -> Result<&StringTable> {
+        if self.names.is_none() {
+            let index = self.header.shstrndx().ok_or(Error::NotFound)?;
+            let section = self.section(index).ok_or(Error::NotFound)?;
+            
+            let mut table = StringTable::try_from(section.header())?;
 
-        ProgramHeader::parse_all(
-            data,
-            count,
-            offset,
-            size,
-            layout,
-            width
-        ).map(|v| v
-            .into_iter()
-            .map(|header| Segment::new(
-                header,
-                self.data.clone()))
-            .collect())
+            let data: &[u8] = &self.data.lock()?;
+            table.read(data);
+
+            self.names = Some(table);
+        }
+        self.names.as_ref().ok_or(Error::NotFound)
+    }
+
+    pub fn section_name(&mut self, index: usize) -> Option<String> {
+        self.section_names()
+            .ok()?
+            .get(index)
+            .map(|v| v.string_lossy())
     }
 
     /// Get the number of section headers in the file
@@ -111,4 +129,20 @@ impl Binary {
         self.header.class().ok_or(Error::NotFound)
     }
 
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_read_string_table() {
+        let mut binary = Binary::new("assets/libjpeg/libjpeg.so.9").unwrap();
+
+        let name = binary.section_name(1);
+        assert!(name.is_some());
+
+        let value = name.unwrap();
+        assert_eq!(value.as_str(),".symtab");
+    }
 }
