@@ -1,10 +1,10 @@
 //! File, program and section header definitions
 //!
 
-mod file_header;
-mod program_header;
-mod section_header;
+mod file;
+mod program;
+mod section;
 
-pub use file_header::FileHeader;
-pub use program_header::ProgramHeader;
-pub use section_header::SectionHeader;
+pub use file::FileHeader;
+pub use program::ProgramHeader;
+pub use section::SectionHeader;
