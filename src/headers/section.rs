@@ -166,7 +166,7 @@ impl SectionHeader {
     }
 
     /// Get the `sh_name` attribute of the header
-    pub fn name(&self) -> Option<u32> {
+    pub fn name(&self) -> u32 {
         self.sh_name.get()
     }
 
@@ -176,7 +176,7 @@ impl SectionHeader {
     }
 
     /// Get the `sh_type` attribute of the header
-    pub fn kind(&self) -> Option<SHType> {
+    pub fn kind(&self) -> SHType {
         self.sh_type.get()
     }
 
@@ -186,7 +186,7 @@ impl SectionHeader {
     }
 
     /// Get the `sh_flags` attribute of the header
-    pub fn flags(&self) -> Option<BitFlags<SHFlags>> {
+    pub fn flags(&self) -> BitFlags<SHFlags> {
         self.sh_flags.get()
     }
 
@@ -196,7 +196,7 @@ impl SectionHeader {
     }
 
     /// Get the `sh_address` attribute of the header
-    pub fn address(&self) -> Option<u64> {
+    pub fn address(&self) -> u64 {
         self.sh_address.get()
     }
 
@@ -206,7 +206,7 @@ impl SectionHeader {
     }
 
     /// Get the `sh_offset` attribute of the header
-    pub fn offset(&self) -> Option<usize> {
+    pub fn offset(&self) -> usize {
         self.sh_offset.get()
     }
 
@@ -216,7 +216,7 @@ impl SectionHeader {
     }
 
     /// Get the `sh_size` attribute of the header
-    pub fn body_size(&self) -> Option<usize> {
+    pub fn body_size(&self) -> usize {
         self.sh_size.get()
     }
 
@@ -226,7 +226,7 @@ impl SectionHeader {
     }
 
     /// Get the `sh_link` attribute of the header
-    pub fn link(&self) -> Option<u32> {
+    pub fn link(&self) -> u32 {
         self.sh_link.get()
     }
 
@@ -236,7 +236,7 @@ impl SectionHeader {
     }
 
     /// Get the `sh_info` attribute of the header
-    pub fn info(&self) -> Option<u32> {
+    pub fn info(&self) -> u32 {
         self.sh_info.get()
     }
 
@@ -246,7 +246,7 @@ impl SectionHeader {
     }
 
     /// Get the `sh_addralign` attribute of the header
-    pub fn addralign(&self) -> Option<u64> {
+    pub fn addralign(&self) -> u64 {
         self.sh_addralign.get()
     }
 
@@ -256,7 +256,7 @@ impl SectionHeader {
     }
 
     /// Get the `sh_entsize` attribute of the header
-    pub fn entsize(&self) -> Option<usize> {
+    pub fn entsize(&self) -> usize {
         self.sh_entsize.get()
     }
 
@@ -281,11 +281,11 @@ mod tests {
         // get the file header to find section headers
         let file_header = FileHeader::parse(&b).unwrap();
 
-        let count = file_header.shnum().unwrap();
-        let offset = file_header.shoff().unwrap();
-        let size = file_header.shentsize().unwrap();
-        let layout = file_header.data().unwrap();
-        let width = file_header.class().unwrap();
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
         
         // parse all section headers in file
         let section_headers = SectionHeader::parse_all(
@@ -304,8 +304,8 @@ mod tests {
 
         // check values are what we expected
         assert_eq!(header.size(),size);
-        assert_eq!(header.body_size(),Some(0x7c4));
-        assert_eq!(header.offset(),Some(0x2f0));
+        assert_eq!(header.body_size(),0x7c4);
+        assert_eq!(header.offset(),0x2f0);
     }
 
     #[test]
@@ -315,11 +315,11 @@ mod tests {
         // get the file header to find section headers
         let file_header = FileHeader::parse(&b).unwrap();
 
-        let count = file_header.shnum().unwrap();
-        let offset = file_header.shoff().unwrap();
-        let size = file_header.shentsize().unwrap();
-        let layout = file_header.data().unwrap();
-        let width = file_header.class().unwrap();
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
         
         // parse all section headers in file
         let section_headers = SectionHeader::parse_all(
@@ -358,11 +358,11 @@ mod tests {
         // get the file header to find section headers
         let file_header = FileHeader::parse(&b).unwrap();
 
-        let count = file_header.shnum().unwrap();
-        let offset = file_header.shoff().unwrap();
-        let size = file_header.shentsize().unwrap();
-        let layout = file_header.data().unwrap();
-        let width = file_header.class().unwrap();
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
         
         // parse all section headers in file
         let section_headers = SectionHeader::parse_all(
@@ -401,6 +401,6 @@ mod tests {
         assert!(result.is_ok());
 
         // check that the re-parsed header has changed value
-        assert_eq!(header.address(),Some(123));
+        assert_eq!(header.address(),123);
     }
 }

@@ -1,7 +1,7 @@
 use crate::errors::{Error, Result};
 use crate::common::{Width,Layout,SHType};
 use crate::headers::SectionHeader;
-use crate::arrays::array_item::ArrayItem;
+use crate::arrays::ArrayItem;
 use crate::common::ByteIter;
 
 /// A section interpreted as an array
@@ -151,15 +151,15 @@ impl TryFrom<&SectionHeader> for Array {
     type Error = Error;
 
     fn try_from(header: &SectionHeader) -> Result<Self> {
-        match header.kind().unwrap_or(SHType::SHT_NULL) {
+        match header.kind() {
             SHType::SHT_INIT_ARRAY | SHType::SHT_PREINIT_ARRAY | SHType::SHT_FINI_ARRAY 
             => Ok(Self::new(
-                header.offset().ok_or(Error::MalformedDataError)?,
-                header.body_size().ok_or(Error::MalformedDataError)?,
+                header.offset(),
+                header.body_size(),
                 header.layout(),
                 header.width(),
-                header.kind().ok_or(Error::MalformedDataError)?,
-                header.entsize().ok_or(Error::MalformedDataError)?
+                header.kind(),
+                header.entsize()
             )),
             _ => Err(Error::WrongSectionError)
         }
@@ -194,11 +194,11 @@ mod tests {
 
         let file_header = FileHeader::parse(&b).unwrap();
 
-        let count = file_header.shnum().unwrap();
-        let offset = file_header.shoff().unwrap();
-        let size = file_header.shentsize().unwrap();
-        let layout = file_header.data().unwrap();
-        let width = file_header.class().unwrap();
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
         
         let section_headers = SectionHeader::parse_all(
             &b,
@@ -212,7 +212,7 @@ mod tests {
         let headers = section_headers.unwrap();
 
         let result = headers.iter().find(|&h| 
-            h.kind() == Some(SHType::SHT_INIT_ARRAY));
+            h.kind() == SHType::SHT_INIT_ARRAY);
 
         assert!(result.is_some());
 
@@ -233,11 +233,11 @@ mod tests {
 
         let file_header = FileHeader::parse(&b).unwrap();
 
-        let count = file_header.shnum().unwrap();
-        let offset = file_header.shoff().unwrap();
-        let size = file_header.shentsize().unwrap();
-        let layout = file_header.data().unwrap();
-        let width = file_header.class().unwrap();
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
         
         let section_headers = SectionHeader::parse_all(
             &b,
@@ -251,7 +251,7 @@ mod tests {
         let headers = section_headers.unwrap();
 
         let result = headers.iter().find(|&h| 
-            h.kind() == Some(SHType::SHT_FINI_ARRAY));
+            h.kind() == SHType::SHT_FINI_ARRAY);
 
         assert!(result.is_some());
 
@@ -413,7 +413,7 @@ mod tests {
 
         // check the element is changed
         let item = result.unwrap();
-        assert_eq!(item.value(),Some(123));
+        assert_eq!(item.value(),123);
     }
 
     #[test]
@@ -463,6 +463,6 @@ mod tests {
 
         // check the element is changed
         let item = result.unwrap();
-        assert_eq!(item.value(),Some(123));
+        assert_eq!(item.value(),123);
     }
 }

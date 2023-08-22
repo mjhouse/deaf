@@ -1,8 +1,8 @@
 use crate::errors::{Error,Result};
-use crate::common::{ByteIter,Width,Layout,SHType};
+use crate::common::{Data,ByteIter,Width,Layout,SHType};
 use crate::headers::SectionHeader;
 
-use crate::tables::table_item::{
+use crate::tables::{
     TableItem,
     StringItem,
     SymbolItem,
@@ -64,6 +64,12 @@ where
         }
     }
 
+    /// Read from buffer, returning the table
+    pub fn parse(mut self, data: &Data) -> Result<Self> {
+        self.read(&data.lock()?)?;
+        Ok(self)
+    }
+
     /// Read from buffer, returning the number of items read
     pub fn read(&mut self, bytes: &[u8]) -> Result<usize> {
         let start = self.table_offset;
@@ -104,7 +110,7 @@ where
     pub fn write(&self, bytes: &mut [u8]) -> Result<usize> {
 
         // check buffer is big enough
-        if bytes.len() > self.size() {
+        if bytes.len() < self.size() {
             return Err(Error::OutOfBoundsError);
         }
 
@@ -125,7 +131,7 @@ where
             let buffer = &mut items[start..end];
 
             // write the item to the byte slice
-            item.write(buffer)?;
+            item.write(buffer).unwrap();
 
             // update the offset for the next item
             offset += item.size();
@@ -185,11 +191,11 @@ impl TryFrom<&SectionHeader> for SymbolTable {
     type Error = Error;
 
     fn try_from(header: &SectionHeader) -> Result<Self> {
-        match header.kind().unwrap_or(SHType::SHT_NULL) {
+        match header.kind() {
             SHType::SHT_SYMTAB => Ok(Self::new(
-                header.offset().ok_or(Error::MalformedDataError)?,
-                header.body_size().ok_or(Error::MalformedDataError)?,
-                header.entsize().ok_or(Error::MalformedDataError)?,
+                header.offset(),
+                header.body_size(),
+                header.entsize(),
                 header.layout(),
                 header.width()
             )),
@@ -202,11 +208,11 @@ impl TryFrom<&SectionHeader> for StringTable {
     type Error = Error;
 
     fn try_from(header: &SectionHeader) -> Result<Self> {
-        match header.kind().unwrap_or(SHType::SHT_NULL) {
+        match header.kind() {
             SHType::SHT_STRTAB => Ok(Self::new(
-                header.offset().ok_or(Error::MalformedDataError)?,
-                header.body_size().ok_or(Error::MalformedDataError)?,
-                header.entsize().ok_or(Error::MalformedDataError)?,
+                header.offset(),
+                header.body_size(),
+                header.entsize(),
                 header.layout(),
                 header.width()
             )),
@@ -219,11 +225,11 @@ impl TryFrom<&SectionHeader> for RelocationTable {
     type Error = Error;
 
     fn try_from(header: &SectionHeader) -> Result<Self> {
-        match header.kind().unwrap_or(SHType::SHT_NULL) {
+        match header.kind() {
             SHType::SHT_RELA | SHType::SHT_REL => Ok(Self::new(
-                header.offset().ok_or(Error::MalformedDataError)?,
-                header.body_size().ok_or(Error::MalformedDataError)?,
-                header.entsize().ok_or(Error::MalformedDataError)?,
+                header.offset(),
+                header.body_size(),
+                header.entsize(),
                 header.layout(),
                 header.width()
             )),
@@ -277,11 +283,11 @@ mod tests {
 
         let file_header = FileHeader::parse(&b).unwrap();
 
-        let count = file_header.shnum().unwrap();
-        let offset = file_header.shoff().unwrap();
-        let size = file_header.shentsize().unwrap();
-        let layout = file_header.data().unwrap();
-        let width = file_header.class().unwrap();
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
         
         let section_headers = SectionHeader::parse_all(
             &b,
@@ -295,7 +301,7 @@ mod tests {
         let headers = section_headers.unwrap();
 
         let result = headers.iter().find(|&h| 
-            h.kind() == Some(SHType::SHT_RELA));
+            h.kind() == SHType::SHT_RELA);
 
         assert!(result.is_some());
 
@@ -407,7 +413,7 @@ mod tests {
 
         // check the item attribute is changed
         let item = result.unwrap();
-        assert_eq!(item.addend_unchecked(),20);
+        assert_eq!(item.addend(),20);
     }
 
     #[test]
@@ -417,12 +423,12 @@ mod tests {
         // get the fileheader and use it to find section headers
         let file_header = FileHeader::parse(&b).unwrap();
 
-        let count = file_header.shnum().unwrap();
-        let offset = file_header.shoff().unwrap();
-        let size = file_header.shentsize().unwrap();
-        let layout = file_header.data().unwrap();
-        let width = file_header.class().unwrap();
-        let index = file_header.shstrndx().unwrap();
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+        let index = file_header.shstrndx();
         
         // parse all section headers from the buffer
         let section_headers = SectionHeader::parse_all(
@@ -555,11 +561,11 @@ mod tests {
 
         let file_header = FileHeader::parse(&b).unwrap();
 
-        let count = file_header.shnum().unwrap();
-        let offset = file_header.shoff().unwrap();
-        let size = file_header.shentsize().unwrap();
-        let layout = file_header.data().unwrap();
-        let width = file_header.class().unwrap();
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
         
         // parse all section headers from the buffer
         let section_headers = SectionHeader::parse_all(
@@ -574,7 +580,7 @@ mod tests {
         let headers = section_headers.unwrap();
 
         let result = headers.iter().find(|&h| 
-            h.kind() == Some(SHType::SHT_SYMTAB));
+            h.kind() == SHType::SHT_SYMTAB);
 
         assert!(result.is_some());
 
@@ -686,6 +692,6 @@ mod tests {
 
         // check the item attribute is changed
         let item = result.unwrap();
-        assert_eq!(item.value_unchecked(),20);
+        assert_eq!(item.value(),20);
     }
 }

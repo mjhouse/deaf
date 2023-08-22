@@ -5,6 +5,7 @@ use crate::errors::{Error,Result};
 use std::ops::DerefMut;
 
 /// A Section extracted from an ELF file
+#[derive(Debug)]
 pub struct Section {
     header: SectionHeader,
     data: Data
@@ -25,13 +26,12 @@ impl Section {
         &mut self.header
     }
 
-    pub fn name(&self, binary: &Binary) -> String {
-        // parse string buffers
-
-        // get self 
-
-        unimplemented!();
-    }
+    // pub fn name(&self, binary: &Binary) -> Option<String> {
+    //     self.header
+    //         .name()
+    //         .and_then(|i| binary
+    //             .section_name(i as usize))
+    // }
 
     /// Get the body of the section
     pub fn body(&self) -> Result<Vec<u8>> {
@@ -39,13 +39,11 @@ impl Section {
 
         let size = self
             .header
-            .body_size()
-            .ok_or(Error::MalformedDataError)?;
+            .body_size();
 
         let offset = self
             .header
-            .offset()
-            .ok_or(Error::MalformedDataError)?;
+            .offset();
 
         let start = offset;
         let end = start + size;
@@ -57,9 +55,25 @@ impl Section {
         }
     }
 
-    fn test_mut(&mut self) -> Result<()> {
-        let test: &mut Vec<u8> = self.data.lock()?.deref_mut();
-        Ok(())
-    }
+    // fn test_mut(&mut self) -> Result<()> {
+    //     let test: &mut Vec<u8> = self.data.lock()?.deref_mut();
+    //     Ok(())
+    // }
 
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::headers::FileHeader;
+
+    use crate::utilities::read;
+
+    // #[test]
+    // fn test_read_section_headers() {
+    //     let binary = Binary::new("assets/libvpf/libvpf.so.4.1").unwrap();
+    //     let section = binary.section_by_name(".text".into());
+
+    //     dbg!(section);
+    // }
 }

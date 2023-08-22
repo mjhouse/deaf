@@ -21,13 +21,11 @@ impl Segment {
 
         let size = self
             .header
-            .body_size()
-            .ok_or(Error::MalformedDataError)?;
+            .body_size();
 
         let offset = self
             .header
-            .offset()
-            .ok_or(Error::MalformedDataError)?;
+            .offset();
 
         let start = offset;
         let end = start + size;

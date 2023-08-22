@@ -2,7 +2,7 @@ use crate::errors::Result;
 use crate::common::{Convert, STBind, STType};
 
 /// Representation of the info field in a Symbol record
-#[derive(Clone,Copy)]
+#[derive(Default,Clone,Copy)]
 pub struct SymbolInfo {
     bind: STBind,
     kind: STType,

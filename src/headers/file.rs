@@ -85,12 +85,10 @@ impl FileHeader {
         self.ei_pad.read(b)?;
 
         let layout = self
-            .data()
-            .ok_or(Error::ParseError)?;
+            .data();
 
         let width = self
-            .class()
-            .ok_or(Error::ParseError)?;
+            .class();
 
         self.set_layout(layout);
         self.set_width(width);
@@ -210,7 +208,7 @@ impl FileHeader {
     }
 
     /// Get the `ei_magic` attribute of the header
-    pub fn magic(&self) -> Option<String> {
+    pub fn magic(&self) -> String {
         self.ei_magic.get()
     }
 
@@ -220,7 +218,7 @@ impl FileHeader {
     }
 
     /// Get the `ei_class` attribute of the header
-    pub fn class(&self) -> Option<Width> {
+    pub fn class(&self) -> Width {
         self.ei_class.get()
     }
 
@@ -230,7 +228,7 @@ impl FileHeader {
     }
 
     /// Get the `ei_data` attribute of the header
-    pub fn data(&self) -> Option<Layout> {
+    pub fn data(&self) -> Layout {
         self.ei_data.get()
     }
 
@@ -240,7 +238,7 @@ impl FileHeader {
     }
 
     /// Get the `ei_version` attribute of the header
-    pub fn version(&self) -> Option<u8> {
+    pub fn version(&self) -> u8 {
         self.ei_version.get()
     }
 
@@ -250,7 +248,7 @@ impl FileHeader {
     }
 
     /// Get the `ei_osabi` attribute of the header
-    pub fn osabi(&self) -> Option<u8> {
+    pub fn osabi(&self) -> u8 {
         self.ei_osabi.get()
     }
 
@@ -260,7 +258,7 @@ impl FileHeader {
     }
 
     /// Get the `abiversion` attribute of the header
-    pub fn abiversion(&self) -> Option<u8> {
+    pub fn abiversion(&self) -> u8 {
         self.ei_abiversion.get()
     }
 
@@ -270,7 +268,7 @@ impl FileHeader {
     }
 
     /// Get the `e_type` attribute of the header
-    pub fn file_type(&self) -> Option<u16> {
+    pub fn file_type(&self) -> u16 {
         self.e_type.get()
     }
 
@@ -280,7 +278,7 @@ impl FileHeader {
     }
 
     /// Get the `e_machine` attribute of the header
-    pub fn machine(&self) -> Option<u16> {
+    pub fn machine(&self) -> u16 {
         self.e_machine.get()
     }
 
@@ -290,7 +288,7 @@ impl FileHeader {
     }
 
     /// Get the `e_entry` attribute of the header
-    pub fn entry(&self) -> Option<u64> {
+    pub fn entry(&self) -> u64 {
         self.e_entry.get()
     }
 
@@ -300,7 +298,7 @@ impl FileHeader {
     }
 
     /// Get the `e_phoff` attribute of the header
-    pub fn phoff(&self) -> Option<usize> {
+    pub fn phoff(&self) -> usize {
         self.e_phoff.get()
     }
 
@@ -310,7 +308,7 @@ impl FileHeader {
     }
 
     /// Get the `e_shoff` attribute of the header
-    pub fn shoff(&self) -> Option<usize> {
+    pub fn shoff(&self) -> usize {
         self.e_shoff.get()
     }
 
@@ -320,7 +318,7 @@ impl FileHeader {
     }
 
     /// Get the `e_flags` attribute of the header
-    pub fn flags(&self) -> Option<u32> {
+    pub fn flags(&self) -> u32 {
         self.e_flags.get()
     }
 
@@ -330,7 +328,7 @@ impl FileHeader {
     }
 
     /// Get the `e_ehsize` attribute of the header
-    pub fn ehsize(&self) -> Option<u16> {
+    pub fn ehsize(&self) -> u16 {
         self.e_ehsize.get()
     }
 
@@ -340,7 +338,7 @@ impl FileHeader {
     }
 
     /// Get the `e_phentsize` attribute of the header
-    pub fn phentsize(&self) -> Option<usize> {
+    pub fn phentsize(&self) -> usize {
         self.e_phentsize.get()
     }
 
@@ -350,7 +348,7 @@ impl FileHeader {
     }
 
     /// Get the `e_phnum` attribute of the header
-    pub fn phnum(&self) -> Option<usize> {
+    pub fn phnum(&self) -> usize {
         self.e_phnum.get()
     }
 
@@ -360,7 +358,7 @@ impl FileHeader {
     }
 
     /// Get the `e_shentsize` attribute of the header
-    pub fn shentsize(&self) -> Option<usize> {
+    pub fn shentsize(&self) -> usize {
         self.e_shentsize.get()
     }
 
@@ -370,7 +368,7 @@ impl FileHeader {
     }
 
     /// Get the `e_shnum` attribute of the header
-    pub fn shnum(&self) -> Option<usize> {
+    pub fn shnum(&self) -> usize {
         self.e_shnum.get()
     }
 
@@ -380,7 +378,7 @@ impl FileHeader {
     }
 
     /// Get the `e_shstrndx` attribute of the header
-    pub fn shstrndx(&self) -> Option<usize> {
+    pub fn shstrndx(&self) -> usize {
         self.e_shstrndx.get()
     }
 
@@ -409,9 +407,9 @@ mod tests {
 
         // check values equal values from readelf
         //      readelf -h assets/libvpf.so.4.1
-        assert_eq!(header.magic(),Some("ELF".to_string()));
-        assert_eq!(header.entry(),Some(0x5740));
-        assert_eq!(header.shoff(),Some(287440));
+        assert_eq!(header.magic(),"ELF".to_string());
+        assert_eq!(header.entry(),0x5740);
+        assert_eq!(header.shoff(),287440);
 
         // check calculated size matches known x64 ELF size
         assert_eq!(header.size(),64);
@@ -472,6 +470,6 @@ mod tests {
         let header = result.unwrap();
 
         // verify that the re-parsed shentsize is the new value
-        assert_eq!(header.shentsize(),Some(123));
+        assert_eq!(header.shentsize(),123);
     }
 }

@@ -149,7 +149,7 @@ impl ProgramHeader {
     }
 
     /// Get the `p_type` attribute of the header
-    pub fn kind(&self) -> Option<PHType> {
+    pub fn kind(&self) -> PHType {
         self.p_type.get()
     }
 
@@ -159,7 +159,7 @@ impl ProgramHeader {
     }
 
     /// Get the `p_flags` attribute of the header
-    pub fn flags(&self) -> Option<u32> {
+    pub fn flags(&self) -> u32 {
         self.p_flags.get()
     }
 
@@ -169,7 +169,7 @@ impl ProgramHeader {
     }
 
     /// Get the `p_offset` attribute of the header
-    pub fn offset(&self) -> Option<usize> {
+    pub fn offset(&self) -> usize {
         self.p_offset.get()
     }
 
@@ -179,7 +179,7 @@ impl ProgramHeader {
     }
 
     /// Get the `p_vaddr` attribute of the header
-    pub fn vaddr(&self) -> Option<u64> {
+    pub fn vaddr(&self) -> u64 {
         self.p_vaddr.get()
     }
 
@@ -189,7 +189,7 @@ impl ProgramHeader {
     }
 
     /// Get the `p_paddr` attribute of the header
-    pub fn paddr(&self) -> Option<u64> {
+    pub fn paddr(&self) -> u64 {
         self.p_paddr.get()
     }
 
@@ -199,7 +199,7 @@ impl ProgramHeader {
     }
 
     /// Get the `p_filesz` attribute of the header
-    pub fn filesz(&self) -> Option<usize> {
+    pub fn filesz(&self) -> usize {
         self.p_filesz.get()
     }
 
@@ -209,7 +209,7 @@ impl ProgramHeader {
     }
 
     /// Get the `p_memsz` attribute of the header
-    pub fn memsz(&self) -> Option<u64> {
+    pub fn memsz(&self) -> u64 {
         self.p_memsz.get()
     }
 
@@ -219,7 +219,7 @@ impl ProgramHeader {
     }
 
     /// Get the `p_align` attribute of the header
-    pub fn align(&self) -> Option<u64> {
+    pub fn align(&self) -> u64 {
         self.p_align.get()
     }
 
@@ -229,7 +229,7 @@ impl ProgramHeader {
     }
 
     /// Get the `p_filesz` attribute of the header
-    pub fn body_size(&self) -> Option<usize> {
+    pub fn body_size(&self) -> usize {
         self.p_filesz.get()
     }
 
@@ -254,11 +254,11 @@ mod tests {
         // get the file header to find program headers
         let file_header = FileHeader::parse(&b).unwrap();
 
-        let count = file_header.phnum().unwrap();
-        let offset = file_header.phoff().unwrap();
-        let size = file_header.phentsize().unwrap();
-        let layout = file_header.data().unwrap();
-        let width = file_header.class().unwrap();
+        let count = file_header.phnum();
+        let offset = file_header.phoff();
+        let size = file_header.phentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
         
         // parse all program headers in file
         let program_headers = ProgramHeader::parse_all(
@@ -277,8 +277,8 @@ mod tests {
 
         // check values are what we expected
         assert_eq!(header.size(),size);
-        assert_eq!(header.filesz(),Some(0x4348));
-        assert_eq!(header.align(),Some(0x1000));
+        assert_eq!(header.filesz(),0x4348);
+        assert_eq!(header.align(),0x1000);
     }
 
     #[test]
@@ -288,11 +288,11 @@ mod tests {
         // get the file header to find program headers
         let file_header = FileHeader::parse(&b).unwrap();
 
-        let count = file_header.phnum().unwrap();
-        let offset = file_header.phoff().unwrap();
-        let size = file_header.phentsize().unwrap();
-        let layout = file_header.data().unwrap();
-        let width = file_header.class().unwrap();
+        let count = file_header.phnum();
+        let offset = file_header.phoff();
+        let size = file_header.phentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
         
         // parse all program headers in file
         let program_headers = ProgramHeader::parse_all(
@@ -331,11 +331,11 @@ mod tests {
         // get the file header to find program headers
         let file_header = FileHeader::parse(&b).unwrap();
 
-        let count = file_header.phnum().unwrap();
-        let offset = file_header.phoff().unwrap();
-        let size = file_header.phentsize().unwrap();
-        let layout = file_header.data().unwrap();
-        let width = file_header.class().unwrap();
+        let count = file_header.phnum();
+        let offset = file_header.phoff();
+        let size = file_header.phentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
         
         // parse all program headers in file
         let program_headers = ProgramHeader::parse_all(
@@ -374,7 +374,7 @@ mod tests {
         assert!(result.is_ok());
 
         // check that the re-parsed header has changed value
-        assert_eq!(header.paddr(),Some(123));
+        assert_eq!(header.paddr(),123);
     }
 
 }

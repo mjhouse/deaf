@@ -7,9 +7,10 @@ use enumflags2::bitflags;
 /// passed to all of the other sections for parsing addresses etc.
 #[repr(u8)]
 #[allow(non_camel_case_types)]
-#[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
 pub enum Width {
     /// Mode of the ELF file is 32-bit
+    #[default]
     X32 = 0x01,
     /// Mode of the ELF file is 64-bit
     X64 = 0x02 
@@ -21,9 +22,10 @@ pub enum Width {
 /// passed to all of the other sections for parsing integers etc.
 #[repr(u8)]
 #[allow(non_camel_case_types)]
-#[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
 pub enum Layout {
     /// Little endian (e.g. 0xABCD is represented as 'CD AB')
+    #[default]
     Little = 0x01,
     /// Big endian (e.g. 0xABCD is represented as 'AB CD' )
     Big = 0x02
@@ -34,7 +36,7 @@ pub enum Layout {
 /// This enum is generally parsed from the program headers (p_type).
 #[repr(u32)]
 #[allow(non_camel_case_types)]
-#[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+#[derive( Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
 pub enum PHType {
     PT_NULL = 0x00000000,         // 	Program header table entry unused.
     PT_LOAD = 0x00000001,         // 	Loadable segment.
@@ -60,6 +62,10 @@ pub enum PHType {
     PT_HIPROC = 0x7fffffff,       //   Upper bound of processor-specific types
     #[num_enum(catch_all)]
     Unknown(u32)
+}
+
+impl Default for PHType {
+    fn default() -> Self { Self::PT_NULL }
 }
 
 /// The type of a section header
@@ -92,6 +98,10 @@ pub enum SHType {
     Unknown(u32),
 }
 
+impl Default for SHType {
+    fn default() -> Self { Self::SHT_NULL }
+}
+
 /// The flags of a particular section header
 ///
 /// This enum is generally parsed from the section headers (sh_flags).
@@ -121,8 +131,9 @@ pub enum SHFlags {
 /// This enum is parsed from symbol table entities (st_info).
 #[repr(u8)]
 #[allow(non_camel_case_types)]
-#[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
 pub enum STBind {
+    #[default]
     STB_LOCAL   = 0x00,
     STB_GLOBAL  = 0x01,
     STB_WEAK    = 0x02,
@@ -133,8 +144,9 @@ pub enum STBind {
 /// This enum is parsed from symbol table entities (st_info).
 #[repr(u8)]
 #[allow(non_camel_case_types)]
-#[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
 pub enum STType {
+    #[default]
     STT_NOTYPE  = 0x00,
     STT_OBJECT  = 0x01,
     STT_FUNC    = 0x02,

@@ -10,23 +10,23 @@ pub struct Item<T32 = u8, T64 = T32, Out = T64>
 where
     T32: FromBytes + IntoBytes + Convert<Out>,
     T64: FromBytes + IntoBytes + Convert<Out>,
-    Out: Convert<T32> + Convert<T64> + Debug + Clone,
+    Out: Convert<T32> + Convert<T64> + Debug + Clone + Default,
 {
     field: Field<T32,T64,Out>,
-    value: Option<Out>,
+    value: Out,
 }
 
 impl<T32, T64, Out> Item<T32, T64, Out>
 where
     T32: FromBytes + IntoBytes + Convert<Out>,
     T64: FromBytes + IntoBytes + Convert<Out>,
-    Out: Convert<T32> + Convert<T64> + Debug + Clone,
+    Out: Convert<T32> + Convert<T64> + Debug + Clone + Default,
 {
     /// Create a new item with given ranges
     pub fn new(ranges: Ranges) -> Self {
         Self {
             field: Field::new(ranges),
-            value: None
+            value: Default::default()
         }
     }
 
@@ -63,35 +63,28 @@ where
 
     /// Read the value if possible
     pub fn read(&mut self, bytes: &[u8]) -> Result<Out> {
-        let value = self.field.get(bytes)?;
-        self.value = Some(value.clone());
-        Ok(value)
+        self.value = self.field.get(bytes)?;
+        Ok(self.value.clone())
     }
 
     /// Write the value if there is one
     pub fn write(&self, bytes: &mut [u8]) -> Result<()> {
-        if let Some(v) = &self.value {
-            self.field.set(bytes,v.clone())?;
-        }
-        Ok(())
+        self.field.set(bytes,self.value.clone())
     }
 
     /// Get the output value of the item
-    pub fn get(&self) -> Option<Out> {
+    pub fn get(&self) -> Out {
         self.value.clone()
     }
 
     /// Set the output value of the item
     pub fn set(&mut self, value: Out) {
-        self.value = Some(value)
+        self.value = value
     }
 
     /// Get the size of the item if there is a value
     pub fn size(&self) -> usize {
-        match self.value {
-            Some(_) => self.field.size(),
-            None => 0
-        }
+        self.field.size()
     }
 
     /// Get the width (32- or 64-bit) of the item

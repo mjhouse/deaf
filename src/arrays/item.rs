@@ -15,7 +15,7 @@ impl ArrayItem {
     }
 
     /// Read an ArrayItem from a given byte buffer with layout and width
-    pub(super) fn read(layout: Layout, width: Width, bytes: &[u8]) -> Result<Self> {
+    pub fn read(layout: Layout, width: Width, bytes: &[u8]) -> Result<Self> {
         Item::new(ADDRESS)
             .with_width(width)
             .with_layout(layout)
@@ -24,23 +24,23 @@ impl ArrayItem {
     }
 
     /// Write this ArrayItem to the provided byte buffer
-    pub(super) fn write(&self, bytes: &mut [u8]) -> Result<()> {
+    pub fn write(&self, bytes: &mut [u8]) -> Result<()> {
         self.0.write(bytes)?;
         Ok(())
     }
 
     /// Set the layout for this ArrayItem
-    pub(super) fn set_layout(&mut self, layout: Layout) {
+    pub fn set_layout(&mut self, layout: Layout) {
         self.0.set_layout(layout);
     }
 
     /// Set the width of this ArrayItem
-    pub(super) fn set_width(&mut self, width: Width) {
+    pub fn set_width(&mut self, width: Width) {
         self.0.set_width(width);
     }
 
     /// Get the internal ArrayItem value 
-    pub fn value(&self) -> Option<i64> {
+    pub fn value(&self) -> i64 {
         self.0.get()
     }
 
