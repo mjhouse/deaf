@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Array","A section interpreted as an array"],["ArrayItem","Wraps and hides the more general purpose Item"]]};
+window.SIDEBAR_ITEMS = {"struct":["Array","ArrayItem"]};
