@@ -14,14 +14,14 @@ pub use info::{
 };
 
 pub use item::{
-    RelocationItem,
+    RelaItem,
     SymbolItem,
     StringItem,
     TableItem
 };
 
 pub use table::{
-    RelocationTable,
+    RelaTable,
     SymbolTable,
     StringTable,
     Table

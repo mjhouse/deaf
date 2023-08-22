@@ -51,12 +51,11 @@ pub struct SymbolItem {
 pub struct RelItem {
     r_offset: Item<u32,u64>, 
     r_info: Item<u32,u64,RelocationInfo>,
-    r_addend: Item<i32,i64>,
 }
 
 /// A Relocation item found in relocation tables
 #[derive(Clone)]
-pub struct RelocationItem {
+pub struct RelaItem {
     r_offset: Item<u32,u64>, 
     r_info: Item<u32,u64,RelocationInfo>,
     r_addend: Item<i32,i64>,
@@ -155,7 +154,7 @@ impl SymbolItem {
 
 }
 
-impl RelocationItem {
+impl RelaItem {
 
     /// Get the 'r_offset' attribute of the relocation
     pub fn offset(&self) -> u64 {
@@ -262,7 +261,7 @@ impl TableItem for SymbolItem {
 
 }
 
-impl TableItem for RelocationItem {
+impl TableItem for RelaItem {
 
     fn set_layout(&mut self, layout: Layout){
         self.r_offset.set_layout(layout);
@@ -311,7 +310,7 @@ impl Default for SymbolItem {
     }
 }
 
-impl Default for RelocationItem {
+impl Default for RelaItem {
     fn default() -> Self {
         Self {
             r_offset: Item::new(RT_OFFSET), 

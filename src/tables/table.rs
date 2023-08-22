@@ -6,7 +6,7 @@ use crate::tables::{
     TableItem,
     StringItem,
     SymbolItem,
-    RelocationItem
+    RelaItem
 };
 
 /// Alias for a Table that contains StringItem records
@@ -15,8 +15,8 @@ pub type StringTable = Table<StringItem>;
 /// Alias for a Table that contains SymbolItem records
 pub type SymbolTable = Table<SymbolItem>;
 
-/// Alias for a Table that contains RelocationItem records
-pub type RelocationTable = Table<RelocationItem>;
+/// Alias for a Table that contains RelaItem records
+pub type RelaTable = Table<RelaItem>;
 
 /// A section interpreted as a table
 ///
@@ -221,7 +221,7 @@ impl TryFrom<&SectionHeader> for StringTable {
     }
 }
 
-impl TryFrom<&SectionHeader> for RelocationTable {
+impl TryFrom<&SectionHeader> for RelaTable {
     type Error = Error;
 
     fn try_from(header: &SectionHeader) -> Result<Self> {
@@ -254,7 +254,7 @@ impl TryFrom<SectionHeader> for StringTable {
     }
 }
 
-impl TryFrom<SectionHeader> for RelocationTable {
+impl TryFrom<SectionHeader> for RelaTable {
     type Error = Error;
 
     fn try_from(header: SectionHeader) -> Result<Self> {
@@ -306,7 +306,7 @@ mod tests {
         assert!(result.is_some());
 
         let header = result.unwrap();
-        let result = RelocationTable::try_from(header);
+        let result = RelaTable::try_from(header);
 
         assert!(result.is_ok());
 
@@ -320,7 +320,7 @@ mod tests {
     fn test_read_relocation_table() {
         
         // directly initialize a test table
-        let mut table = RelocationTable::new(
+        let mut table = RelaTable::new(
             0, // because we're reading directly
             REL_TEST.size,
             REL_TEST.entsize,
@@ -340,7 +340,7 @@ mod tests {
     fn test_write_relocation_table_with_no_changes() {
 
         // directly initialize a test table
-        let mut table = RelocationTable::new(
+        let mut table = RelaTable::new(
             0, // because we're reading directly
             REL_TEST.size,
             REL_TEST.entsize,
@@ -368,7 +368,7 @@ mod tests {
     fn test_write_relocation_table_with_changes() {
 
         // directly initialize a test table
-        let mut table = RelocationTable::new(
+        let mut table = RelaTable::new(
             0, // because we're reading directly
             REL_TEST.size,
             REL_TEST.entsize,
