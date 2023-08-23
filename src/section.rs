@@ -1,8 +1,6 @@
 use crate::common::Data;
-use crate::binary::Binary;
 use crate::headers::SectionHeader;
 use crate::errors::{Error,Result};
-use std::ops::DerefMut;
 
 /// A Section extracted from an ELF file
 #[derive(Debug)]
@@ -64,10 +62,10 @@ impl Section {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::headers::FileHeader;
+    // use super::*;
+    // use crate::headers::FileHeader;
 
-    use crate::utilities::read;
+    // use crate::utilities::read;
 
     // #[test]
     // fn test_read_section_headers() {

@@ -1,11 +1,10 @@
 use std::path::Path;
 use std::sync::{Arc,Mutex};
-use core::ops::Range;
 
-use crate::{Section, Segment};
-use crate::headers::{FileHeader, SectionHeader, ProgramHeader};
-use crate::errors::{Result,Error};
-use crate::common::{Width, Layout, Data};
+use crate::{Section};
+use crate::headers::{FileHeader};
+use crate::errors::{Result};
+use crate::common::{Data};
 use crate::tables::{StringTable};
 
 /// An ELF formatted binary file
@@ -186,7 +185,7 @@ impl Binary {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    // use super::*;
 
     // #[test]
     // fn test_read_string_table() {
