@@ -5,24 +5,26 @@
 //! section header cannot be converted into a `Table<SymbolItem>` struct).
 
 mod info;
-mod item;
-mod table;
+mod items;
+mod tables;
 
 pub use info::{
+    SymbolInfo,
     RelocationInfo,
-    SymbolInfo
 };
 
-pub use item::{
+pub use items::{
+    TableItem,
+    RelItem,
     RelaItem,
-    SymbolItem,
     StringItem,
-    TableItem
+    SymbolItem,
 };
 
-pub use table::{
+pub use tables::{
+    Table,
+    RelTable,
     RelaTable,
     SymbolTable,
     StringTable,
-    Table
 };
