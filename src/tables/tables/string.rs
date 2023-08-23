@@ -1,6 +1,7 @@
-use crate::common::{SHType};
+use crate::common::{SHType,SectionType};
 use crate::errors::{Error,Result};
 use crate::headers::SectionHeader;
+use crate::Section;
 use crate::tables::{StringItem,Table};
 
 /// Alias for a Table that contains StringItem records
@@ -11,13 +12,22 @@ impl TryFrom<&SectionHeader> for StringTable {
 
     fn try_from(header: &SectionHeader) -> Result<Self> {
         match header.kind() {
-            SHType::SHT_STRTAB => Ok(Self::new(
-                header.offset(),
-                header.body_size(),
-                header.entsize(),
-                header.layout(),
-                header.width()
-            )),
+            SHType::SHT_STRTAB => Ok(Self::new(header)),
+            _ => Err(Error::WrongSectionError)
+        }
+    }
+}
+
+impl TryFrom<&Section> for StringTable {
+    type Error = Error;
+
+    fn try_from(section: &Section) -> Result<Self> {
+        match section.kind() {
+            SectionType::Strings => {
+                let mut table = Self::new(section.header());
+                table.read(section.data())?;
+                Ok(table)
+            },
             _ => Err(Error::WrongSectionError)
         }
     }
@@ -31,10 +41,18 @@ impl TryFrom<SectionHeader> for StringTable {
     }
 }
 
+impl TryFrom<Section> for StringTable {
+    type Error = Error;
+
+    fn try_from(section: Section) -> Result<Self> {
+        Self::try_from(&section)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::headers::{FileHeader,SectionHeader};
+    use crate::headers::{FileHeader,SectionHeader,SectionHeaderData};
     use crate::common::{Width,Layout};
     use crate::utilities::read;
 
@@ -86,14 +104,18 @@ mod tests {
 
     #[test]
     fn test_read_string_table() {
+        let header = SectionHeader::from(SectionHeaderData {
+            layout: Layout::Little,
+            width: Width::X64,
+            sh_type: SHType::SHT_STRTAB,
+            sh_offset: 0, // because we're reading directly
+            sh_size: STR_TEST.size,
+            sh_entsize: STR_TEST.entsize,
+            ..Default::default()
+        });
+
         // directly initialize a table
-        let mut table = StringTable::new(
-            0, // because we're reading directly
-            STR_TEST.size,
-            STR_TEST.entsize,
-            Layout::Little,
-            Width::X64
-        );
+        let mut table = StringTable::try_from(header).unwrap();
 
         let result = table.read(STR_TEST.bytes);
         assert!(result.is_ok());
@@ -104,14 +126,18 @@ mod tests {
 
     #[test]
     fn test_write_string_table_with_no_changes() {
+        let header = SectionHeader::from(SectionHeaderData {
+            layout: Layout::Little,
+            width: Width::X64,
+            sh_type: SHType::SHT_STRTAB,
+            sh_offset: 0, // because we're reading directly
+            sh_size: STR_TEST.size,
+            sh_entsize: STR_TEST.entsize,
+            ..Default::default()
+        });
+
         // directly initialize a table
-        let mut table = StringTable::new(
-            0, // because we're reading directly
-            STR_TEST.size,
-            STR_TEST.entsize,
-            Layout::Little,
-            Width::X64
-        );
+        let mut table = StringTable::try_from(header).unwrap();
 
         let mut result = table.read(STR_TEST.bytes);
         assert!(result.is_ok());
@@ -133,14 +159,18 @@ mod tests {
         const TEST_STR: &str  = "-test";
         const TEST_LEN: usize = 5;
 
+        let header = SectionHeader::from(SectionHeaderData {
+            layout: Layout::Little,
+            width: Width::X64,
+            sh_type: SHType::SHT_STRTAB,
+            sh_offset: 0, // because we're reading directly
+            sh_size: STR_TEST.size,
+            sh_entsize: STR_TEST.entsize,
+            ..Default::default()
+        });
+
         // directly initialize a table
-        let mut table = StringTable::new(
-            0, // because we're reading directly
-            STR_TEST.size,
-            STR_TEST.entsize,
-            Layout::Little,
-            Width::X64
-        );
+        let mut table = StringTable::try_from(header).unwrap();
 
         // read the test table and verify success
         let result = table.read(STR_TEST.bytes);

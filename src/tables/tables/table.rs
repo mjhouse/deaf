@@ -1,6 +1,8 @@
 use crate::errors::{Error,Result};
-use crate::common::{ByteIter,Width,Layout};
+use crate::common::{ByteIter};
 use crate::tables::TableItem;
+use crate::headers::SectionHeader;
+use crate::Section;
 
 /// A section interpreted as a table
 ///
@@ -12,11 +14,7 @@ pub struct Table<T>
 where
     T: TableItem + Default
 {
-    table_offset: usize,
-    table_size: usize,
-    item_size: usize,
-    layout: Layout,
-    width: Width,
+    header: SectionHeader,
     items: Vec<T>
 }
 
@@ -24,26 +22,10 @@ impl<T> Table<T>
 where
     T: TableItem + Default
 {
-    pub fn empty() -> Self {
-        Self {
-            table_offset: 0,
-            table_size: 0,
-            item_size: 0,
-            layout: Layout::Little,
-            width: Width::X64,
-            items: vec![]
-        }
-    }
 
-    /// Create a new table from section information taken from
-    /// a section header.
-    pub fn new(table_offset: usize, table_size: usize, item_size: usize, layout: Layout, width: Width) -> Self {
+    pub fn new(header: &SectionHeader) -> Self {
         Self {
-            table_offset,
-            table_size,
-            item_size,
-            layout,
-            width,
+            header: header.clone(),
             items: vec![]
         }
     }
@@ -56,17 +38,17 @@ where
 
     /// Read from buffer, returning the number of items read
     pub fn read(&mut self, bytes: &[u8]) -> Result<usize> {
-        let start = self.table_offset;
-        let end = start + self.table_size;
+        let start = self.header.offset();
+        let end = start + self.header.body_size();
 
-        let size = self.item_size;
+        let size = self.header.entsize();
 
         // reserve a temporary buffer for items
         let mut items: Vec<T> = vec![];
 
         // if a size is given, reserve space upfront
         if size > 0 {
-            items.reserve(self.table_size / size);
+            items.reserve(self.header.body_size() / size);
         }
 
         // build a delimiter for the item type
@@ -77,8 +59,8 @@ where
             let mut item = T::default();
 
             // set expected layout and width from table
-            item.set_layout(self.layout);
-            item.set_width(self.width);
+            item.set_layout(self.header.layout());
+            item.set_width(self.header.width());
 
             // parse the table item and add to collection
             item.read(data)?;
@@ -92,17 +74,16 @@ where
 
     /// Write to buffer, returning the number of items written
     pub fn write(&self, bytes: &mut [u8]) -> Result<usize> {
+        let size = self.size();
+        let mut offset = 0;
 
         // check buffer is big enough
-        if bytes.len() < self.size() {
+        if bytes.len() < size {
             return Err(Error::OutOfBoundsError);
         }
 
-        let mut offset = 0;
-
         // reserve a temporary buffer for items
-        let mut items: Vec<u8> = vec![];
-        items.resize(self.size(),0);
+        let mut items = vec![0u8;size];
 
         // iterate all contained items
         for item in self.items.iter() {
@@ -169,4 +150,40 @@ where
         }
     }
 
+    pub fn header(&self) -> SectionHeader {
+        self.header.clone()
+    }
+
+    pub fn data(&self) -> Result<Vec<u8>> {
+        let mut buffer = vec![0;self.size()];
+        self.write(buffer.as_mut_slice())?;
+        Ok(buffer)
+    }
+
+}
+
+impl<T> TryFrom<&Table<T>> for Section
+where
+    T: TableItem + Default
+{
+    type Error = Error;
+
+    fn try_from(table: &Table<T>) -> Result<Self> {
+        let header = table.header();
+        let data = table.data()?;
+        let mut section = Section::new(header);
+        section.set_data(data);
+        Ok(section)
+    }
+}
+
+impl<T> TryFrom<Table<T>> for Section
+where
+    T: TableItem + Default
+{
+    type Error = Error;
+
+    fn try_from(table: Table<T>) -> Result<Self> {
+        Self::try_from(&table)
+    }
 }

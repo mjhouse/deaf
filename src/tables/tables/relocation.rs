@@ -19,13 +19,7 @@ impl TryFrom<&SectionHeader> for RelaTable {
 
     fn try_from(header: &SectionHeader) -> Result<Self> {
         match header.kind() {
-            SHType::SHT_RELA => Ok(Self::new(
-                header.offset(),
-                header.body_size(),
-                header.entsize(),
-                header.layout(),
-                header.width()
-            )),
+            SHType::SHT_RELA => Ok(Self::new(header)),
             _ => Err(Error::WrongSectionError)
         }
     }
@@ -36,13 +30,7 @@ impl TryFrom<&SectionHeader> for RelTable {
 
     fn try_from(header: &SectionHeader) -> Result<Self> {
         match header.kind() {
-            SHType::SHT_REL => Ok(Self::new(
-                header.offset(),
-                header.body_size(),
-                header.entsize(),
-                header.layout(),
-                header.width()
-            )),
+            SHType::SHT_REL => Ok(Self::new(header)),
             _ => Err(Error::WrongSectionError)
         }
     }
@@ -67,7 +55,7 @@ impl TryFrom<SectionHeader> for RelaTable {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::headers::{FileHeader,SectionHeader};
+    use crate::headers::{FileHeader,SectionHeader,SectionHeaderData};
     use crate::common::{Width,Layout};
     use crate::utilities::read;
 
@@ -119,14 +107,18 @@ mod tests {
     #[test]
     fn test_read_rela_table() {
         
+        let header = SectionHeader::from(SectionHeaderData {
+            layout: Layout::Little,
+            width: Width::X64,
+            sh_type: SHType::SHT_RELA,
+            sh_offset: 0, // because we're reading directly
+            sh_size: REL_TEST.size,
+            sh_entsize: REL_TEST.entsize,
+            ..Default::default()
+        });
+
         // directly initialize a test table
-        let mut table = RelaTable::new(
-            0, // because we're reading directly
-            REL_TEST.size,
-            REL_TEST.entsize,
-            Layout::Little,
-            Width::X64
-        );
+        let mut table = RelaTable::try_from(header).unwrap();
 
         // read the test table and verify success
         let result = table.read(REL_TEST.bytes);
@@ -139,14 +131,18 @@ mod tests {
     #[test]
     fn test_write_rela_table_with_no_changes() {
 
+        let header = SectionHeader::from(SectionHeaderData {
+            layout: Layout::Little,
+            width: Width::X64,
+            sh_type: SHType::SHT_RELA,
+            sh_offset: 0, // because we're reading directly
+            sh_size: REL_TEST.size,
+            sh_entsize: REL_TEST.entsize,
+            ..Default::default()
+        });
+
         // directly initialize a test table
-        let mut table = RelaTable::new(
-            0, // because we're reading directly
-            REL_TEST.size,
-            REL_TEST.entsize,
-            Layout::Little,
-            Width::X64
-        );
+        let mut table = RelaTable::try_from(header).unwrap();
 
         // read the test table and verify success
         let mut result = table.read(REL_TEST.bytes);
@@ -167,14 +163,18 @@ mod tests {
     #[test]
     fn test_write_rela_table_with_changes() {
 
+        let header = SectionHeader::from(SectionHeaderData {
+            layout: Layout::Little,
+            width: Width::X64,
+            sh_type: SHType::SHT_RELA,
+            sh_offset: 0, // because we're reading directly
+            sh_size: REL_TEST.size,
+            sh_entsize: REL_TEST.entsize,
+            ..Default::default()
+        });
+
         // directly initialize a test table
-        let mut table = RelaTable::new(
-            0, // because we're reading directly
-            REL_TEST.size,
-            REL_TEST.entsize,
-            Layout::Little,
-            Width::X64
-        );
+        let mut table = RelaTable::try_from(header).unwrap();
 
         // read the test table and verify success
         let result = table.read(REL_TEST.bytes);

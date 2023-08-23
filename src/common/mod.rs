@@ -5,6 +5,7 @@ pub mod ranges; // find byte slices to parse
 mod bytes;  // parse bytes into values
 mod field;  // read and write values
 mod item;   // read and write with cache
+mod enums;
 
 mod iterator;
 mod constants;
@@ -27,4 +28,8 @@ pub use constants::{
     SHFlags,
     STBind,
     STType,
+};
+
+pub use enums::{
+    SectionType
 };

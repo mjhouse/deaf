@@ -1,6 +1,6 @@
 use crate::headers::SectionHeader;
 use crate::errors::{Result};
-use crate::common::{Layout,Width};
+use crate::common::{Layout,Width,SectionType};
 
 /// A Section extracted from an ELF file
 #[derive(Debug)]
@@ -75,9 +75,41 @@ impl Section {
         &mut self.data
     }
 
+    pub fn set_data(&mut self, data: Vec<u8>) {
+        self.data = data;
+    }
+
     pub fn size(&self) -> usize {
         self.header.size() +
         self.data.len()
+    }
+
+    pub fn body_size(&self) -> usize {
+        self.header.body_size()
+    }
+
+    pub fn entity_size(&self) -> usize {
+        self.header.entsize()
+    }
+
+    pub fn offset(&self) -> usize {
+        self.header.offset()
+    }
+
+    pub fn layout(&self) -> Layout {
+        self.header.layout()
+    }
+
+    pub fn width(&self) -> Width {
+        self.header.width()
+    }
+
+    pub fn kind(&self) -> SectionType {
+        self.header.kind().into()
+    }
+
+    pub fn is_kind(&self, kind: SectionType) -> bool {
+        kind == self.kind()
     }
 
 }

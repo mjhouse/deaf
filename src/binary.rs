@@ -1,8 +1,10 @@
 use std::path::Path;
+use std::fs;
+
 use crate::{Section};
 use crate::headers::{FileHeader};
 use crate::errors::{Result};
-use crate::common::{Layout,Width};
+use crate::common::{Layout,Width,SectionType};
 
 /// An ELF formatted binary file
 pub struct Binary {
@@ -12,21 +14,27 @@ pub struct Binary {
 
 impl Binary {
 
+    fn empty() -> Self {
+        Self { 
+            header: FileHeader::new(), 
+            sections: Vec::new()
+        }
+    }
+
     fn new(header: FileHeader, sections: Vec<Section>) -> Self {
         Self { header, sections }
     }
 
-    pub fn load<T: AsRef<Path>>(path: T) -> Result<Self> {
-        let data = std::fs::read(path.as_ref())?;
-        let header = FileHeader::parse(&data)?;
+    pub fn read(&mut self, data: &[u8]) -> Result<usize> {
+        self.header = FileHeader::parse(&data)?;
 
-        let count = header.shnum();
-        let offset = header.shoff();
-        let size = header.shentsize();
-        let layout = header.layout();
-        let width = header.width();
+        let count = self.header.shnum();
+        let offset = self.header.shoff();
+        let size = self.header.shentsize();
+        let layout = self.header.layout();
+        let width = self.header.width();
 
-        let sections = Section::read_all(
+        self.sections = Section::read_all(
             &data,
             count,
             offset,
@@ -35,27 +43,36 @@ impl Binary {
             width
         )?;
 
-        Ok(Self::new(header,sections))
+        Ok(self.size())
     }
 
-    pub fn save<T: AsRef<Path>>(&self, path: T) -> Result<usize> {
-        let size = self.size();
-
-        let mut data = Vec::new();
-        data.reserve_exact(size);
-
+    pub fn write(&self, data: &mut [u8]) -> Result<usize> {
+        self.header.write(data)?;
         let offset = self.header.shoff();
-        self.header.write(&mut data)?;
 
         for (index,section) in self.sections.iter().enumerate() {
             section.write(
-                &mut data,
+                data,
                 offset,
                 index,
             )?;
         }
 
-        std::fs::write(path, data)?;
+        Ok(self.size())
+    }
+
+    pub fn load<T: AsRef<Path>>(path: T) -> Result<Self> {
+        let data = fs::read(path.as_ref())?;
+        let mut binary = Binary::empty();        
+        binary.read(&data)?;
+        Ok(binary)
+    }
+
+    pub fn save<T: AsRef<Path>>(&self, path: T) -> Result<usize> {
+        let size = self.size();
+        let mut data = vec![0;size];
+        self.write(&mut data)?;
+        fs::write(path, data)?;
         Ok(size)
     }
 
@@ -64,6 +81,20 @@ impl Binary {
         self.sections
             .iter()
             .fold(0,|a,s| a + s.size())
+    }
+
+    pub fn sections(&self, kind: SectionType) -> Vec<&Section> {
+        self.sections
+            .iter()
+            .filter(|s| s.is_kind(kind))
+            .collect()
+    }
+
+    pub fn sections_mut(&mut self, kind: SectionType) -> Vec<&mut Section> {
+        self.sections
+            .iter_mut()
+            .filter(|s| s.is_kind(kind))
+            .collect()
     }
 
     /// Get the number of section headers in the file
@@ -110,16 +141,20 @@ impl Binary {
 
 #[cfg(test)]
 mod tests {
-    // use super::*;
+    use super::*;
 
-    // #[test]
-    // fn test_read_string_table() {
-    //     let mut binary = Binary::new("assets/libjpeg/libjpeg.so.9").unwrap();
+    #[test]
+    fn test_read_string_table() {
+        let mut binary = Binary::load("assets/libjpeg/libjpeg.so.9").unwrap();
 
-    //     let name = binary.section_name(1);
-    //     assert!(name.is_some());
+        for section in binary.sections(SectionType::Strings) {
+            dbg!(section);
+        }
 
-    //     let value = name.unwrap();
-    //     assert_eq!(value.as_str(),".symtab");
-    // }
+        // let name = binary.section_name(1);
+        // assert!(name.is_some());
+
+        // let value = name.unwrap();
+        // assert_eq!(value.as_str(),".symtab");
+    }
 }

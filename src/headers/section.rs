@@ -14,7 +14,7 @@ use crate::errors::Result;
 /// 
 /// Normally found at the offset declared in the FileHeader 
 /// as 'shoff'.
-#[derive(Debug)]
+#[derive(Clone,Debug)]
 pub struct SectionHeader {
     layout: Layout,
     width: Width,
@@ -28,6 +28,22 @@ pub struct SectionHeader {
     sh_info: Item<u32>,
     sh_addralign: Item<u32,u64>,
     sh_entsize: Item<u32,u64,usize>,
+}
+
+#[derive(Default,Debug)]
+pub struct SectionHeaderData {
+    pub layout: Layout,
+    pub width: Width,
+    pub sh_name: u32,
+    pub sh_type: SHType,
+    pub sh_flags: BitFlags<SHFlags>,
+    pub sh_address: u64,
+    pub sh_offset: usize,
+    pub sh_size: usize,
+    pub sh_link: u32,
+    pub sh_info: u32,
+    pub sh_addralign: u64,
+    pub sh_entsize: usize,
 }
 
 impl SectionHeader {
@@ -265,6 +281,55 @@ impl SectionHeader {
         self.sh_entsize.set(entsize);
     }
 
+}
+
+impl From<SectionHeaderData> for SectionHeader {
+    fn from(data: SectionHeaderData) -> Self {
+        Self {
+            layout: data.layout,
+            width: data.width,
+            sh_name: Item::new(SH_NAME)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_name),
+            sh_type: Item::new(SH_TYPE)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_type),
+            sh_flags: Item::new(SH_FLAGS)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_flags),
+            sh_address: Item::new(SH_ADDR)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_address),
+            sh_offset: Item::new(SH_OFFSET)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_offset),
+            sh_size: Item::new(SH_SIZE)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_size),
+            sh_link: Item::new(SH_LINK)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_link),
+            sh_info: Item::new(SH_INFO)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_info),
+            sh_addralign: Item::new(SH_ADDRALIGN)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_addralign),
+            sh_entsize: Item::new(SH_ENTSIZE)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_entsize),
+        }
+    }
 }
 
 #[cfg(test)]

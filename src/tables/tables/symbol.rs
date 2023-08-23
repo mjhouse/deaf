@@ -11,13 +11,7 @@ impl TryFrom<&SectionHeader> for SymbolTable {
 
     fn try_from(header: &SectionHeader) -> Result<Self> {
         match header.kind() {
-            SHType::SHT_SYMTAB => Ok(Self::new(
-                header.offset(),
-                header.body_size(),
-                header.entsize(),
-                header.layout(),
-                header.width()
-            )),
+            SHType::SHT_SYMTAB => Ok(Self::new(header)),
             _ => Err(Error::WrongSectionError)
         }
     }
@@ -34,7 +28,7 @@ impl TryFrom<SectionHeader> for SymbolTable {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::headers::{FileHeader,SectionHeader};
+    use crate::headers::{FileHeader,SectionHeader,SectionHeaderData};
     use crate::common::{Width,Layout,SHType};
     use crate::utilities::read;
 
@@ -87,14 +81,18 @@ mod tests {
     #[test]
     fn test_read_symbol_table() {
         
+        let header = SectionHeader::from(SectionHeaderData {
+            layout: Layout::Little,
+            width: Width::X64,
+            sh_type: SHType::SHT_SYMTAB,
+            sh_offset: 0, // because we're reading directly
+            sh_size: SYM_TEST.size,
+            sh_entsize: SYM_TEST.entsize,
+            ..Default::default()
+        });
+
         // directly initialize a table
-        let mut table = SymbolTable::new(
-            0, // because we're reading directly
-            SYM_TEST.size,
-            SYM_TEST.entsize,
-            Layout::Little,
-            Width::X64
-        );
+        let mut table = SymbolTable::try_from(header).unwrap();
 
         // read the test table and verify success
         let result = table.read(SYM_TEST.bytes);
@@ -107,22 +105,25 @@ mod tests {
     #[test]
     fn test_write_symbol_table_with_no_changes() {
 
+        let header = SectionHeader::from(SectionHeaderData {
+            layout: Layout::Little,
+            width: Width::X64,
+            sh_type: SHType::SHT_SYMTAB,
+            sh_offset: 0, // because we're reading directly
+            sh_size: SYM_TEST.size,
+            sh_entsize: SYM_TEST.entsize,
+            ..Default::default()
+        });
+
         // directly initialize a table
-        let mut table = SymbolTable::new(
-            0, // because we're reading directly
-            SYM_TEST.size,
-            SYM_TEST.entsize,
-            Layout::Little,
-            Width::X64
-        );
+        let mut table = SymbolTable::try_from(header).unwrap();
 
         // read the test table and verify success
         let mut result = table.read(SYM_TEST.bytes);
         assert!(result.is_ok());
 
         // initialize a buffer big enough for table data
-        let mut buffer: Vec<u8> = vec![];
-        buffer.resize(table.size(),0x00);
+        let mut buffer: Vec<u8> = vec![0;table.size()];
 
         // write to the new table
         result = table.write(buffer.as_mut_slice());
@@ -135,14 +136,18 @@ mod tests {
     #[test]
     fn test_write_symbol_table_with_changes() {
 
+        let header = SectionHeader::from(SectionHeaderData {
+            layout: Layout::Little,
+            width: Width::X64,
+            sh_type: SHType::SHT_SYMTAB,
+            sh_offset: 0, // because we're reading directly
+            sh_size: SYM_TEST.size,
+            sh_entsize: SYM_TEST.entsize,
+            ..Default::default()
+        });
+
         // directly initialize a table
-        let mut table = SymbolTable::new(
-            0, // because we're reading directly
-            SYM_TEST.size,
-            SYM_TEST.entsize,
-            Layout::Little,
-            Width::X64
-        );
+        let mut table = SymbolTable::try_from(header).unwrap();
 
         // read the test table and verify success
         let result = table.read(SYM_TEST.bytes);
