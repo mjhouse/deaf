@@ -75,13 +75,9 @@
 <a href="#75" id="75">75</a>
 <a href="#76" id="76">76</a>
 <a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common::Data;
-<span class="kw">use </span><span class="kw">crate</span>::binary::Binary;
 <span class="kw">use </span><span class="kw">crate</span>::headers::SectionHeader;
 <span class="kw">use </span><span class="kw">crate</span>::errors::{Error,<span class="prelude-ty">Result</span>};
-<span class="kw">use </span>std::ops::DerefMut;
 
 <span class="doccomment">/// A Section extracted from an ELF file
 </span><span class="attr">#[derive(Debug)]
@@ -143,12 +139,12 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span><span class="kw">crate</span>::headers::FileHeader;
+    <span class="comment">// use super::*;
+    // use crate::headers::FileHeader;
 
-    <span class="kw">use </span><span class="kw">crate</span>::utilities::read;
+    // use crate::utilities::read;
 
-    <span class="comment">// #[test]
+    // #[test]
     // fn test_read_section_headers() {
     //     let binary = Binary::new(&quot;assets/libvpf/libvpf.so.4.1&quot;).unwrap();
     //     let section = binary.section_by_name(&quot;.text&quot;.into());

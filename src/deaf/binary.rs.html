@@ -198,15 +198,13 @@
 <a href="#198" id="198">198</a>
 <a href="#199" id="199">199</a>
 <a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::path::Path;
 <span class="kw">use </span>std::sync::{Arc,Mutex};
-<span class="kw">use </span>core::ops::Range;
 
-<span class="kw">use crate</span>::{Section, Segment};
-<span class="kw">use </span><span class="kw">crate</span>::headers::{FileHeader, SectionHeader, ProgramHeader};
-<span class="kw">use </span><span class="kw">crate</span>::errors::{<span class="prelude-ty">Result</span>,Error};
-<span class="kw">use </span><span class="kw">crate</span>::common::{Width, Layout, Data};
+<span class="kw">use crate</span>::{Section};
+<span class="kw">use </span><span class="kw">crate</span>::headers::{FileHeader};
+<span class="kw">use </span><span class="kw">crate</span>::errors::{<span class="prelude-ty">Result</span>};
+<span class="kw">use </span><span class="kw">crate</span>::common::{Data};
 <span class="kw">use </span><span class="kw">crate</span>::tables::{StringTable};
 
 <span class="doccomment">/// An ELF formatted binary file
@@ -387,9 +385,9 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="comment">// use super::*;
 
-    <span class="comment">// #[test]
+    // #[test]
     // fn test_read_string_table() {
     //     let mut binary = Binary::new(&quot;assets/libjpeg/libjpeg.so.9&quot;).unwrap();
 
