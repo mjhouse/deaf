@@ -2,8 +2,9 @@ use std::path::Path;
 use std::fs;
 
 use crate::{Section};
+use crate::tables::{StringTable};
 use crate::headers::{FileHeader};
-use crate::errors::{Result};
+use crate::errors::{Error,Result};
 use crate::common::{Layout,Width,SectionType};
 
 /// An ELF formatted binary file
@@ -83,6 +84,12 @@ impl Binary {
             .fold(0,|a,s| a + s.size())
     }
 
+    pub fn section(&self, index: usize) -> Result<&Section> {
+        self.sections
+            .get(index)
+            .ok_or(Error::NotFound)
+    }
+
     pub fn sections(&self, kind: SectionType) -> Vec<&Section> {
         self.sections
             .iter()
@@ -95,6 +102,15 @@ impl Binary {
             .iter_mut()
             .filter(|s| s.is_kind(kind))
             .collect()
+    }
+
+    pub fn section_name(&self, offset: usize) -> Result<String> {
+        self.section(self.header.shstrndx())
+            .and_then(StringTable::try_from)
+            .and_then(|t| t
+                .get_offset(offset)
+                .ok_or(Error::NotFound)
+                .and_then(|e| e.string()))
     }
 
     /// Get the number of section headers in the file
@@ -142,19 +158,22 @@ impl Binary {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tables::TableItem;
 
     #[test]
     fn test_read_string_table() {
         let mut binary = Binary::load("assets/libjpeg/libjpeg.so.9").unwrap();
 
-        for section in binary.sections(SectionType::Strings) {
-            dbg!(section);
-        }
+        let names = binary
+            .sections(SectionType::Strings)
+            .iter()
+            .map(|s| s.name())
+            .map(|i| binary.section_name(i))
+            .collect::<Result<Vec<String>>>()
+            .unwrap();
 
-        // let name = binary.section_name(1);
-        // assert!(name.is_some());
-
-        // let value = name.unwrap();
-        // assert_eq!(value.as_str(),".symtab");
+        assert_eq!(names[0].as_str(),".dynstr");
+        assert_eq!(names[1].as_str(),".shstrtab");
+        assert_eq!(names[2].as_str(),".strtab");
     }
 }

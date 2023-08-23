@@ -2,10 +2,24 @@ use crate::common::{SHType,SectionType};
 use crate::errors::{Error,Result};
 use crate::headers::SectionHeader;
 use crate::Section;
-use crate::tables::{StringItem,Table};
+use crate::tables::{StringItem,Table,TableItem};
 
 /// Alias for a Table that contains StringItem records
 pub type StringTable = Table<StringItem>;
+
+impl Table<StringItem> {
+
+    pub fn get_offset(&self, mut offset: usize) -> Option<&StringItem> {
+        for item in self.items.iter() {
+            match offset {
+                0 => return Some(item),
+                v => offset -= item.size(),
+            };
+        }
+        None
+    }
+
+}
 
 impl TryFrom<&SectionHeader> for StringTable {
     type Error = Error;
@@ -25,7 +39,7 @@ impl TryFrom<&Section> for StringTable {
         match section.kind() {
             SectionType::Strings => {
                 let mut table = Self::new(section.header());
-                table.read(section.data())?;
+                table.read_slice(section.data())?;
                 Ok(table)
             },
             _ => Err(Error::WrongSectionError)

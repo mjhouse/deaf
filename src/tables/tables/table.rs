@@ -14,8 +14,8 @@ pub struct Table<T>
 where
     T: TableItem + Default
 {
-    header: SectionHeader,
-    items: Vec<T>
+    pub(crate) header: SectionHeader,
+    pub(crate) items: Vec<T>
 }
 
 impl<T> Table<T>
@@ -36,12 +36,56 @@ where
         Ok(self)
     }
 
+    /// Read from fitted slice, returning the number of items read
+    pub fn read_slice(&mut self, bytes: &[u8]) -> Result<usize> {
+        let end = self.header.body_size();
+        let size = self.header.entsize();
+        let limit = bytes.len();
+
+        if end > limit {
+            return Err(Error::OutOfBoundsError);
+        }
+
+        // reserve a temporary buffer for items
+        let mut items: Vec<T> = vec![];
+
+        // if a size is given, reserve space upfront
+        if size > 0 {
+            items.reserve(self.header.body_size() / size);
+        }
+
+        // build a delimiter for the item type
+        let delim = T::delimiter(size);
+
+        // iterate over entity-sized slices of the byte array
+        for data in ByteIter::new(&bytes[..end],delim) {
+            let mut item = T::default();
+
+            // set expected layout and width from table
+            item.set_layout(self.header.layout());
+            item.set_width(self.header.width());
+
+            // parse the table item and add to collection
+            item.read(data)?;
+            items.push(item);
+        }
+
+        // don't update self until successful read
+        self.items = items;
+        Ok(self.items.len())
+    }
+
     /// Read from buffer, returning the number of items read
     pub fn read(&mut self, bytes: &[u8]) -> Result<usize> {
         let start = self.header.offset();
         let end = start + self.header.body_size();
 
         let size = self.header.entsize();
+        let limit = bytes.len();
+
+        if end > limit {
+            return Err(Error::OutOfBoundsError);
+        }
 
         // reserve a temporary buffer for items
         let mut items: Vec<T> = vec![];

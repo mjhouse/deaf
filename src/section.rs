@@ -84,6 +84,10 @@ impl Section {
         self.data.len()
     }
 
+    pub fn name(&self) -> usize {
+        self.header.name() as usize
+    }
+
     pub fn body_size(&self) -> usize {
         self.header.body_size()
     }
