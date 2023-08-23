@@ -53,21 +53,21 @@ impl SectionHeader {
     }
 
     /// Parse a header from the provided byte buffer
-    pub fn parse(b: &[u8], layout: Layout, width: Width) -> Result<Self> {
+    pub fn parse(data: &[u8], layout: Layout, width: Width) -> Result<Self> {
         let mut header = Self::new(layout,width);
-        header.read(b)?;
+        header.read(data)?;
         Ok(header)
     }
 
     /// Parse all headers for a byte array given count, offset etc.
-    pub fn parse_all(b: &[u8], count: usize, offset: usize, size: usize, layout: Layout, width: Width) -> Result<Vec<Self>> {
+    pub fn parse_all(data: &[u8], count: usize, offset: usize, size: usize, layout: Layout, width: Width) -> Result<Vec<Self>> {
         let mut result = vec![];
         result.reserve_exact(count);
 
         for i in 0..count {
             let start = offset + i * size;
             result.push(Self::parse(
-                &b[start..],
+                &data[start..],
                 layout,
                 width)?);
         }

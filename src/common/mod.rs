@@ -9,8 +9,6 @@ mod item;   // read and write with cache
 mod iterator;
 mod constants;
 
-pub type Data = std::sync::Arc<std::sync::Mutex<Vec<u8>>>;
-
 pub use bytes::{FromBytes,IntoBytes,Convert};
 pub use ranges::Ranges;
 pub use field::Field;

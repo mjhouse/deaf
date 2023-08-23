@@ -1,5 +1,5 @@
 use crate::errors::{Error,Result};
-use crate::common::{Data,ByteIter,Width,Layout};
+use crate::common::{ByteIter,Width,Layout};
 use crate::tables::TableItem;
 
 /// A section interpreted as a table
@@ -49,8 +49,8 @@ where
     }
 
     /// Read from buffer, returning the table
-    pub fn parse(mut self, data: &Data) -> Result<Self> {
-        self.read(&data.lock()?)?;
+    pub fn parse(mut self, data: &[u8]) -> Result<Self> {
+        self.read(data)?;
         Ok(self)
     }
 
