@@ -13,7 +13,7 @@ impl Table<StringItem> {
         for item in self.items.iter() {
             match offset {
                 0 => return Some(item),
-                v => offset -= item.size(),
+                _ => offset -= item.size(),
             };
         }
         None

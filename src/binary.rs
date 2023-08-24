@@ -164,11 +164,10 @@ impl Binary {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tables::TableItem;
 
     #[test]
     fn test_read_string_table() {
-        let mut binary = Binary::load("assets/libjpeg/libjpeg.so.9").unwrap();
+        let binary = Binary::load("assets/libjpeg/libjpeg.so.9").unwrap();
 
         let names = binary
             .sections(SectionType::Strings)
