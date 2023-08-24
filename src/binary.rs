@@ -90,6 +90,12 @@ impl Binary {
             .ok_or(Error::NotFound)
     }
 
+    pub fn section_mut(&mut self, index: usize) -> Result<&mut Section> {
+        self.sections
+            .get_mut(index)
+            .ok_or(Error::NotFound)
+    }
+
     pub fn sections(&self, kind: SectionType) -> Vec<&Section> {
         self.sections
             .iter()
