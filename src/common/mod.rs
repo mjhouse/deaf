@@ -2,10 +2,11 @@
 //!
 
 pub mod ranges; // find byte slices to parse
-mod bytes;  // parse bytes into values
-mod field;  // read and write values
-mod item;   // read and write with cache
-mod enums;
+mod bytes;      // parse bytes into values
+mod field;      // read and write values
+mod item;       // read and write with cache
+mod enums;      
+mod update;
 
 mod iterator;
 mod constants;
@@ -32,4 +33,8 @@ pub use constants::{
 
 pub use enums::{
     SectionType
+};
+
+pub use update::{
+    Update, All
 };
