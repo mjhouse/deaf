@@ -3,6 +3,7 @@ mod relocation;
 mod string;
 mod symbol;
 mod table;
+mod tableex;
 
 pub use table::Table;
 pub use string::StringTable;

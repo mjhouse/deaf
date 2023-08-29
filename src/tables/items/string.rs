@@ -1,6 +1,6 @@
 use crate::common::{ByteDelimiter,Layout,IntoBytes,FromBytes};
 use crate::tables::TableItem;
-use crate::errors::Result;
+use crate::errors::{Error,Result};
 use std::ffi::CString;
 
 /// A String item found in string tables
@@ -58,4 +58,20 @@ impl TableItem for StringItem {
         self.value.as_bytes_with_nul().len()
     }
 
+}
+
+impl TryFrom<String> for StringItem {
+    type Error = Error;
+    fn try_from(v: String) -> Result<Self> {
+        let mut item = StringItem::default();
+        item.set_string(v)?;
+        Ok(item)
+    }
+}
+
+impl TryFrom<&str> for StringItem {
+    type Error = Error;
+    fn try_from(v: &str) -> Result<Self> {
+        String::from(v).try_into()
+    }
 }

@@ -5,7 +5,14 @@ use crate::{Section};
 use crate::tables::{StringTable};
 use crate::headers::{FileHeader};
 use crate::errors::{Error,Result};
-use crate::common::{Layout,Width,SectionType};
+use crate::common::{
+    Layout,
+    Width,
+    SectionType,
+    Updateable,
+    Update,
+    All
+};
 
 /// An ELF formatted binary file
 pub struct Binary {
@@ -119,6 +126,18 @@ impl Binary {
                 .and_then(|e| e.string()))
     }
 
+    pub fn section_names(&self, offset: usize) -> Result<Vec<String>> {
+        self.section(self.header.shstrndx())
+            .and_then(StringTable::try_from)
+            .map(|t| t
+                .all()
+                .clone())
+            .and_then(|v| v
+                .iter()
+                .map(|e| e.string())
+                .collect())
+    }
+
     /// Get the number of section headers in the file
     pub fn shnum(&self) -> usize {
         self.header.shnum()
@@ -149,6 +168,10 @@ impl Binary {
         self.header.phentsize()
     }
 
+    pub fn shstrndx(&self) -> usize {
+        self.header.shstrndx()
+    }
+
     /// Get the layout of the file (little or big endian)
     pub fn layout(&self) -> Layout {
         self.header.data()
@@ -159,6 +182,14 @@ impl Binary {
         self.header.class()
     }
 
+}
+
+impl Updateable for Binary {
+    fn update(&mut self) {
+        self.header.update();
+        self.sections.update();
+        Update::<All>::clear();
+    }
 }
 
 #[cfg(test)]
@@ -181,4 +212,23 @@ mod tests {
         assert_eq!(names[1].as_str(),".shstrtab");
         assert_eq!(names[2].as_str(),".strtab");
     }
+
+    #[test]
+    fn test_update_string_table() {
+        let mut binary = Binary::load("assets/libjpeg/libjpeg.so.9").unwrap();
+
+        // get the string table
+        let section = binary.section(binary.shstrndx()).unwrap();
+        let mut table = StringTable::try_from(section).unwrap();
+
+        // insert a test string at index 15
+        table.insert(15,"TEST".try_into().unwrap());
+
+        // 17: Ok(".shstrtab")
+
+
+        // dbg!(table.is_ok());
+
+    }
+
 }

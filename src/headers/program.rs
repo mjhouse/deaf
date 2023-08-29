@@ -1,7 +1,8 @@
 use crate::common::{
     Width,
     Layout,
-    PHType
+    PHType,
+    Updateable
 };
 
 use crate::common::{Item, ranges::*};
@@ -239,6 +240,8 @@ impl ProgramHeader {
     }
 
 }
+
+impl Updateable for ProgramHeader {}
 
 #[cfg(test)]
 mod tests {

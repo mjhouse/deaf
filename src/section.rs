@@ -1,6 +1,6 @@
 use crate::headers::SectionHeader;
 use crate::errors::{Result};
-use crate::common::{Layout,Width,SectionType};
+use crate::common::{Layout,Width,SectionType,Update,Updateable};
 
 /// A Section extracted from an ELF file
 #[derive(Debug)]
@@ -92,8 +92,16 @@ impl Section {
         self.header.body_size()
     }
 
+    pub fn set_body_size(&mut self, body_size: usize) {
+        self.header.set_body_size(body_size);
+    }
+
     pub fn entity_size(&self) -> usize {
         self.header.entsize()
+    }
+
+    pub fn entity_count(&self) -> usize {
+        self.body_size() / self.entity_size()
     }
 
     pub fn offset(&self) -> usize {
@@ -118,18 +126,54 @@ impl Section {
 
 }
 
+impl Updateable for Section {
+    fn update(&mut self) {
+        self.header.update();
+        Update::apply(self);
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    // use super::*;
-    // use crate::headers::FileHeader;
+    use super::*;
+    use crate::headers::{FileHeader,SectionHeader};
+    use crate::common::SHType;
+    use crate::utilities::read;
+    use crate::common::Updateable;
 
-    // use crate::utilities::read;
+    #[test]
+    fn test_iterable_fields() {
+        let b = read("assets/libjpeg/libjpeg.so.9").unwrap();
 
-    // #[test]
-    // fn test_read_section_headers() {
-    //     let binary = Binary::new("assets/libvpf/libvpf.so.4.1").unwrap();
-    //     let section = binary.section_by_name(".text".into());
+        let file_header = FileHeader::parse(&b).unwrap();
 
-    //     dbg!(section);
-    // }
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+        
+        let headers = SectionHeader::parse_all(
+            &b,
+            count,
+            offset,
+            size,
+            layout,
+            width).unwrap();
+
+        let header: SectionHeader = headers
+            .iter()
+            .find(|&h| h
+                .kind() == SHType::SHT_RELA)
+            .unwrap()
+            .clone();
+
+        let mut section = Section::read(header,&b).unwrap();
+
+        // for (name,field) in section.iter_mut() {
+        //     if let Some(h) = field.downcast_mut::<dyn Updateable>() {
+        //         println!("GOT IT");
+        //     }
+        // }
+    }
 }

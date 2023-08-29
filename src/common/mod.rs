@@ -36,5 +36,7 @@ pub use enums::{
 };
 
 pub use update::{
-    Update, All
+    Update, 
+    Updateable,
+    All
 };

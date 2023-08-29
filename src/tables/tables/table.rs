@@ -169,6 +169,10 @@ where
         self.items.get(index)
     }
 
+    pub fn all(&self) -> &Vec<T> {
+        &self.items
+    }
+
     /// Set index to item, returning the index
     pub fn set(&mut self, index: usize, item: T) -> Result<usize> {
         if self.items.len() > index {
@@ -177,6 +181,13 @@ where
         } else {
             Err(Error::OutOfBoundsError)
         }
+    }
+
+    /// Insert an item at particular index, returning the
+    /// new size of the table.
+    pub fn insert(&mut self, index: usize, item: T) -> Result<usize> {
+        self.items.insert(index,item);
+        Ok(self.len().saturating_sub(1))
     }
 
     /// Add item, returning the index

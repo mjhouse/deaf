@@ -3,6 +3,41 @@ use std::sync::Mutex;
 use once_cell::sync::Lazy;
 use std::marker::PhantomData;
 
+/// Trait to add an update function to 
+/// structs that can be updated.
+pub trait Updateable {
+    fn update(&mut self)
+    where 
+        Self: Send + Sync + 'static + Sized
+    {
+        Update::apply(self);
+    }
+}
+
+/// Generic implementation for Vec<T> where
+/// `T` is updateable.
+impl<T> Updateable for Vec<T> 
+where 
+    T: Send + Sync + 'static
+{
+    fn update(&mut self) { 
+        self.iter_mut()
+            .map(Update::apply);
+    }
+}
+
+/// Generic implementation for Option<T> where
+/// `T` is updateable.
+impl<T> Updateable for Option<T> 
+where 
+    T: Send + Sync + 'static
+{
+    fn update(&mut self) { 
+        self.iter_mut()
+            .map(Update::apply);
+    }
+}
+
 /// Placeholder target for Update<T>
 pub struct All {}
 
@@ -136,6 +171,34 @@ mod tests {
 
     struct TestStruct {
         value: u32
+    }
+
+    impl Updateable for TestStruct {}
+
+    #[test]
+    #[serial]
+    fn test_use_updateable() {
+        Update::<All>::clear();
+        // SETUP
+        // ============================================
+
+        // create a test struct to update
+        let mut test = TestStruct { value: 1 };
+
+        // create a test struct update
+        Update::<TestStruct>::add(move |t| {
+            t.value += 1;
+        });
+        
+        // call update on the test struct
+        test.update();
+
+        // verify that value has been incremented
+        assert_eq!(test.value, 2);
+
+        // ============================================
+        // TEARDOWN
+        Update::<All>::clear();
     }
 
     #[test]

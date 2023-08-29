@@ -6,7 +6,7 @@ use crate::common::{
 };
 use enumflags2::BitFlags;
 
-use crate::common::Item;
+use crate::common::{Item,Update,Updateable};
 use crate::common::ranges::*;
 use crate::errors::Result;
 
@@ -331,6 +331,8 @@ impl From<SectionHeaderData> for SectionHeader {
         }
     }
 }
+
+impl Updateable for SectionHeader {}
 
 #[cfg(test)]
 mod tests {

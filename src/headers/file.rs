@@ -1,5 +1,5 @@
 use crate::errors::{Result};
-use crate::common::{Width,Layout,Item,ranges::*};
+use crate::common::{Width,Layout,Item,ranges::*,Updateable};
 
 /// The ELF file header parsed from the beginning of the file
 #[derive(Debug)]
@@ -387,6 +387,8 @@ impl FileHeader {
     }
 
 }
+
+impl Updateable for FileHeader {}
 
 #[cfg(test)]
 mod tests {
