@@ -126,16 +126,37 @@ where
             .ok_or(Error::OutOfBoundsError)
     }
 
-    // /// Get a slice of data that represents an item
-    // fn item_data_mut(&self, index: usize) -> Result<&[u8]> {
-    //     self.iterator()
-    //         .nth(index)
-    //         .ok_or(Error::OutOfBoundsError)
-    // }
+    /// Get a slice of data that represents an item
+    fn item_data_mut(&mut self, index: usize) -> Result<&mut [u8]> {
+        let (offset,size) = self.item_range(index);
+        let data = self.section.data_mut();
+        Ok(&mut data[offset..offset + size])
+    }
 
     /// Get the offset of an item from the index
     fn item_offset(&self, index: usize) -> usize {
-        self.item_size() * index
+        if self.item_size() > 0 {
+            self.item_size() * index
+        } else {
+            self.iterator()
+                .enumerate()
+                .take_while(|(i,_)| i < &index)
+                .fold(0,|a,(_,e)| e.len())
+        }
+    }
+
+    fn item_range(&self, index: usize) -> (usize,usize) {
+        self.iterator()
+            .enumerate()
+            .take_while(|(i,_)| i <= &index)
+            .fold((0,0),|mut a,(i,e)| {
+                if i == index {
+                    a.1 = e.len();
+                } else {
+                    a.0 += e.len();
+                }
+                a
+            })
     }
 
     /// Get the total size of the table
