@@ -211,6 +211,7 @@ mod tests {
         assert_eq!(names[0].as_str(),".dynstr");
         assert_eq!(names[1].as_str(),".shstrtab");
         assert_eq!(names[2].as_str(),".strtab");
+        
     }
 
 }

@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use crate::errors::{Error,Result};
-use crate::common::{ByteIter,SHType};
+use crate::common::{ByteIter,SHType,Layout,Width};
 use crate::tables::{TableItem,StringItem,RelaItem,RelItem,SymbolItem};
 use crate::Section;
 
@@ -84,6 +84,16 @@ where
     pub fn size(&self) -> usize {
         self.section.body_size()
     }
+
+    /// Get the layout being used by this table
+    pub fn layout(&self) -> Layout {
+        self.section.layout()
+    }
+
+    /// Get the width being used by this table
+    pub fn width(&self) -> Width {
+        self.section.width()
+    }
 }
 
 impl<'a,T> TableMut<'a,T>
@@ -129,15 +139,6 @@ where
     /// Get the total size of the table
     fn table_size(&self) -> usize {
         self.section.body_size()
-    }
-
-    /// Get the number of items in the table
-    fn item_count(&self) -> usize {
-        if self.has_fixed_size() {
-            self.section.entity_count()
-        } else {
-            self.iterator().count()
-        }
     }
 
     /// Reserve space at an offset in the section
@@ -229,12 +230,26 @@ where
 
     /// Get the number of items in the table
     pub fn len(&self) -> usize {
-        self.item_count()
+        if self.has_fixed_size() {
+            self.section.entity_count()
+        } else {
+            self.iterator().count()
+        }
     }
 
     /// Get the number of bytes in the table
     pub fn size(&self) -> usize {
         self.table_size()
+    }
+
+    /// Get the layout being used by this table
+    pub fn layout(&self) -> Layout {
+        self.section.layout()
+    }
+
+    /// Get the width being used by this table
+    pub fn width(&self) -> Width {
+        self.section.width()
     }
 }
 
@@ -368,6 +383,7 @@ mod tests {
     use super::*;
     use crate::headers::{FileHeader};
     use crate::common::{SectionType};
+    use crate::tables::{RelocationInfo,SymbolInfo};
     use crate::utilities::read;
 
     use crate::utilities::tests::{
@@ -674,6 +690,222 @@ mod tests {
         let string = result.unwrap();
         let value = string.as_str();
         assert_ne!(value,".shstrtab");
+    }
+
+    #[test]
+    fn test_write_symtab_prepend() {
+        let data = read("assets/libjpeg/libjpeg.so.9").unwrap();
+
+        let file_header = FileHeader::parse(&data).unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let index = file_header.shstrndx();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+
+        let mut sections = Section::read_all(
+            &data,
+            count,
+            offset,
+            size,
+            layout,
+            width
+        ).unwrap();
+
+        let section = &mut sections[SYM_TEST.index];
+
+        let result = TableMut::<SymbolItem>::try_from(section);
+        assert!(result.is_ok());
+
+        let mut table = result.unwrap();
+
+        assert_eq!(table.len(),SYM_TEST.length);
+        assert_eq!(table.size(),SYM_TEST.size);
+
+        let mut item = SymbolItem::default();
+        item.set_layout(table.layout());
+        item.set_width(table.width());
+        item.set_name(1);
+        item.set_value(1);
+        item.set_size(1);
+        item.set_info(SymbolInfo::new(1).unwrap());
+        item.set_other(1);
+        item.set_shndx(1);
+
+        let result = table.prepend(item);
+        assert!(result.is_ok());
+
+        assert_eq!(table.len(),SYM_TEST.length + 1);
+        assert_eq!(table.size(),SYM_TEST.size + SYM_TEST.entsize);
+
+        let result = table.at(0);
+        assert!(result.is_ok());
+
+        let item = result.unwrap();
+        assert_eq!(item.name(),1);
+        assert_eq!(item.value(),1);
+        assert_eq!(item.size(),1);
+        assert_eq!(item.other(),1);
+        assert_eq!(item.shndx(),1);
+    }
+
+    #[test]
+    fn test_write_symtab_append() {
+        let data = read("assets/libjpeg/libjpeg.so.9").unwrap();
+
+        let file_header = FileHeader::parse(&data).unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let index = file_header.shstrndx();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+
+        let mut sections = Section::read_all(
+            &data,
+            count,
+            offset,
+            size,
+            layout,
+            width
+        ).unwrap();
+
+        let section = &mut sections[SYM_TEST.index];
+
+        let result = TableMut::<SymbolItem>::try_from(section);
+        assert!(result.is_ok());
+
+        let mut table = result.unwrap();
+
+        assert_eq!(table.len(),SYM_TEST.length);
+        assert_eq!(table.size(),SYM_TEST.size);
+
+        let mut item = SymbolItem::default();
+        item.set_layout(table.layout());
+        item.set_width(table.width());
+        item.set_name(1);
+        item.set_value(1);
+        item.set_size(1);
+        item.set_info(SymbolInfo::new(1).unwrap());
+        item.set_other(1);
+        item.set_shndx(1);
+
+        let result = table.append(item);
+        assert!(result.is_ok());
+
+        assert_eq!(table.len(),SYM_TEST.length + 1);
+        assert_eq!(table.size(),SYM_TEST.size + SYM_TEST.entsize);
+
+        let result = table.at(table.len() - 1);
+        assert!(result.is_ok());
+
+        let item = result.unwrap();
+        assert_eq!(item.name(),1);
+        assert_eq!(item.value(),1);
+        assert_eq!(item.size(),1);
+        assert_eq!(item.other(),1);
+        assert_eq!(item.shndx(),1);
+    }
+
+    #[test]
+    fn test_write_symtab_insert() {
+        let data = read("assets/libjpeg/libjpeg.so.9").unwrap();
+
+        let file_header = FileHeader::parse(&data).unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let index = file_header.shstrndx();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+
+        let mut sections = Section::read_all(
+            &data,
+            count,
+            offset,
+            size,
+            layout,
+            width
+        ).unwrap();
+
+        let section = &mut sections[SYM_TEST.index];
+
+        let result = TableMut::<SymbolItem>::try_from(section);
+        assert!(result.is_ok());
+
+        let mut table = result.unwrap();
+
+        assert_eq!(table.len(),SYM_TEST.length);
+        assert_eq!(table.size(),SYM_TEST.size);
+
+        let mut item = SymbolItem::default();
+        item.set_layout(table.layout());
+        item.set_width(table.width());
+        item.set_name(1);
+        item.set_value(1);
+        item.set_size(1);
+        item.set_info(SymbolInfo::new(1).unwrap());
+        item.set_other(1);
+        item.set_shndx(1);
+
+        let result = table.insert(3,item);
+        assert!(result.is_ok());
+
+        assert_eq!(table.len(),SYM_TEST.length + 1);
+        assert_eq!(table.size(),SYM_TEST.size + SYM_TEST.entsize);
+
+        let result = table.at(3);
+        assert!(result.is_ok());
+
+        let item = result.unwrap();
+        assert_eq!(item.name(),1);
+        assert_eq!(item.value(),1);
+        assert_eq!(item.size(),1);
+        assert_eq!(item.other(),1);
+        assert_eq!(item.shndx(),1);
+    }
+
+    #[test]
+    fn test_write_symtab_remove() {
+        let data = read("assets/libjpeg/libjpeg.so.9").unwrap();
+
+        let file_header = FileHeader::parse(&data).unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let index = file_header.shstrndx();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+
+        let mut sections = Section::read_all(
+            &data,
+            count,
+            offset,
+            size,
+            layout,
+            width
+        ).unwrap();
+
+        let section = &mut sections[SYM_TEST.index];
+
+        let result = TableMut::<SymbolItem>::try_from(section);
+        assert!(result.is_ok());
+
+        let mut table = result.unwrap();
+
+        assert_eq!(table.len(),SYM_TEST.length);
+        assert_eq!(table.size(),SYM_TEST.size);
+
+        let result = table.remove(3);
+        assert!(result.is_ok());
+
+        assert_eq!(table.len(),SYM_TEST.length - 1);
+        assert_eq!(table.size(),SYM_TEST.size - SYM_TEST.entsize);
     }
 
 }
