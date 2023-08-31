@@ -2,9 +2,7 @@ use std::marker::PhantomData;
 
 use crate::errors::{Error,Result};
 use crate::common::{ByteIter,SHType};
-use crate::tables::TableItem;
-use crate::headers::SectionHeader;
-use crate::tables::{StringItem,RelaItem,RelItem,SymbolItem};
+use crate::tables::{TableItem,StringItem,RelaItem,RelItem,SymbolItem};
 use crate::Section;
 
 pub struct Table<'a,T>
@@ -41,7 +39,7 @@ where
         ByteIter::new(
             self.section.data(),
             T::delimiter(
-                self.item_size()))
+                self.section.entity_size()))
     }
 
     /// Get a slice of data that represents an item
@@ -51,50 +49,40 @@ where
             .ok_or(Error::OutOfBoundsError)
     }
 
-    /// Get the offset of an item from the index
-    fn item_offset(&self, index: usize) -> usize {
-        self.item_size() * index
+    /// True if items are all the same size
+    pub fn has_fixed_size(&self) -> bool {
+        self.section.entity_size() > 0
     }
 
-    /// Get the size of the table item
-    fn item_size(&self) -> usize {
-        self.section.entity_size()
+    /// True if items can be different sizes
+    pub fn has_variable_size(&self) -> bool {
+        !self.has_fixed_size()
+    }
+
+    /// Get an element from the table
+    pub fn at(&self, index: usize) -> Result<T> {
+        T::parse(self.item_data(index)?,&self.section)
+    }
+
+    /// Get all items from the table
+    pub fn items(&self) -> Result<Vec<T>> {
+        self.iterator()
+            .map(|b| T::parse(b,&self.section))
+            .collect()
     }
 
     /// Get the number of items in the table
-    fn item_count(&self) -> usize {
-        if self.item_size() > 0 {
+    pub fn len(&self) -> usize {
+        if self.has_fixed_size() {
             self.section.entity_count()
         } else {
             self.iterator().count()
         }
     }
 
-    /// Read from a fitted slice, returning the item
-    fn get(&self, index: usize) -> Result<T> {
-        let data = self.item_data(index)?;
-        let mut item = T::default();
-
-        // set expected layout and width from table
-        item.set_layout(self.section.layout());
-        item.set_width(self.section.width());
-
-        item.read(data)?;
-        Ok(item)
-    }
-
-    /// Get all items from the table
-    fn items(&self) -> Result<Vec<T>> {
-        // TODO: make this use ByteIter instead of calling get
-        (0..self.item_count())
-            .into_iter()
-            .map(|i| self.get(i))
-            .collect()
-    }
-
-    /// Get the number of items in the table
-    pub fn len(&self) -> usize {
-        self.item_count()
+    /// Get the number of bytes in the table
+    pub fn size(&self) -> usize {
+        self.section.body_size()
     }
 }
 
@@ -116,7 +104,7 @@ where
         ByteIter::new(
             self.section.data(),
             T::delimiter(
-                self.item_size()))
+                self.section.entity_size()))
     }
 
     /// Get a slice of data that represents an item
@@ -126,37 +114,16 @@ where
             .ok_or(Error::OutOfBoundsError)
     }
 
-    /// Get a slice of data that represents an item
-    fn item_data_mut(&mut self, index: usize) -> Result<&mut [u8]> {
-        let (offset,size) = self.item_range(index);
-        let data = self.section.data_mut();
-        Ok(&mut data[offset..offset + size])
-    }
-
     /// Get the offset of an item from the index
     fn item_offset(&self, index: usize) -> usize {
-        if self.item_size() > 0 {
-            self.item_size() * index
+        if self.has_fixed_size() {
+            self.section.entity_size() * index
         } else {
             self.iterator()
                 .enumerate()
                 .take_while(|(i,_)| i < &index)
-                .fold(0,|a,(_,e)| e.len())
+                .fold(0,|a,(_,e)| a + e.len())
         }
-    }
-
-    fn item_range(&self, index: usize) -> (usize,usize) {
-        self.iterator()
-            .enumerate()
-            .take_while(|(i,_)| i <= &index)
-            .fold((0,0),|mut a,(i,e)| {
-                if i == index {
-                    a.1 = e.len();
-                } else {
-                    a.0 += e.len();
-                }
-                a
-            })
     }
 
     /// Get the total size of the table
@@ -164,124 +131,110 @@ where
         self.section.body_size()
     }
 
-    /// Get the size of the table item
-    fn item_size(&self) -> usize {
-        self.section.entity_size()
-    }
-
     /// Get the number of items in the table
     fn item_count(&self) -> usize {
-        if self.item_size() > 0 {
+        if self.has_fixed_size() {
             self.section.entity_count()
         } else {
             self.iterator().count()
         }
     }
 
-    /// Reserve bytes at the end of the buffer
-    fn reserve_end(&mut self, size: usize) {
-        let limit = self.table_size();
+    /// Reserve space at an offset in the section
+    fn reserve(&mut self, offset: usize, size: usize) {
+        let length = self.table_size() + size;
 
-        // reserve additional space
         self.section
             .data_mut()
-            .reserve(size);
+            .splice(offset..offset,(0..size).map(|_| 0));
 
-        // update the section size
         self.section
-            .set_body_size(limit + size);
+            .set_body_size(length);
     }
 
-    /// Reserve bytes at the start of the buffer
-    fn reserve_start(&mut self, size: usize) {
-        // reserve additional space
-        self.reserve_end(size);
+    /// Discard space at an offset in the section
+    fn discard(&mut self, offset: usize, size: usize) {
+        let length = self.table_size() - size;
 
-        // rotate that space to the front
         self.section
             .data_mut()
-            .rotate_right(size);
-    }
+            .drain(offset..offset + size);
 
-    /// Read from a fitted slice, returning the item
-    pub fn get(&self, index: usize) -> Result<T> {
-        let data = self.item_data(index)?;
-        let mut item = T::default();
-
-        // set expected layout and width from table
-        item.set_layout(self.section.layout());
-        item.set_width(self.section.width());
-
-        item.read(data)?;
-        Ok(item)
-    }
-
-    /// Write to a fitted slice, returning the number of bytes written
-    pub fn set(&mut self, index: usize, item: T) -> Result<usize> {
-        let size  = self.item_size();
-        let start = self.item_offset(index);
-        let end   = start + size;
-        let data  = self.section.data_mut();
-
-        // get a constrained, mutable slice of bytes
-        let buffer = &mut data[start..end];
-
-        // write the item to the byte slice
-        item.write(buffer)?;
-        Ok(size)
+        self.section
+            .set_body_size(length);
     }
 
     /// Append an item to the table
     pub fn append(&mut self, item: T) -> Result<usize> {
-        let size   = self.item_size();
-        let offset = self.table_size();
-
-        // reserve additional space
-        self.reserve_end(size);
-
-        // write to that position
-        self.set(offset,item)
+        self.insert(self.len(),item)
     }
 
     /// Prepend an item to the table
     pub fn prepend(&mut self, item: T) -> Result<usize> {
-        let size   = self.item_size();
-        let offset = 0;
+        self.insert(0,item)
+    }
+
+    /// Insert an item into the table
+    pub fn insert(&mut self, index: usize, item: T) -> Result<usize> {
+        let size   = item.size();
+        let offset = self.item_offset(index);
 
         // reserve additional space
-        self.reserve_start(size);
+        self.reserve(offset,size);
 
-        // write to that position
-        self.set(offset,item)
+        // get a constrained, mutable slice of bytes
+        let data = self.section.slice_mut(offset,size);
+
+        // write the item to the byte slice
+        item.write(data)?;
+
+        Ok(size)
     }
 
     /// Remove an item from the table by index
     pub fn remove(&mut self, index: usize) -> Result<T> {
-        let size  = self.item_size();
-        let start = self.item_offset(index);
+        let data   = self.item_data(index)?;
+        let offset = self.item_offset(index);
+        let size   = data.len();
         
-        // get the item from the buffer
-        let item = self.get(index)?;
+        let item = T::parse(data,&self.section)?;
 
         // remove the data from the buffer
-        self.section
-            .data_mut()
-            .drain(start..start + size);
+        self.discard(offset,size);
 
         Ok(item)
     }
 
+    /// Get an element from the table
+    pub fn at(&self, index: usize) -> Result<T> {
+        T::parse(self.item_data(index)?,&self.section)
+    }
+
     /// Get all items from the table
     pub fn items(&self) -> Result<Vec<T>> {
-        (0..self.item_count())
-            .into_iter()
-            .map(|i| self.get(i))
+        self.iterator()
+            .map(|b| T::parse(b,&self.section))
             .collect()
+    }
+
+    /// True if items are all the same size
+    pub fn has_fixed_size(&self) -> bool {
+        self.section.entity_size() > 0
+    }
+
+    /// True if items can be different sizes
+    pub fn has_variable_size(&self) -> bool {
+        !self.has_fixed_size()
     }
 
     /// Get the number of items in the table
     pub fn len(&self) -> usize {
         self.item_count()
+    }
+
+    /// Get the number of bytes in the table
+    pub fn size(&self) -> usize {
+        self.table_size()
     }
 }
 
@@ -413,8 +366,8 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::headers::{FileHeader,SectionHeader,SectionHeaderData};
-    use crate::common::{Width,Layout,SHType,SectionType};
+    use crate::headers::{FileHeader};
+    use crate::common::{SectionType};
     use crate::utilities::read;
 
     use crate::utilities::tests::{
@@ -518,6 +471,209 @@ mod tests {
 
         let table = result.unwrap();
         assert_eq!(table.len(),RELA_TEST.length);
+    }
+
+    #[test]
+    fn test_write_shstrtab_prepend() {
+        let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
+
+        let file_header = FileHeader::parse(&data).unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let index = file_header.shstrndx();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+
+        let mut sections = Section::read_all(
+            &data,
+            count,
+            offset,
+            size,
+            layout,
+            width
+        ).unwrap();
+        
+        let section = &mut sections[index];
+
+        let result = TableMut::<StringItem>::try_from(section);
+        assert!(result.is_ok());
+
+        let mut table = result.unwrap();
+
+        assert_eq!(table.len(),STR_TEST.length);
+        assert_eq!(table.size(),STR_TEST.size);
+
+        let result = table.prepend("TEST".try_into().unwrap());
+        assert!(result.is_ok());
+
+        assert_eq!(table.len(),STR_TEST.length + 1);
+        assert_eq!(table.size(),STR_TEST.size + 5);
+
+        let result = table.at(0);
+        assert!(result.is_ok());
+
+        let item = result.unwrap();
+
+        let result = item.string();
+        assert!(result.is_ok());
+
+        let value = result.unwrap();
+        assert_eq!(value,"TEST".to_string());
+    }
+
+    #[test]
+    fn test_write_shstrtab_append() {
+        let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
+
+        let file_header = FileHeader::parse(&data).unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let index = file_header.shstrndx();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+
+        let mut sections = Section::read_all(
+            &data,
+            count,
+            offset,
+            size,
+            layout,
+            width
+        ).unwrap();
+        
+        let section = &mut sections[index];
+
+        let result = TableMut::<StringItem>::try_from(section);
+        assert!(result.is_ok());
+
+        let mut table = result.unwrap();
+        
+        assert_eq!(table.len(),STR_TEST.length);
+        assert_eq!(table.size(),STR_TEST.size);
+
+        let result = table.append("TEST".try_into().unwrap());
+        assert!(result.is_ok());
+
+        assert_eq!(table.len(),STR_TEST.length + 1);
+        assert_eq!(table.size(),STR_TEST.size + 5);
+
+        let result = table.at(table.len() - 1);
+        assert!(result.is_ok());
+
+        let item = result.unwrap();
+
+        let result = item.string();
+        assert!(result.is_ok());
+
+        let string = result.unwrap();
+        let value = string.as_str();
+        assert_eq!(value,"TEST");
+    }
+
+    #[test]
+    fn test_write_shstrtab_insert() {
+        let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
+
+        let file_header = FileHeader::parse(&data).unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let index = file_header.shstrndx();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+
+        let mut sections = Section::read_all(
+            &data,
+            count,
+            offset,
+            size,
+            layout,
+            width
+        ).unwrap();
+        
+        let section = &mut sections[index];
+
+        let result = TableMut::<StringItem>::try_from(section);
+        assert!(result.is_ok());
+
+        let mut table = result.unwrap();
+        
+        assert_eq!(table.len(),STR_TEST.length);
+        assert_eq!(table.size(),STR_TEST.size);
+
+        let result = table.insert(1,"TEST".try_into().unwrap());
+        assert!(result.is_ok());
+
+        assert_eq!(table.len(),STR_TEST.length + 1);
+        assert_eq!(table.size(),STR_TEST.size + 5);
+
+        let result = table.at(1);
+        assert!(result.is_ok());
+
+        let item = result.unwrap();
+
+        let result = item.string();
+        assert!(result.is_ok());
+
+        let string = result.unwrap();
+        let value = string.as_str();
+        assert_eq!(value,"TEST");
+    }
+
+    #[test]
+    fn test_write_shstrtab_remove() {
+        let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
+
+        let file_header = FileHeader::parse(&data).unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let index = file_header.shstrndx();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+
+        let mut sections = Section::read_all(
+            &data,
+            count,
+            offset,
+            size,
+            layout,
+            width
+        ).unwrap();
+        
+        let section = &mut sections[index];
+
+        let result = TableMut::<StringItem>::try_from(section);
+        assert!(result.is_ok());
+
+        let mut table = result.unwrap();
+
+        assert_eq!(table.len(),STR_TEST.length);
+        assert_eq!(table.size(),STR_TEST.size);
+
+        let result = table.remove(1);
+        assert!(result.is_ok());
+
+        assert_eq!(table.len(),STR_TEST.length - 1);
+        assert_eq!(table.size(),STR_TEST.size - 10);
+
+        let result = table.at(1);
+        assert!(result.is_ok());
+
+        let item = result.unwrap();
+
+        let result = item.string();
+        assert!(result.is_ok());
+
+        let string = result.unwrap();
+        let value = string.as_str();
+        assert_ne!(value,".shstrtab");
     }
 
 }

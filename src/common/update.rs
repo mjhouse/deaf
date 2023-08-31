@@ -20,9 +20,10 @@ impl<T> Updateable for Vec<T>
 where 
     T: Send + Sync + 'static
 {
-    fn update(&mut self) { 
-        self.iter_mut()
-            .map(Update::apply);
+    fn update(&mut self) {
+        for v in self.iter_mut() {
+            Update::apply(v);
+        }
     }
 }
 
@@ -33,8 +34,9 @@ where
     T: Send + Sync + 'static
 {
     fn update(&mut self) { 
-        self.iter_mut()
-            .map(Update::apply);
+        if let Some(v) = self.as_mut() {
+            Update::apply(v);
+        }
     }
 }
 

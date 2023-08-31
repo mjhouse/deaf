@@ -75,6 +75,14 @@ impl Section {
         &mut self.data
     }
 
+    pub fn slice(&self, offset: usize, size: usize) -> &[u8] {
+        &self.data[offset..offset + size]
+    }
+
+    pub fn slice_mut(&mut self, offset: usize, size: usize) -> &mut [u8] {
+        &mut self.data[offset..offset + size]
+    }
+
     pub fn set_data(&mut self, data: Vec<u8>) {
         self.data = data;
     }
@@ -139,10 +147,9 @@ mod tests {
     use crate::headers::{FileHeader,SectionHeader};
     use crate::common::SHType;
     use crate::utilities::read;
-    use crate::common::Updateable;
 
     #[test]
-    fn test_iterable_fields() {
+    fn test_section_read() {
         let b = read("assets/libjpeg/libjpeg.so.9").unwrap();
 
         let file_header = FileHeader::parse(&b).unwrap();
@@ -168,12 +175,8 @@ mod tests {
             .unwrap()
             .clone();
 
-        let mut section = Section::read(header,&b).unwrap();
+        let result = Section::read(header,&b);
+        assert!(result.is_ok())
 
-        // for (name,field) in section.iter_mut() {
-        //     if let Some(h) = field.downcast_mut::<dyn Updateable>() {
-        //         println!("GOT IT");
-        //     }
-        // }
     }
 }

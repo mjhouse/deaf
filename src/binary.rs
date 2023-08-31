@@ -126,7 +126,7 @@ impl Binary {
                 .and_then(|e| e.string()))
     }
 
-    pub fn section_names(&self, offset: usize) -> Result<Vec<String>> {
+    pub fn section_names(&self) -> Result<Vec<String>> {
         self.section(self.header.shstrndx())
             .and_then(StringTable::try_from)
             .map(|t| t
@@ -211,24 +211,6 @@ mod tests {
         assert_eq!(names[0].as_str(),".dynstr");
         assert_eq!(names[1].as_str(),".shstrtab");
         assert_eq!(names[2].as_str(),".strtab");
-    }
-
-    #[test]
-    fn test_update_string_table() {
-        let mut binary = Binary::load("assets/libjpeg/libjpeg.so.9").unwrap();
-
-        // get the string table
-        let section = binary.section(binary.shstrndx()).unwrap();
-        let mut table = StringTable::try_from(section).unwrap();
-
-        // insert a test string at index 15
-        table.insert(15,"TEST".try_into().unwrap());
-
-        // 17: Ok(".shstrtab")
-
-
-        // dbg!(table.is_ok());
-
     }
 
 }

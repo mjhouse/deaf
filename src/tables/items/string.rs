@@ -4,7 +4,7 @@ use crate::errors::{Error,Result};
 use std::ffi::CString;
 
 /// A String item found in string tables
-#[derive(Default,Clone)]
+#[derive(Default,Debug,Clone,PartialEq)]
 pub struct StringItem {
     value: CString,
 }
