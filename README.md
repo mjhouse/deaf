@@ -4,11 +4,8 @@
 
 
 <!-- PROJECT SHIELDS -->
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
 [![Documentation][docs-shield]][docs-url]
+[![Issues][issues-shield]][issues-url]
 [![Tests][tests-shield]][tests-url]
 [![GPLv3][license-shield]][license-url]
 
@@ -45,10 +42,10 @@ end goal is to even handle updating branch instructions when code is removed fro
 [issues-shield]: https://img.shields.io/github/issues/mjhouse/deaf.svg?style=for-the-badge
 [issues-url]: https://github.com/mjhouse/deaf/issues
 
-[docs-shield]: https://img.shields.io/github/actions/workflow/status/mjhouse/deaf/docs.yaml?branch=documentation&style=for-the-badge
+[docs-shield]: https://img.shields.io/github/actions/workflow/status/mjhouse/deaf/docs.yaml?branch=documentation&style=for-the-badge&label=Documentation
 [docs-url]: https://mjhouse.github.io/deaf/
 
-[tests-shield]: https://img.shields.io/github/actions/workflow/status/mjhouse/deaf/test.yaml?branch=testing&style=for-the-badge
+[tests-shield]: https://img.shields.io/github/actions/workflow/status/mjhouse/deaf/test.yaml?branch=testing&style=for-the-badge&label=Tests
 [tests-url]: https://github.com/mjhouse/deaf/actions/workflows/test.yaml
 
 [license-shield]: https://img.shields.io/github/license/mjhouse/deaf.svg?style=for-the-badge
