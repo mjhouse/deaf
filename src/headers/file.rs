@@ -1,5 +1,5 @@
 use crate::errors::{Result};
-use crate::common::{Width,Layout,Item,ranges::*};
+use crate::common::{Width,Layout,Item,ranges::*,Updateable};
 
 /// The ELF file header parsed from the beginning of the file
 #[derive(Debug)]
@@ -113,7 +113,7 @@ impl FileHeader {
     ///
     /// Byte buffer is assumed to be sliced such that the
     /// header will be written at the correct position.
-    pub fn write(&mut self, b: &mut [u8]) -> Result<()> {
+    pub fn write(&self, b: &mut [u8]) -> Result<()> {
         self.ei_key.write(b)?;
         self.ei_magic.write(b)?;
         self.ei_class.write(b)?;
@@ -388,6 +388,8 @@ impl FileHeader {
 
 }
 
+impl Updateable for FileHeader {}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -423,7 +425,7 @@ mod tests {
         let result = FileHeader::parse(&b);
         assert!(result.is_ok());
 
-        let mut header = result.unwrap();
+        let header = result.unwrap();
 
         // initialize a buffer big enough for the header
         let mut buffer: Vec<u8> = vec![];

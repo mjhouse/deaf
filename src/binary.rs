@@ -1,200 +1,235 @@
 use std::path::Path;
-use std::sync::{Arc,Mutex};
+use std::fs;
 
 use crate::{Section};
+use crate::tables::{Table,StringItem};
 use crate::headers::{FileHeader};
-use crate::errors::{Result};
-use crate::common::{Data};
-use crate::tables::{StringTable};
+use crate::errors::{Error,Result};
+use crate::common::{
+    Layout,
+    Width,
+    SectionType,
+    Updateable,
+    Update,
+    All
+};
 
 /// An ELF formatted binary file
 pub struct Binary {
     header: FileHeader,
-    data: Data,
     sections: Vec<Section>,
-    names: Option<StringTable>
 }
 
 impl Binary {
 
-    /// Load a file as an ELF Binary object
-    pub fn new<T: AsRef<Path>>(path: T) -> Result<Self> {
-        let data = std::fs::read(path.as_ref())?;
-        let header = FileHeader::parse(&data)?;
-
-        Ok(Self { 
-            header: header, 
-            data: Arc::new(Mutex::new(data)),
-            sections: Vec::new(),
-            names: None,
-        })
+    fn empty() -> Self {
+        Self { 
+            header: FileHeader::new(), 
+            sections: Vec::new()
+        }
     }
 
-    pub fn read(&mut self) -> Result<()> {
-        // let count = self.header.shnum()?;
-        // let offset = self.header.shoff()?;
-        // let size = self.header.shentsize()?;
-        // let layout = self.header.layout();
-        // let width = self.header.width();
-        // let index = self.header.shstrndx()?;
-
-        // let data: &[u8] = &self.data.lock()?;
-
-        // let headers = SectionHeader::parse_all(
-        //     data,
-        //     count,
-        //     offset,
-        //     size,
-        //     layout,
-        //     width
-        // )
-
-        // let mut table = StringTable::try_from(index)?;
-        // table.parse(data);
-
-        // let sections = headers
-        //     .iter()
-        //     .map(|h| Section::new(
-        //         h,
-        //         data
-        //     ))
-        //     .collect();
-
-        Ok(())
+    fn new(header: FileHeader, sections: Vec<Section>) -> Self {
+        Self { header, sections }
     }
 
-    pub fn write(&self) -> Result<()> {
-        Ok(())
+    pub fn read(&mut self, data: &[u8]) -> Result<usize> {
+        self.header = FileHeader::parse(&data)?;
+
+        let count = self.header.shnum();
+        let offset = self.header.shoff();
+        let size = self.header.shentsize();
+        let layout = self.header.layout();
+        let width = self.header.width();
+
+        self.sections = Section::read_all(
+            &data,
+            count,
+            offset,
+            size,
+            layout,
+            width
+        )?;
+
+        Ok(self.size())
     }
 
-    // /// Get a vector of all section headers in the binary
-    // pub fn headers(&self) -> Result<Vec<SectionHeader>> {
-    //     let count = self.shnum()?;
-    //     let offset = self.shoff()?;
-    //     let size = self.shentsize()?;
-    //     let layout = self.layout()?;
-    //     let width = self.width()?;
+    pub fn write(&self, data: &mut [u8]) -> Result<usize> {
+        self.header.write(data)?;
+        let offset = self.header.shoff();
 
-    //     let data: &[u8] = &self.data.lock()?;
+        for (index,section) in self.sections.iter().enumerate() {
+            section.write(
+                data,
+                offset,
+                index,
+            )?;
+        }
 
-    //     SectionHeader::parse_all(
-    //         data,
-    //         count,
-    //         offset,
-    //         size,
-    //         layout,
-    //         width
-    //     )
-    // }
+        Ok(self.size())
+    }
 
-    // /// Get a vector of all sections in the binary
-    // pub fn sections(&self) -> Result<Vec<Section>> {
-    //     Ok(self.headers()?
-    //         .into_iter()
-    //         .map(|h| Section::new(
-    //             h,
-    //             self.data.clone()))
-    //         .collect())
-    // }
+    pub fn load<T: AsRef<Path>>(path: T) -> Result<Self> {
+        let data = fs::read(path.as_ref())?;
+        let mut binary = Binary::empty();        
+        binary.read(&data)?;
+        Ok(binary)
+    }
 
-    // // Get a single section by index
-    // pub fn section_header(&self, index: usize) -> Option<SectionHeader> {
-    //     self.headers()
-    //         .ok()?
-    //         .into_iter()
-    //         .nth(index)
-    // }
+    pub fn save<T: AsRef<Path>>(&self, path: T) -> Result<usize> {
+        let size = self.size();
+        let mut data = vec![0;size];
+        self.write(&mut data)?;
+        fs::write(path, data)?;
+        Ok(size)
+    }
 
-    // // Get a single section by index
-    // pub fn section_by_index(&self, index: usize) -> Option<Section> {
-    //     self.sections()
-    //         .ok()?
-    //         .into_iter()
-    //         .nth(index)
-    // }
+    pub fn size(&self) -> usize {
+        self.header.size() +
+        self.sections
+            .iter()
+            .fold(0,|a,s| a + s.size())
+    }
 
-    // // Get a single section by index
-    // pub fn section_by_name(&self, name: String) -> Option<Section> {
-    //     self.sections()
-    //         .ok()?
-    //         .into_iter()
-    //         .filter(|s| s.name(self) == Some(name.clone()))
-    //         .collect::<Vec<Section>>()
-    //         .pop()
-    // }
+    pub fn section(&self, index: usize) -> Result<&Section> {
+        self.sections
+            .get(index)
+            .ok_or(Error::NotFound)
+    }
 
-    // /// Get a vector of all string tables in the binary
-    // pub fn section_names(&self) -> Result<StringTable> {
-    //     self.header
-    //         .shstrndx()
-    //         .and_then(|i| self.section_header(i))
-    //         .ok_or(Error::NotFound)
-    //         .and_then(StringTable::try_from)
-    //         .and_then(|t| t.parse(&self.data))
-    // }
+    pub fn section_mut(&mut self, index: usize) -> Result<&mut Section> {
+        self.sections
+            .get_mut(index)
+            .ok_or(Error::NotFound)
+    }
 
-    // pub fn section_name(&self, index: usize) -> Option<String> {
-    //     self.section_names()
-    //         .ok()?
-    //         .get(index)
-    //         .cloned()
-    //         .map(|v| v.string_lossy())
-    // }
+    pub fn sections(&self, kind: SectionType) -> Vec<&Section> {
+        self.sections
+            .iter()
+            .filter(|s| s.is_kind(kind))
+            .collect()
+    }
 
-    // /// Get the number of section headers in the file
-    // pub fn shnum(&self) -> Result<usize> {
-    //     self.header.shnum().ok_or(Error::NotFound)
-    // }
+    pub fn sections_mut(&mut self, kind: SectionType) -> Vec<&mut Section> {
+        self.sections
+            .iter_mut()
+            .filter(|s| s.is_kind(kind))
+            .collect()
+    }
 
-    // /// Get the offset of the section header table
-    // pub fn shoff(&self) -> Result<usize> {
-    //     self.header.shoff().ok_or(Error::NotFound)
-    // }
+    pub fn section_name(&self, offset: usize) -> Result<String> {
+        self.section(self.header.shstrndx())
+            .and_then(Table::<StringItem>::try_from)
+            .and_then(|t| t
+                .at_offset(offset)
+                .and_then(|e| e.string()))
+    }
 
-    // /// Get the size of section headers
-    // pub fn shentsize(&self) -> Result<usize> {
-    //     self.header.shentsize().ok_or(Error::NotFound)
-    // }
+    pub fn section_names(&self) -> Result<Vec<String>> {
+        self.section(self.header.shstrndx())
+            .and_then(Table::<StringItem>::try_from)
+            .and_then(|t| t
+                .items())
+            .and_then(|v| v
+                .iter()
+                .map(|e| e.string())
+                .collect())
+    }
 
-    // /// Get the number of program headers in the file
-    // pub fn phnum(&self) -> Result<usize> {
-    //     self.header.phnum().ok_or(Error::NotFound)
-    // }
+    /// Get the number of section headers in the file
+    pub fn shnum(&self) -> usize {
+        self.header.shnum()
+    }
 
-    // /// Get the offset of the program header table
-    // pub fn phoff(&self) -> Result<usize> {
-    //     self.header.phoff().ok_or(Error::NotFound)
-    // }
+    /// Get the offset of the section header table
+    pub fn shoff(&self) -> usize {
+        self.header.shoff()
+    }
 
-    // /// Get the size of program headers
-    // pub fn phentsize(&self) -> Result<usize> {
-    //     self.header.phentsize().ok_or(Error::NotFound)
-    // }
+    /// Get the size of section headers
+    pub fn shentsize(&self) -> usize {
+        self.header.shentsize()
+    }
 
-    // /// Get the layout of the file (little or big endian)
-    // pub fn layout(&self) -> Result<Layout> {
-    //     self.header.data().ok_or(Error::NotFound)
-    // }
+    /// Get the number of program headers in the file
+    pub fn phnum(&self) -> usize {
+        self.header.phnum()
+    }
 
-    // /// Get the addressing width of the file (32, 64 etc)
-    // pub fn width(&self) -> Result<Width> {
-    //     self.header.class().ok_or(Error::NotFound)
-    // }
+    /// Get the offset of the program header table
+    pub fn phoff(&self) -> usize {
+        self.header.phoff()
+    }
 
+    /// Get the size of program headers
+    pub fn phentsize(&self) -> usize {
+        self.header.phentsize()
+    }
+
+    pub fn shstrndx(&self) -> usize {
+        self.header.shstrndx()
+    }
+
+    /// Get the layout of the file (little or big endian)
+    pub fn layout(&self) -> Layout {
+        self.header.data()
+    }
+
+    /// Get the addressing width of the file (32, 64 etc)
+    pub fn width(&self) -> Width {
+        self.header.class()
+    }
+
+}
+
+impl Updateable for Binary {
+    fn update(&mut self) {
+        self.header.update();
+        self.sections.update();
+        Update::<All>::clear();
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    // use super::*;
+    use super::*;
 
-    // #[test]
-    // fn test_read_string_table() {
-    //     let mut binary = Binary::new("assets/libjpeg/libjpeg.so.9").unwrap();
+    #[test]
+    fn test_read_string_table() {
+        let binary = Binary::load("assets/libjpeg/libjpeg.so.9").unwrap();
 
-    //     let name = binary.section_name(1);
-    //     assert!(name.is_some());
+        let names = binary
+            .sections(SectionType::Strings)
+            .iter()
+            .map(|s| s.name())
+            .map(|i| binary.section_name(i))
+            .collect::<Result<Vec<String>>>()
+            .unwrap();
 
-    //     let value = name.unwrap();
-    //     assert_eq!(value.as_str(),".symtab");
-    // }
+        assert_eq!(names[0].as_str(),".dynstr");
+        assert_eq!(names[1].as_str(),".shstrtab");
+        assert_eq!(names[2].as_str(),".strtab");
+    }
+
+    #[test]
+    fn test_display_sections() {
+        // let binary = Binary::load("assets/libvpf/libvpf.so.4.1").unwrap();
+
+        // for name in binary.section_names() {
+        //     dbg!(name);
+        // }
+
+        // let names = binary
+        //     .sections(SectionType::Strings)
+        //     .iter()
+        //     .map(|s| s.name())
+        //     .map(|i| binary.section_name(i))
+        //     .collect::<Result<Vec<String>>>()
+        //     .unwrap();
+
+        // assert_eq!(names[0].as_str(),".dynstr");
+        // assert_eq!(names[1].as_str(),".shstrtab");
+        // assert_eq!(names[2].as_str(),".strtab");
+    }
+
 }

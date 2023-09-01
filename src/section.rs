@@ -1,19 +1,62 @@
-use crate::common::Data;
 use crate::headers::SectionHeader;
-use crate::errors::{Error,Result};
+use crate::errors::{Result};
+use crate::common::{Layout,Width,SectionType,Update,Updateable};
 
 /// A Section extracted from an ELF file
 #[derive(Debug)]
 pub struct Section {
     header: SectionHeader,
-    data: Data
+    data: Vec<u8>,
 }
 
 impl Section {
 
-    /// Create a new segment from a program header
-    pub fn new(header: SectionHeader, data: Data) -> Self {
-        Self { header, data }
+    /// Create a new section from a program header
+    pub fn new(header: SectionHeader) -> Self {
+        Self { 
+            header: header, 
+            data: Vec::new()
+        }
+    }
+
+    pub fn read(header: SectionHeader, data: &[u8]) -> Result<Self> {
+        let offset = header.offset();
+        let size   = header.body_size();
+        let start  = offset;
+        let end    = start + size;
+
+        let mut section = Section::new(header);
+        section.data = data[start..end].into();
+        Ok(section)
+    }
+
+    pub fn write(&self, data: &mut [u8], offset: usize, index: usize) -> Result<usize> {
+        self.header.write(&mut data[offset..])?;
+
+        let offset = self.header.offset();
+        let size   = self.header.body_size();
+        let start  = offset + index * size;
+        let end    = start + size;
+        
+        data[start..end].copy_from_slice(&self.data);
+        Ok(self.size())
+    }
+
+    /// Parse all sections for a byte array given count, offset etc.
+    pub fn read_all(data: &[u8], count: usize, offset: usize, size: usize, layout: Layout, width: Width) -> Result<Vec<Section>> {
+        (0..count)
+            .into_iter()
+            .map(|i| offset + i * size)
+            .map(|i| SectionHeader::parse(
+                &data[i..],
+                layout,
+                width))
+            .map(|r| r
+                .and_then(|h| Section::read(
+                    h,
+                    data
+                )))
+            .collect()
     }
 
     pub fn header(&self) -> &SectionHeader {
@@ -24,54 +67,116 @@ impl Section {
         &mut self.header
     }
 
-    // pub fn name(&self, binary: &Binary) -> Option<String> {
-    //     self.header
-    //         .name()
-    //         .and_then(|i| binary
-    //             .section_name(i as usize))
-    // }
-
-    /// Get the body of the section
-    pub fn body(&self) -> Result<Vec<u8>> {
-        let data = &self.data.lock()?;
-
-        let size = self
-            .header
-            .body_size();
-
-        let offset = self
-            .header
-            .offset();
-
-        let start = offset;
-        let end = start + size;
-
-        if end < data.len() {
-            Ok(data[start..end].into())
-        } else {
-            Err(Error::OutOfBoundsError)
-        }
+    pub fn data(&self) -> &Vec<u8> {
+        &self.data
     }
 
-    // fn test_mut(&mut self) -> Result<()> {
-    //     let test: &mut Vec<u8> = self.data.lock()?.deref_mut();
-    //     Ok(())
-    // }
+    pub fn data_mut(&mut self) -> &mut Vec<u8> {
+        &mut self.data
+    }
 
+    pub fn slice(&self, offset: usize, size: usize) -> &[u8] {
+        &self.data[offset..offset + size]
+    }
+
+    pub fn slice_mut(&mut self, offset: usize, size: usize) -> &mut [u8] {
+        &mut self.data[offset..offset + size]
+    }
+
+    pub fn set_data(&mut self, data: Vec<u8>) {
+        self.data = data;
+    }
+
+    pub fn size(&self) -> usize {
+        self.header.size() +
+        self.data.len()
+    }
+
+    pub fn name(&self) -> usize {
+        self.header.name() as usize
+    }
+
+    pub fn body_size(&self) -> usize {
+        self.header.body_size()
+    }
+
+    pub fn set_body_size(&mut self, body_size: usize) {
+        self.header.set_body_size(body_size);
+    }
+
+    pub fn entity_size(&self) -> usize {
+        self.header.entsize()
+    }
+
+    pub fn entity_count(&self) -> usize {
+        self.body_size() / self.entity_size()
+    }
+
+    pub fn offset(&self) -> usize {
+        self.header.offset()
+    }
+
+    pub fn layout(&self) -> Layout {
+        self.header.layout()
+    }
+
+    pub fn width(&self) -> Width {
+        self.header.width()
+    }
+
+    pub fn kind(&self) -> SectionType {
+        self.header.kind().into()
+    }
+
+    pub fn is_kind(&self, kind: SectionType) -> bool {
+        kind == self.kind()
+    }
+
+}
+
+impl Updateable for Section {
+    fn update(&mut self) {
+        self.header.update();
+        Update::apply(self);
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    // use super::*;
-    // use crate::headers::FileHeader;
+    use super::*;
+    use crate::headers::{FileHeader,SectionHeader};
+    use crate::common::SHType;
+    use crate::utilities::read;
 
-    // use crate::utilities::read;
+    #[test]
+    fn test_section_read() {
+        let b = read("assets/libjpeg/libjpeg.so.9").unwrap();
 
-    // #[test]
-    // fn test_read_section_headers() {
-    //     let binary = Binary::new("assets/libvpf/libvpf.so.4.1").unwrap();
-    //     let section = binary.section_by_name(".text".into());
+        let file_header = FileHeader::parse(&b).unwrap();
 
-    //     dbg!(section);
-    // }
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+        
+        let headers = SectionHeader::parse_all(
+            &b,
+            count,
+            offset,
+            size,
+            layout,
+            width).unwrap();
+
+        let header: SectionHeader = headers
+            .iter()
+            .find(|&h| h
+                .kind() == SHType::SHT_RELA)
+            .unwrap()
+            .clone();
+
+        let result = Section::read(header,&b);
+        assert!(result.is_ok())
+
+    }
 }

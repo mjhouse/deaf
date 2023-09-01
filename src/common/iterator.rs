@@ -40,6 +40,12 @@ impl<'a> ByteIter<'a> {
         Self::new(data,ByteDelimiter::Length(length))
     }
 
+    /// Skip directly to an offset in the data
+    pub fn offset(mut self, offset: usize) -> Self {
+        self.index = offset;
+        self
+    }
+
     /// Get a slice that excludes already-seen bytes
     fn take_slice(&self) -> Option<&'a [u8]> {
         if self.index <= self.limit {

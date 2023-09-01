@@ -2,14 +2,14 @@
 //!
 
 pub mod ranges; // find byte slices to parse
-mod bytes;  // parse bytes into values
-mod field;  // read and write values
-mod item;   // read and write with cache
+mod bytes;      // parse bytes into values
+mod field;      // read and write values
+mod item;       // read and write with cache
+mod enums;      
+mod update;
 
 mod iterator;
 mod constants;
-
-pub type Data = std::sync::Arc<std::sync::Mutex<Vec<u8>>>;
 
 pub use bytes::{FromBytes,IntoBytes,Convert};
 pub use ranges::Ranges;
@@ -29,4 +29,14 @@ pub use constants::{
     SHFlags,
     STBind,
     STType,
+};
+
+pub use enums::{
+    SectionType
+};
+
+pub use update::{
+    Update, 
+    Updateable,
+    All
 };

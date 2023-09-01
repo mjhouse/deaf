@@ -2,7 +2,7 @@ use crate::errors::Result;
 use crate::common::Convert;
 
 /// Representation of the info field in a Relocation record
-#[derive(Default,Clone,Copy)]
+#[derive(Default,Clone,Copy,PartialEq)]
 pub struct RelocationInfo {
     symbol: u64,
     kind: u8,

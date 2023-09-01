@@ -6,7 +6,7 @@ use crate::common::{
 };
 use enumflags2::BitFlags;
 
-use crate::common::Item;
+use crate::common::{Item,Updateable};
 use crate::common::ranges::*;
 use crate::errors::Result;
 
@@ -14,7 +14,7 @@ use crate::errors::Result;
 /// 
 /// Normally found at the offset declared in the FileHeader 
 /// as 'shoff'.
-#[derive(Debug)]
+#[derive(Clone,Debug)]
 pub struct SectionHeader {
     layout: Layout,
     width: Width,
@@ -28,6 +28,22 @@ pub struct SectionHeader {
     sh_info: Item<u32>,
     sh_addralign: Item<u32,u64>,
     sh_entsize: Item<u32,u64,usize>,
+}
+
+#[derive(Default,Debug)]
+pub struct SectionHeaderData {
+    pub layout: Layout,
+    pub width: Width,
+    pub sh_name: u32,
+    pub sh_type: SHType,
+    pub sh_flags: BitFlags<SHFlags>,
+    pub sh_address: u64,
+    pub sh_offset: usize,
+    pub sh_size: usize,
+    pub sh_link: u32,
+    pub sh_info: u32,
+    pub sh_addralign: u64,
+    pub sh_entsize: usize,
 }
 
 impl SectionHeader {
@@ -53,21 +69,21 @@ impl SectionHeader {
     }
 
     /// Parse a header from the provided byte buffer
-    pub fn parse(b: &[u8], layout: Layout, width: Width) -> Result<Self> {
+    pub fn parse(data: &[u8], layout: Layout, width: Width) -> Result<Self> {
         let mut header = Self::new(layout,width);
-        header.read(b)?;
+        header.read(data)?;
         Ok(header)
     }
 
     /// Parse all headers for a byte array given count, offset etc.
-    pub fn parse_all(b: &[u8], count: usize, offset: usize, size: usize, layout: Layout, width: Width) -> Result<Vec<Self>> {
+    pub fn parse_all(data: &[u8], count: usize, offset: usize, size: usize, layout: Layout, width: Width) -> Result<Vec<Self>> {
         let mut result = vec![];
         result.reserve_exact(count);
 
         for i in 0..count {
             let start = offset + i * size;
             result.push(Self::parse(
-                &b[start..],
+                &data[start..],
                 layout,
                 width)?);
         }
@@ -266,6 +282,57 @@ impl SectionHeader {
     }
 
 }
+
+impl From<SectionHeaderData> for SectionHeader {
+    fn from(data: SectionHeaderData) -> Self {
+        Self {
+            layout: data.layout,
+            width: data.width,
+            sh_name: Item::new(SH_NAME)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_name),
+            sh_type: Item::new(SH_TYPE)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_type),
+            sh_flags: Item::new(SH_FLAGS)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_flags),
+            sh_address: Item::new(SH_ADDR)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_address),
+            sh_offset: Item::new(SH_OFFSET)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_offset),
+            sh_size: Item::new(SH_SIZE)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_size),
+            sh_link: Item::new(SH_LINK)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_link),
+            sh_info: Item::new(SH_INFO)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_info),
+            sh_addralign: Item::new(SH_ADDRALIGN)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_addralign),
+            sh_entsize: Item::new(SH_ENTSIZE)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_entsize),
+        }
+    }
+}
+
+impl Updateable for SectionHeader {}
 
 #[cfg(test)]
 mod tests {

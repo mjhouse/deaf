@@ -11,7 +11,7 @@ use crate::tables::{
 use crate::errors::Result;
 
 /// A Symbol item found in symbol tables
-#[derive(Clone)]
+#[derive(Clone,Debug)]
 pub struct SymbolItem {
     st_name: Item<u32,u32>,
     st_value: Item<u32,u64>,
@@ -19,6 +19,16 @@ pub struct SymbolItem {
     st_info: Item<u8,u8,SymbolInfo>,
     st_other: Item<u8>,
     st_shndx: Item<u16,u16>,
+}
+
+#[derive(Clone,Debug)]
+pub struct SymbolItemData {
+    st_name: u32,
+    st_value: u64,
+    st_size: u64,
+    st_info: SymbolInfo,
+    st_other: u8,
+    st_shndx: u16,
 }
 
 impl SymbolItem {
