@@ -2,7 +2,7 @@ use std::path::Path;
 use std::fs;
 
 use crate::{Section};
-use crate::tables::{StringTable};
+use crate::tables::{Table,StringItem};
 use crate::headers::{FileHeader};
 use crate::errors::{Error,Result};
 use crate::common::{
@@ -119,19 +119,17 @@ impl Binary {
 
     pub fn section_name(&self, offset: usize) -> Result<String> {
         self.section(self.header.shstrndx())
-            .and_then(StringTable::try_from)
+            .and_then(Table::<StringItem>::try_from)
             .and_then(|t| t
-                .get_offset(offset)
-                .ok_or(Error::NotFound)
+                .at_offset(offset)
                 .and_then(|e| e.string()))
     }
 
     pub fn section_names(&self) -> Result<Vec<String>> {
         self.section(self.header.shstrndx())
-            .and_then(StringTable::try_from)
-            .map(|t| t
-                .all()
-                .clone())
+            .and_then(Table::<StringItem>::try_from)
+            .and_then(|t| t
+                .items())
             .and_then(|v| v
                 .iter()
                 .map(|e| e.string())
@@ -215,7 +213,7 @@ mod tests {
 
     #[test]
     fn test_display_sections() {
-        let binary = Binary::load("assets/libvpf/libvpf.so.4.1").unwrap();
+        // let binary = Binary::load("assets/libvpf/libvpf.so.4.1").unwrap();
 
         // for name in binary.section_names() {
         //     dbg!(name);

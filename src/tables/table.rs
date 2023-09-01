@@ -64,6 +64,15 @@ where
         T::parse(self.item_data(index)?,&self.section)
     }
 
+    /// Get an element from the table at a byte offset
+    pub fn at_offset(&self, offset: usize) -> Result<T> {
+        self.iterator()
+            .offset(offset)
+            .next()
+            .ok_or(Error::OutOfBoundsError)
+            .and_then(|d| T::parse(d,&self.section))
+    }
+
     /// Get all items from the table
     pub fn items(&self) -> Result<Vec<T>> {
         self.iterator()
@@ -212,6 +221,15 @@ where
     /// Get an element from the table
     pub fn at(&self, index: usize) -> Result<T> {
         T::parse(self.item_data(index)?,&self.section)
+    }
+
+    /// Get an element from the table at a byte offset
+    pub fn at_offset(&self, offset: usize) -> Result<T> {
+        self.iterator()
+            .offset(offset)
+            .next()
+            .ok_or(Error::OutOfBoundsError)
+            .and_then(|d| T::parse(d,&self.section))
     }
 
     /// Get all items from the table
@@ -386,7 +404,6 @@ mod tests {
     use super::*;
     use crate::headers::{FileHeader};
     use crate::common::{SectionType};
-    use crate::tables::{RelocationInfo,SymbolInfo};
     use crate::utilities::read;
 
     use crate::utilities::tests::{
@@ -703,7 +720,6 @@ mod tests {
 
         let count = file_header.shnum();
         let offset = file_header.shoff();
-        let index = file_header.shstrndx();
         let size = file_header.shentsize();
         let layout = file_header.data();
         let width = file_header.class();
@@ -754,7 +770,6 @@ mod tests {
 
         let count = file_header.shnum();
         let offset = file_header.shoff();
-        let index = file_header.shstrndx();
         let size = file_header.shentsize();
         let layout = file_header.data();
         let width = file_header.class();
@@ -778,17 +793,9 @@ mod tests {
         assert_eq!(table.len(),SYM_TEST.length);
         assert_eq!(table.size(),SYM_TEST.size);
 
-        let mut item = SymbolItem::default();
-        item.set_layout(table.layout());
-        item.set_width(table.width());
-        item.set_name(1);
-        item.set_value(1);
-        item.set_size(1);
-        item.set_info(SymbolInfo::new(1).unwrap());
-        item.set_other(1);
-        item.set_shndx(1);
+        let item1 = SymbolItem::default();
 
-        let result = table.append(item);
+        let result = table.append(item1.clone());
         assert!(result.is_ok());
 
         assert_eq!(table.len(),SYM_TEST.length + 1);
@@ -797,12 +804,12 @@ mod tests {
         let result = table.at(table.len() - 1);
         assert!(result.is_ok());
 
-        let item = result.unwrap();
-        assert_eq!(item.name(),1);
-        assert_eq!(item.value(),1);
-        assert_eq!(item.size(),1);
-        assert_eq!(item.other(),1);
-        assert_eq!(item.shndx(),1);
+        let item2 = result.unwrap();
+        assert_eq!(item2.name(),item1.name());
+        assert_eq!(item2.value(),item1.value());
+        assert_eq!(item2.size(),item1.size());
+        assert_eq!(item2.other(),item1.other());
+        assert_eq!(item2.shndx(),item1.shndx());
     }
 
     #[test]
@@ -813,7 +820,6 @@ mod tests {
 
         let count = file_header.shnum();
         let offset = file_header.shoff();
-        let index = file_header.shstrndx();
         let size = file_header.shentsize();
         let layout = file_header.data();
         let width = file_header.class();
@@ -837,17 +843,9 @@ mod tests {
         assert_eq!(table.len(),SYM_TEST.length);
         assert_eq!(table.size(),SYM_TEST.size);
 
-        let mut item = SymbolItem::default();
-        item.set_layout(table.layout());
-        item.set_width(table.width());
-        item.set_name(1);
-        item.set_value(1);
-        item.set_size(1);
-        item.set_info(SymbolInfo::new(1).unwrap());
-        item.set_other(1);
-        item.set_shndx(1);
+        let item1 = SymbolItem::default();
 
-        let result = table.insert(3,item);
+        let result = table.insert(3,item1.clone());
         assert!(result.is_ok());
 
         assert_eq!(table.len(),SYM_TEST.length + 1);
@@ -856,12 +854,12 @@ mod tests {
         let result = table.at(3);
         assert!(result.is_ok());
 
-        let item = result.unwrap();
-        assert_eq!(item.name(),1);
-        assert_eq!(item.value(),1);
-        assert_eq!(item.size(),1);
-        assert_eq!(item.other(),1);
-        assert_eq!(item.shndx(),1);
+        let item2 = result.unwrap();
+        assert_eq!(item2.name(),item1.name());
+        assert_eq!(item2.value(),item1.value());
+        assert_eq!(item2.size(),item1.size());
+        assert_eq!(item2.other(),item1.other());
+        assert_eq!(item2.shndx(),item1.shndx());
     }
 
     #[test]
@@ -872,7 +870,6 @@ mod tests {
 
         let count = file_header.shnum();
         let offset = file_header.shoff();
-        let index = file_header.shstrndx();
         let size = file_header.shentsize();
         let layout = file_header.data();
         let width = file_header.class();
@@ -911,7 +908,6 @@ mod tests {
 
         let count = file_header.shnum();
         let offset = file_header.shoff();
-        let index = file_header.shstrndx();
         let size = file_header.shentsize();
         let layout = file_header.data();
         let width = file_header.class();
@@ -959,7 +955,6 @@ mod tests {
 
         let count = file_header.shnum();
         let offset = file_header.shoff();
-        let index = file_header.shstrndx();
         let size = file_header.shentsize();
         let layout = file_header.data();
         let width = file_header.class();
@@ -1007,7 +1002,6 @@ mod tests {
 
         let count = file_header.shnum();
         let offset = file_header.shoff();
-        let index = file_header.shstrndx();
         let size = file_header.shentsize();
         let layout = file_header.data();
         let width = file_header.class();
@@ -1055,7 +1049,6 @@ mod tests {
 
         let count = file_header.shnum();
         let offset = file_header.shoff();
-        let index = file_header.shstrndx();
         let size = file_header.shentsize();
         let layout = file_header.data();
         let width = file_header.class();

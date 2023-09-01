@@ -6,7 +6,7 @@
 
 mod info;
 mod items;
-mod tables;
+mod table;
 
 pub use info::{
     SymbolInfo,
@@ -21,10 +21,7 @@ pub use items::{
     SymbolItem,
 };
 
-pub use tables::{
+pub use table::{
     Table,
-    RelTable,
-    RelaTable,
-    SymbolTable,
-    StringTable,
+    TableMut
 };
