@@ -1,10 +1,14 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+<div align="center">
+
 [![Documentation][docs-shield]][docs-url]
 [![Issues][issues-shield]][issues-url]
 [![Tests][tests-shield]][tests-url]
 [![GPLv3][license-shield]][license-url]
+
+</div>
 
 <!-- PROJECT LOGO -->
 <br />
@@ -14,9 +18,9 @@
         A Rust library for parsing and modifying ELF binaries
         <br />
         <a href="https://github.com/mjhouse/deaf/blob/master/CONTRIBUTING.md">Contributions</a>
-        .
+        ·
         <a href="https://github.com/mjhouse/deaf/blob/master/CODE_OF_CONDUCT.md">Code Of Conduct</a>
-        .
+        ·
         <a href="https://github.com/mjhouse/deaf/issues">Report Bug</a>
         ·
         <a href="https://github.com/mjhouse/deaf/issues">Request Feature</a>
