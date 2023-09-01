@@ -378,10 +378,14 @@
 <a href="#378" id="378">378</a>
 <a href="#379" id="379">379</a>
 <a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common::{
     Width,
     Layout,
-    PHType
+    PHType,
+    Updateable
 };
 
 <span class="kw">use </span><span class="kw">crate</span>::common::{Item, ranges::<span class="kw-2">*</span>};
@@ -619,6 +623,8 @@
     }
 
 }
+
+<span class="kw">impl </span>Updateable <span class="kw">for </span>ProgramHeader {}
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {

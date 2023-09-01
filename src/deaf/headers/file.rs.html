@@ -472,8 +472,10 @@
 <a href="#472" id="472">472</a>
 <a href="#473" id="473">473</a>
 <a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{<span class="prelude-ty">Result</span>};
-<span class="kw">use </span><span class="kw">crate</span>::common::{Width,Layout,Item,ranges::<span class="kw-2">*</span>};
+<span class="kw">use </span><span class="kw">crate</span>::common::{Width,Layout,Item,ranges::<span class="kw-2">*</span>,Updateable};
 
 <span class="doccomment">/// The ELF file header parsed from the beginning of the file
 </span><span class="attr">#[derive(Debug)]
@@ -587,7 +589,7 @@
     ///
     /// Byte buffer is assumed to be sliced such that the
     /// header will be written at the correct position.
-    </span><span class="kw">pub fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    </span><span class="kw">pub fn </span>write(<span class="kw-2">&amp;</span><span class="self">self</span>, b: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="self">self</span>.ei_key.write(b)<span class="question-mark">?</span>;
         <span class="self">self</span>.ei_magic.write(b)<span class="question-mark">?</span>;
         <span class="self">self</span>.ei_class.write(b)<span class="question-mark">?</span>;
@@ -862,6 +864,8 @@
 
 }
 
+<span class="kw">impl </span>Updateable <span class="kw">for </span>FileHeader {}
+
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
@@ -897,7 +901,7 @@
         </span><span class="kw">let </span>result = FileHeader::parse(<span class="kw-2">&amp;</span>b);
         <span class="macro">assert!</span>(result.is_ok());
 
-        <span class="kw">let </span><span class="kw-2">mut </span>header = result.unwrap();
+        <span class="kw">let </span>header = result.unwrap();
 
         <span class="comment">// initialize a buffer big enough for the header
         </span><span class="kw">let </span><span class="kw-2">mut </span>buffer: Vec&lt;u8&gt; = <span class="macro">vec!</span>[];

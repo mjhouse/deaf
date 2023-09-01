@@ -139,7 +139,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::common::Convert;
 
 <span class="doccomment">/// Representation of the info field in a Relocation record
-</span><span class="attr">#[derive(Default,Clone,Copy)]
+</span><span class="attr">#[derive(Default,Clone,Copy,PartialEq)]
 </span><span class="kw">pub struct </span>RelocationInfo {
     symbol: u64,
     kind: u8,

@@ -127,6 +127,17 @@
 <a href="#127" id="127">127</a>
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common::{Width, Layout, FromBytes, IntoBytes, Convert, Ranges, Field};
 <span class="kw">use </span><span class="kw">crate</span>::errors::{<span class="prelude-ty">Result</span>};
 
@@ -236,6 +247,17 @@
         <span class="self">self</span>.field.set_layout(layout);
     }
 
+}
+
+<span class="kw">impl</span>&lt;T32, T64, Out&gt; PartialEq <span class="kw">for </span>Item&lt;T32, T64, Out&gt;
+<span class="kw">where
+    </span>T32: FromBytes + IntoBytes + Convert&lt;Out&gt;,
+    T64: FromBytes + IntoBytes + Convert&lt;Out&gt;,
+    Out: Convert&lt;T32&gt; + Convert&lt;T64&gt; + Debug + Clone + Default + PartialEq,
+{
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="self">self</span>.get().eq(<span class="kw-2">&amp;</span>other.get())
+    }
 }
 
 <span class="attr">#[cfg(test)]

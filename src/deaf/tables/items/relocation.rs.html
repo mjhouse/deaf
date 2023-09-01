@@ -167,14 +167,14 @@
 <span class="kw">use </span><span class="kw">crate</span>::errors::Result;
 
 <span class="doccomment">/// A Relocation item found in relocation tables
-</span><span class="attr">#[derive(Clone)]
+</span><span class="attr">#[derive(Clone,PartialEq)]
 </span><span class="kw">pub struct </span>RelItem {
     r_offset: Item&lt;u32,u64&gt;, 
     r_info: Item&lt;u32,u64,RelocationInfo&gt;,
 }
 
 <span class="doccomment">/// A Relocation item found in relocation tables
-</span><span class="attr">#[derive(Clone)]
+</span><span class="attr">#[derive(Clone,PartialEq)]
 </span><span class="kw">pub struct </span>RelaItem {
     r_offset: Item&lt;u32,u64&gt;, 
     r_info: Item&lt;u32,u64,RelocationInfo&gt;,

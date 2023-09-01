@@ -25,15 +25,35 @@
 <a href="#25" id="25">25</a>
 <a href="#26" id="26">26</a>
 <a href="#27" id="27">27</a>
+<a href="#28" id="28">28</a>
+<a href="#29" id="29">29</a>
+<a href="#30" id="30">30</a>
+<a href="#31" id="31">31</a>
+<a href="#32" id="32">32</a>
+<a href="#33" id="33">33</a>
+<a href="#34" id="34">34</a>
+<a href="#35" id="35">35</a>
+<a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common::{ByteDelimiter,Width,Layout};
 <span class="kw">use </span><span class="kw">crate</span>::errors::Result;
+<span class="kw">use </span><span class="kw">crate</span>::Section;
 
 <span class="doccomment">/// A record that can be extracted from a table section
-</span><span class="kw">pub trait </span>TableItem {
+</span><span class="kw">pub trait </span>TableItem: Default {
 
     <span class="doccomment">/// Make a delimiter given expected entity size
     </span><span class="kw">fn </span>delimiter(size: usize) -&gt; ByteDelimiter {
         ByteDelimiter::Length(size)
+    }
+
+    <span class="doccomment">/// Parse the item directly from the byte array
+    </span><span class="kw">fn </span>parse(b: <span class="kw-2">&amp;</span>[u8], section: <span class="kw-2">&amp;</span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; <span class="kw">where </span><span class="self">Self</span>: Sized {
+        <span class="kw">let </span><span class="kw-2">mut </span>item = <span class="self">Self</span>::default();
+        item.set_layout(section.layout());
+        item.set_width(section.width());
+        item.read(b)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(item)
     }
 
     <span class="doccomment">/// Read the item from a byte array

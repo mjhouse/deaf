@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ByteDelimiter","Layout","PHType","SHFlags","SHType","STBind","STType","Width"],"mod":["ranges"],"struct":["ByteIter","Field","Item"],"trait":["Convert","FromBytes","IntoBytes"],"type":["Data"]};
+window.SIDEBAR_ITEMS = {"enum":["ByteDelimiter","Layout","PHType","SHFlags","SHType","STBind","STType","SectionType","Width"],"mod":["ranges"],"struct":["All","ByteIter","Field","Item","Update"],"trait":["Convert","FromBytes","IntoBytes","Updateable"]};

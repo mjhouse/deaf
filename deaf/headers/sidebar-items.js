@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["FileHeader","ProgramHeader","SectionHeader"]};
+window.SIDEBAR_ITEMS = {"struct":["FileHeader","ProgramHeader","SectionHeader","SectionHeaderData"]};

@@ -404,6 +404,73 @@
 <a href="#404" id="404">404</a>
 <a href="#405" id="405">405</a>
 <a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common::{
     Width,
     Layout,
@@ -412,7 +479,7 @@
 };
 <span class="kw">use </span>enumflags2::BitFlags;
 
-<span class="kw">use </span><span class="kw">crate</span>::common::Item;
+<span class="kw">use </span><span class="kw">crate</span>::common::{Item,Updateable};
 <span class="kw">use </span><span class="kw">crate</span>::common::ranges::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::errors::Result;
 
@@ -420,7 +487,7 @@
 /// 
 /// Normally found at the offset declared in the FileHeader 
 /// as &#39;shoff&#39;.
-</span><span class="attr">#[derive(Debug)]
+</span><span class="attr">#[derive(Clone,Debug)]
 </span><span class="kw">pub struct </span>SectionHeader {
     layout: Layout,
     width: Width,
@@ -434,6 +501,22 @@
     sh_info: Item&lt;u32&gt;,
     sh_addralign: Item&lt;u32,u64&gt;,
     sh_entsize: Item&lt;u32,u64,usize&gt;,
+}
+
+<span class="attr">#[derive(Default,Debug)]
+</span><span class="kw">pub struct </span>SectionHeaderData {
+    <span class="kw">pub </span>layout: Layout,
+    <span class="kw">pub </span>width: Width,
+    <span class="kw">pub </span>sh_name: u32,
+    <span class="kw">pub </span>sh_type: SHType,
+    <span class="kw">pub </span>sh_flags: BitFlags&lt;SHFlags&gt;,
+    <span class="kw">pub </span>sh_address: u64,
+    <span class="kw">pub </span>sh_offset: usize,
+    <span class="kw">pub </span>sh_size: usize,
+    <span class="kw">pub </span>sh_link: u32,
+    <span class="kw">pub </span>sh_info: u32,
+    <span class="kw">pub </span>sh_addralign: u64,
+    <span class="kw">pub </span>sh_entsize: usize,
 }
 
 <span class="kw">impl </span>SectionHeader {
@@ -459,21 +542,21 @@
     }
 
     <span class="doccomment">/// Parse a header from the provided byte buffer
-    </span><span class="kw">pub fn </span>parse(b: <span class="kw-2">&amp;</span>[u8], layout: Layout, width: Width) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub fn </span>parse(data: <span class="kw-2">&amp;</span>[u8], layout: Layout, width: Width) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>header = <span class="self">Self</span>::new(layout,width);
-        header.read(b)<span class="question-mark">?</span>;
+        header.read(data)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(header)
     }
 
     <span class="doccomment">/// Parse all headers for a byte array given count, offset etc.
-    </span><span class="kw">pub fn </span>parse_all(b: <span class="kw-2">&amp;</span>[u8], count: usize, offset: usize, size: usize, layout: Layout, width: Width) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>parse_all(data: <span class="kw-2">&amp;</span>[u8], count: usize, offset: usize, size: usize, layout: Layout, width: Width) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>result = <span class="macro">vec!</span>[];
         result.reserve_exact(count);
 
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..count {
             <span class="kw">let </span>start = offset + i * size;
             result.push(<span class="self">Self</span>::parse(
-                <span class="kw-2">&amp;</span>b[start..],
+                <span class="kw-2">&amp;</span>data[start..],
                 layout,
                 width)<span class="question-mark">?</span>);
         }
@@ -672,6 +755,57 @@
     }
 
 }
+
+<span class="kw">impl </span>From&lt;SectionHeaderData&gt; <span class="kw">for </span>SectionHeader {
+    <span class="kw">fn </span>from(data: SectionHeaderData) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            layout: data.layout,
+            width: data.width,
+            sh_name: Item::new(SH_NAME)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_name),
+            sh_type: Item::new(SH_TYPE)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_type),
+            sh_flags: Item::new(SH_FLAGS)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_flags),
+            sh_address: Item::new(SH_ADDR)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_address),
+            sh_offset: Item::new(SH_OFFSET)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_offset),
+            sh_size: Item::new(SH_SIZE)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_size),
+            sh_link: Item::new(SH_LINK)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_link),
+            sh_info: Item::new(SH_INFO)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_info),
+            sh_addralign: Item::new(SH_ADDRALIGN)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_addralign),
+            sh_entsize: Item::new(SH_ENTSIZE)
+                .with_width(data.width)
+                .with_layout(data.layout)
+                .with_value(data.sh_entsize),
+        }
+    }
+}
+
+<span class="kw">impl </span>Updateable <span class="kw">for </span>SectionHeader {}
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {

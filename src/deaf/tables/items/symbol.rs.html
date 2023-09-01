@@ -149,6 +149,16 @@
 <a href="#149" id="149">149</a>
 <a href="#150" id="150">150</a>
 <a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common::{
     Width,
     Layout,
@@ -162,7 +172,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::errors::Result;
 
 <span class="doccomment">/// A Symbol item found in symbol tables
-</span><span class="attr">#[derive(Clone)]
+</span><span class="attr">#[derive(Clone,Debug)]
 </span><span class="kw">pub struct </span>SymbolItem {
     st_name: Item&lt;u32,u32&gt;,
     st_value: Item&lt;u32,u64&gt;,
@@ -170,6 +180,16 @@
     st_info: Item&lt;u8,u8,SymbolInfo&gt;,
     st_other: Item&lt;u8&gt;,
     st_shndx: Item&lt;u16,u16&gt;,
+}
+
+<span class="attr">#[derive(Clone,Debug)]
+</span><span class="kw">pub struct </span>SymbolItemData {
+    st_name: u32,
+    st_value: u64,
+    st_size: u64,
+    st_info: SymbolInfo,
+    st_other: u8,
+    st_shndx: u16,
 }
 
 <span class="kw">impl </span>SymbolItem {

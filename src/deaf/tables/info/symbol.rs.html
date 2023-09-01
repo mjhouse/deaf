@@ -114,7 +114,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::common::{Convert, STBind, STType};
 
 <span class="doccomment">/// Representation of the info field in a Symbol record
-</span><span class="attr">#[derive(Default,Clone,Copy)]
+</span><span class="attr">#[derive(Default,Clone,Copy,PartialEq)]
 </span><span class="kw">pub struct </span>SymbolInfo {
     bind: STBind,
     kind: STType,

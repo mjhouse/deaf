@@ -110,6 +110,15 @@
 <a href="#110" id="110">110</a>
 <a href="#111" id="111">111</a>
 <a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Utility functions for both testing and execution
 //!
 
@@ -136,6 +145,7 @@
         <span class="kw">pub </span>name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
         <span class="kw">pub </span>address: usize,
         <span class="kw">pub </span>offset: usize,
+        <span class="kw">pub </span>index: usize,
         <span class="kw">pub </span>size: usize,
         <span class="kw">pub </span>length: usize,
         <span class="kw">pub </span>entsize: usize,
@@ -146,6 +156,7 @@
         name: <span class="string">&quot;.dynsym&quot;</span>,
         address: <span class="number">1864</span>,
         offset: <span class="number">1864</span>,
+        index: <span class="number">3</span>,
         size: <span class="number">4656</span>,
         length: <span class="number">194</span>,
         entsize: <span class="number">24</span>,
@@ -156,6 +167,7 @@
         name: <span class="string">&quot;.fini_array&quot;</span>,
         address: <span class="number">3811960</span>,
         offset: <span class="number">3807864</span>,
+        index: <span class="number">0</span>,
         size: <span class="number">8</span>,
         length: <span class="number">1</span>,
         entsize: <span class="number">8</span>,
@@ -166,6 +178,7 @@
         name: <span class="string">&quot;.init_array&quot;</span>,
         address: <span class="number">3811048</span>,
         offset: <span class="number">3806952</span>,
+        index: <span class="number">0</span>,
         size: <span class="number">912</span>,
         length: <span class="number">114</span>,
         entsize: <span class="number">8</span>,
@@ -176,6 +189,7 @@
         name: <span class="string">&quot;.dynsym&quot;</span>,
         address: <span class="number">2744</span>,
         offset: <span class="number">2744</span>,
+        index: <span class="number">0</span>,
         size: <span class="number">7056</span>,
         length: <span class="number">294</span>,
         entsize: <span class="number">24</span>,
@@ -186,6 +200,7 @@
         name: <span class="string">&quot;.init_array&quot;</span>,
         address: <span class="number">289584</span>,
         offset: <span class="number">285488</span>,
+        index: <span class="number">0</span>,
         size: <span class="number">8</span>,
         length: <span class="number">1</span>,
         entsize: <span class="number">8</span>,
@@ -196,6 +211,7 @@
         name: <span class="string">&quot;.rela.dyn&quot;</span>,
         address: <span class="number">14656</span>,
         offset: <span class="number">14656</span>,
+        index: <span class="number">8</span>,
         size: <span class="number">1224</span>,
         length: <span class="number">51</span>,
         entsize: <span class="number">24</span>,
@@ -206,6 +222,7 @@
         name: <span class="string">&quot;.rela.plt&quot;</span>,
         address: <span class="number">15880</span>,
         offset: <span class="number">15880</span>,
+        index: <span class="number">0</span>,
         size: <span class="number">1344</span>,
         length: <span class="number">56</span>,
         entsize: <span class="number">24</span>,
@@ -216,6 +233,7 @@
         name: <span class="string">&quot;.shstrtab&quot;</span>,
         address: <span class="number">0</span>,
         offset: <span class="number">287172</span>,
+        index: <span class="number">0</span>,
         size: <span class="number">263</span>,
         length: <span class="number">26</span>,
         entsize: <span class="number">0</span>,

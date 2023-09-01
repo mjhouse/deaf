@@ -198,203 +198,273 @@
 <a href="#198" id="198">198</a>
 <a href="#199" id="199">199</a>
 <a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::path::Path;
-<span class="kw">use </span>std::sync::{Arc,Mutex};
+<span class="kw">use </span>std::fs;
 
 <span class="kw">use crate</span>::{Section};
+<span class="kw">use </span><span class="kw">crate</span>::tables::{Table,StringItem};
 <span class="kw">use </span><span class="kw">crate</span>::headers::{FileHeader};
-<span class="kw">use </span><span class="kw">crate</span>::errors::{<span class="prelude-ty">Result</span>};
-<span class="kw">use </span><span class="kw">crate</span>::common::{Data};
-<span class="kw">use </span><span class="kw">crate</span>::tables::{StringTable};
+<span class="kw">use </span><span class="kw">crate</span>::errors::{Error,<span class="prelude-ty">Result</span>};
+<span class="kw">use </span><span class="kw">crate</span>::common::{
+    Layout,
+    Width,
+    SectionType,
+    Updateable,
+    Update,
+    All
+};
 
 <span class="doccomment">/// An ELF formatted binary file
 </span><span class="kw">pub struct </span>Binary {
     header: FileHeader,
-    data: Data,
     sections: Vec&lt;Section&gt;,
-    names: <span class="prelude-ty">Option</span>&lt;StringTable&gt;
 }
 
 <span class="kw">impl </span>Binary {
 
-    <span class="doccomment">/// Load a file as an ELF Binary object
-    </span><span class="kw">pub fn </span>new&lt;T: AsRef&lt;Path&gt;&gt;(path: T) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">let </span>data = std::fs::read(path.as_ref())<span class="question-mark">?</span>;
-        <span class="kw">let </span>header = FileHeader::parse(<span class="kw-2">&amp;</span>data)<span class="question-mark">?</span>;
-
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ 
-            header: header, 
-            data: Arc::new(Mutex::new(data)),
-            sections: Vec::new(),
-            names: <span class="prelude-val">None</span>,
-        })
+    <span class="kw">fn </span>empty() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ 
+            header: FileHeader::new(), 
+            sections: Vec::new()
+        }
     }
 
-    <span class="kw">pub fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="comment">// let count = self.header.shnum()?;
-        // let offset = self.header.shoff()?;
-        // let size = self.header.shentsize()?;
-        // let layout = self.header.layout();
-        // let width = self.header.width();
-        // let index = self.header.shstrndx()?;
-
-        // let data: &amp;[u8] = &amp;self.data.lock()?;
-
-        // let headers = SectionHeader::parse_all(
-        //     data,
-        //     count,
-        //     offset,
-        //     size,
-        //     layout,
-        //     width
-        // )
-
-        // let mut table = StringTable::try_from(index)?;
-        // table.parse(data);
-
-        // let sections = headers
-        //     .iter()
-        //     .map(|h| Section::new(
-        //         h,
-        //         data
-        //     ))
-        //     .collect();
-
-        </span><span class="prelude-val">Ok</span>(())
+    <span class="kw">fn </span>new(header: FileHeader, sections: Vec&lt;Section&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ header, sections }
     }
 
-    <span class="kw">pub fn </span>write(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="prelude-val">Ok</span>(())
+    <span class="kw">pub fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
+        <span class="self">self</span>.header = FileHeader::parse(<span class="kw-2">&amp;</span>data)<span class="question-mark">?</span>;
+
+        <span class="kw">let </span>count = <span class="self">self</span>.header.shnum();
+        <span class="kw">let </span>offset = <span class="self">self</span>.header.shoff();
+        <span class="kw">let </span>size = <span class="self">self</span>.header.shentsize();
+        <span class="kw">let </span>layout = <span class="self">self</span>.header.layout();
+        <span class="kw">let </span>width = <span class="self">self</span>.header.width();
+
+        <span class="self">self</span>.sections = Section::read_all(
+            <span class="kw-2">&amp;</span>data,
+            count,
+            offset,
+            size,
+            layout,
+            width
+        )<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.size())
     }
 
-    <span class="comment">// /// Get a vector of all section headers in the binary
-    // pub fn headers(&amp;self) -&gt; Result&lt;Vec&lt;SectionHeader&gt;&gt; {
-    //     let count = self.shnum()?;
-    //     let offset = self.shoff()?;
-    //     let size = self.shentsize()?;
-    //     let layout = self.layout()?;
-    //     let width = self.width()?;
+    <span class="kw">pub fn </span>write(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
+        <span class="self">self</span>.header.write(data)<span class="question-mark">?</span>;
+        <span class="kw">let </span>offset = <span class="self">self</span>.header.shoff();
 
-    //     let data: &amp;[u8] = &amp;self.data.lock()?;
+        <span class="kw">for </span>(index,section) <span class="kw">in </span><span class="self">self</span>.sections.iter().enumerate() {
+            section.write(
+                data,
+                offset,
+                index,
+            )<span class="question-mark">?</span>;
+        }
 
-    //     SectionHeader::parse_all(
-    //         data,
-    //         count,
-    //         offset,
-    //         size,
-    //         layout,
-    //         width
-    //     )
-    // }
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.size())
+    }
 
-    // /// Get a vector of all sections in the binary
-    // pub fn sections(&amp;self) -&gt; Result&lt;Vec&lt;Section&gt;&gt; {
-    //     Ok(self.headers()?
-    //         .into_iter()
-    //         .map(|h| Section::new(
-    //             h,
-    //             self.data.clone()))
-    //         .collect())
-    // }
+    <span class="kw">pub fn </span>load&lt;T: AsRef&lt;Path&gt;&gt;(path: T) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>data = fs::read(path.as_ref())<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>binary = Binary::empty();        
+        binary.read(<span class="kw-2">&amp;</span>data)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(binary)
+    }
 
-    // // Get a single section by index
-    // pub fn section_header(&amp;self, index: usize) -&gt; Option&lt;SectionHeader&gt; {
-    //     self.headers()
-    //         .ok()?
-    //         .into_iter()
-    //         .nth(index)
-    // }
+    <span class="kw">pub fn </span>save&lt;T: AsRef&lt;Path&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, path: T) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
+        <span class="kw">let </span>size = <span class="self">self</span>.size();
+        <span class="kw">let </span><span class="kw-2">mut </span>data = <span class="macro">vec!</span>[<span class="number">0</span>;size];
+        <span class="self">self</span>.write(<span class="kw-2">&amp;mut </span>data)<span class="question-mark">?</span>;
+        fs::write(path, data)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(size)
+    }
 
-    // // Get a single section by index
-    // pub fn section_by_index(&amp;self, index: usize) -&gt; Option&lt;Section&gt; {
-    //     self.sections()
-    //         .ok()?
-    //         .into_iter()
-    //         .nth(index)
-    // }
+    <span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.header.size() +
+        <span class="self">self</span>.sections
+            .iter()
+            .fold(<span class="number">0</span>,|a,s| a + s.size())
+    }
 
-    // // Get a single section by index
-    // pub fn section_by_name(&amp;self, name: String) -&gt; Option&lt;Section&gt; {
-    //     self.sections()
-    //         .ok()?
-    //         .into_iter()
-    //         .filter(|s| s.name(self) == Some(name.clone()))
-    //         .collect::&lt;Vec&lt;Section&gt;&gt;()
-    //         .pop()
-    // }
+    <span class="kw">pub fn </span>section(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>Section&gt; {
+        <span class="self">self</span>.sections
+            .get(index)
+            .ok_or(Error::NotFound)
+    }
 
-    // /// Get a vector of all string tables in the binary
-    // pub fn section_names(&amp;self) -&gt; Result&lt;StringTable&gt; {
-    //     self.header
-    //         .shstrndx()
-    //         .and_then(|i| self.section_header(i))
-    //         .ok_or(Error::NotFound)
-    //         .and_then(StringTable::try_from)
-    //         .and_then(|t| t.parse(&amp;self.data))
-    // }
+    <span class="kw">pub fn </span>section_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>Section&gt; {
+        <span class="self">self</span>.sections
+            .get_mut(index)
+            .ok_or(Error::NotFound)
+    }
 
-    // pub fn section_name(&amp;self, index: usize) -&gt; Option&lt;String&gt; {
-    //     self.section_names()
-    //         .ok()?
-    //         .get(index)
-    //         .cloned()
-    //         .map(|v| v.string_lossy())
-    // }
+    <span class="kw">pub fn </span>sections(<span class="kw-2">&amp;</span><span class="self">self</span>, kind: SectionType) -&gt; Vec&lt;<span class="kw-2">&amp;</span>Section&gt; {
+        <span class="self">self</span>.sections
+            .iter()
+            .filter(|s| s.is_kind(kind))
+            .collect()
+    }
 
-    // /// Get the number of section headers in the file
-    // pub fn shnum(&amp;self) -&gt; Result&lt;usize&gt; {
-    //     self.header.shnum().ok_or(Error::NotFound)
-    // }
+    <span class="kw">pub fn </span>sections_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: SectionType) -&gt; Vec&lt;<span class="kw-2">&amp;mut </span>Section&gt; {
+        <span class="self">self</span>.sections
+            .iter_mut()
+            .filter(|s| s.is_kind(kind))
+            .collect()
+    }
 
-    // /// Get the offset of the section header table
-    // pub fn shoff(&amp;self) -&gt; Result&lt;usize&gt; {
-    //     self.header.shoff().ok_or(Error::NotFound)
-    // }
+    <span class="kw">pub fn </span>section_name(<span class="kw-2">&amp;</span><span class="self">self</span>, offset: usize) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+        <span class="self">self</span>.section(<span class="self">self</span>.header.shstrndx())
+            .and_then(Table::&lt;StringItem&gt;::try_from)
+            .and_then(|t| t
+                .at_offset(offset)
+                .and_then(|e| e.string()))
+    }
 
-    // /// Get the size of section headers
-    // pub fn shentsize(&amp;self) -&gt; Result&lt;usize&gt; {
-    //     self.header.shentsize().ok_or(Error::NotFound)
-    // }
+    <span class="kw">pub fn </span>section_names(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;String&gt;&gt; {
+        <span class="self">self</span>.section(<span class="self">self</span>.header.shstrndx())
+            .and_then(Table::&lt;StringItem&gt;::try_from)
+            .and_then(|t| t
+                .items())
+            .and_then(|v| v
+                .iter()
+                .map(|e| e.string())
+                .collect())
+    }
 
-    // /// Get the number of program headers in the file
-    // pub fn phnum(&amp;self) -&gt; Result&lt;usize&gt; {
-    //     self.header.phnum().ok_or(Error::NotFound)
-    // }
+    <span class="doccomment">/// Get the number of section headers in the file
+    </span><span class="kw">pub fn </span>shnum(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.header.shnum()
+    }
 
-    // /// Get the offset of the program header table
-    // pub fn phoff(&amp;self) -&gt; Result&lt;usize&gt; {
-    //     self.header.phoff().ok_or(Error::NotFound)
-    // }
+    <span class="doccomment">/// Get the offset of the section header table
+    </span><span class="kw">pub fn </span>shoff(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.header.shoff()
+    }
 
-    // /// Get the size of program headers
-    // pub fn phentsize(&amp;self) -&gt; Result&lt;usize&gt; {
-    //     self.header.phentsize().ok_or(Error::NotFound)
-    // }
+    <span class="doccomment">/// Get the size of section headers
+    </span><span class="kw">pub fn </span>shentsize(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.header.shentsize()
+    }
 
-    // /// Get the layout of the file (little or big endian)
-    // pub fn layout(&amp;self) -&gt; Result&lt;Layout&gt; {
-    //     self.header.data().ok_or(Error::NotFound)
-    // }
+    <span class="doccomment">/// Get the number of program headers in the file
+    </span><span class="kw">pub fn </span>phnum(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.header.phnum()
+    }
 
-    // /// Get the addressing width of the file (32, 64 etc)
-    // pub fn width(&amp;self) -&gt; Result&lt;Width&gt; {
-    //     self.header.class().ok_or(Error::NotFound)
-    // }
+    <span class="doccomment">/// Get the offset of the program header table
+    </span><span class="kw">pub fn </span>phoff(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.header.phoff()
+    }
 
-</span>}
+    <span class="doccomment">/// Get the size of program headers
+    </span><span class="kw">pub fn </span>phentsize(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.header.phentsize()
+    }
+
+    <span class="kw">pub fn </span>shstrndx(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.header.shstrndx()
+    }
+
+    <span class="doccomment">/// Get the layout of the file (little or big endian)
+    </span><span class="kw">pub fn </span>layout(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Layout {
+        <span class="self">self</span>.header.data()
+    }
+
+    <span class="doccomment">/// Get the addressing width of the file (32, 64 etc)
+    </span><span class="kw">pub fn </span>width(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Width {
+        <span class="self">self</span>.header.class()
+    }
+
+}
+
+<span class="kw">impl </span>Updateable <span class="kw">for </span>Binary {
+    <span class="kw">fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.header.update();
+        <span class="self">self</span>.sections.update();
+        Update::&lt;All&gt;::clear();
+    }
+}
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="comment">// use super::*;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    // #[test]
-    // fn test_read_string_table() {
-    //     let mut binary = Binary::new(&quot;assets/libjpeg/libjpeg.so.9&quot;).unwrap();
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_read_string_table() {
+        <span class="kw">let </span>binary = Binary::load(<span class="string">&quot;assets/libjpeg/libjpeg.so.9&quot;</span>).unwrap();
 
-    //     let name = binary.section_name(1);
-    //     assert!(name.is_some());
+        <span class="kw">let </span>names = binary
+            .sections(SectionType::Strings)
+            .iter()
+            .map(|s| s.name())
+            .map(|i| binary.section_name(i))
+            .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;String&gt;&gt;&gt;()
+            .unwrap();
 
-    //     let value = name.unwrap();
-    //     assert_eq!(value.as_str(),&quot;.symtab&quot;);
-    // }
-</span>}</code></pre></div></section></main></body></html>
+        <span class="macro">assert_eq!</span>(names[<span class="number">0</span>].as_str(),<span class="string">&quot;.dynstr&quot;</span>);
+        <span class="macro">assert_eq!</span>(names[<span class="number">1</span>].as_str(),<span class="string">&quot;.shstrtab&quot;</span>);
+        <span class="macro">assert_eq!</span>(names[<span class="number">2</span>].as_str(),<span class="string">&quot;.strtab&quot;</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_display_sections() {
+        <span class="comment">// let binary = Binary::load(&quot;assets/libvpf/libvpf.so.4.1&quot;).unwrap();
+
+        // for name in binary.section_names() {
+        //     dbg!(name);
+        // }
+
+        // let names = binary
+        //     .sections(SectionType::Strings)
+        //     .iter()
+        //     .map(|s| s.name())
+        //     .map(|i| binary.section_name(i))
+        //     .collect::&lt;Result&lt;Vec&lt;String&gt;&gt;&gt;()
+        //     .unwrap();
+
+        // assert_eq!(names[0].as_str(),&quot;.dynstr&quot;);
+        // assert_eq!(names[1].as_str(),&quot;.shstrtab&quot;);
+        // assert_eq!(names[2].as_str(),&quot;.strtab&quot;);
+    </span>}
+
+}</code></pre></div></section></main></body></html>
