@@ -42,7 +42,7 @@ end goal is to even handle updating branch instructions when code is removed fro
 [issues-shield]: https://img.shields.io/github/issues/mjhouse/deaf.svg?style=for-the-badge
 [issues-url]: https://github.com/mjhouse/deaf/issues
 
-[docs-shield]: https://img.shields.io/github/actions/workflow/status/mjhouse/deaf/docs.yaml?branch=documentation&style=for-the-badge&label=Documentation
+[docs-shield]: https://img.shields.io/github/actions/workflow/status/mjhouse/deaf/docs.yaml?branch=documentation&style=for-the-badge&label=Documentation&message=latest
 [docs-url]: https://mjhouse.github.io/deaf/
 
 [tests-shield]: https://img.shields.io/github/actions/workflow/status/mjhouse/deaf/test.yaml?branch=testing&style=for-the-badge&label=Tests
