@@ -90,7 +90,7 @@ pub mod tests {
         name: ".rela.dyn",
         address: 14656,
         offset: 14656,
-        index: 0,
+        index: 8,
         size: 1224,
         length: 51,
         entsize: 24,

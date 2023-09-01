@@ -109,6 +109,17 @@ where
 
 }
 
+impl<T32, T64, Out> PartialEq for Item<T32, T64, Out>
+where
+    T32: FromBytes + IntoBytes + Convert<Out>,
+    T64: FromBytes + IntoBytes + Convert<Out>,
+    Out: Convert<T32> + Convert<T64> + Debug + Clone + Default + PartialEq,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.get().eq(&other.get())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

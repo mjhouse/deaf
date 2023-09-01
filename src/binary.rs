@@ -211,7 +211,27 @@ mod tests {
         assert_eq!(names[0].as_str(),".dynstr");
         assert_eq!(names[1].as_str(),".shstrtab");
         assert_eq!(names[2].as_str(),".strtab");
-        
+    }
+
+    #[test]
+    fn test_display_sections() {
+        let binary = Binary::load("assets/libvpf/libvpf.so.4.1").unwrap();
+
+        // for name in binary.section_names() {
+        //     dbg!(name);
+        // }
+
+        // let names = binary
+        //     .sections(SectionType::Strings)
+        //     .iter()
+        //     .map(|s| s.name())
+        //     .map(|i| binary.section_name(i))
+        //     .collect::<Result<Vec<String>>>()
+        //     .unwrap();
+
+        // assert_eq!(names[0].as_str(),".dynstr");
+        // assert_eq!(names[1].as_str(),".shstrtab");
+        // assert_eq!(names[2].as_str(),".strtab");
     }
 
 }

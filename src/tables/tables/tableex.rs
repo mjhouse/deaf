@@ -176,7 +176,10 @@ where
     }
 
     /// Insert an item into the table
-    pub fn insert(&mut self, index: usize, item: T) -> Result<usize> {
+    pub fn insert(&mut self, index: usize, mut item: T) -> Result<usize> {
+        item.set_layout(self.layout());
+        item.set_width(self.width());
+
         let size   = item.size();
         let offset = self.item_offset(index);
 
@@ -393,7 +396,7 @@ mod tests {
     };
 
     #[test]
-    fn test_symtab_section_as_table() {
+    fn test_read_symbols_as_table() {
         let data = read("assets/libjpeg/libjpeg.so.9").unwrap();
 
         let file_header = FileHeader::parse(&data).unwrap();
@@ -426,7 +429,7 @@ mod tests {
     }
 
     #[test]
-    fn test_shstrtab_section_as_table() {
+    fn test_read_strings_as_table() {
         let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
 
         let file_header = FileHeader::parse(&data).unwrap();
@@ -457,7 +460,7 @@ mod tests {
     }
 
     #[test]
-    fn test_rela_section_as_table() {
+    fn test_read_relocations_addend_as_table() {
         let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
 
         let file_header = FileHeader::parse(&data).unwrap();
@@ -490,7 +493,7 @@ mod tests {
     }
 
     #[test]
-    fn test_write_shstrtab_prepend() {
+    fn test_write_strings_prepend() {
         let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
 
         let file_header = FileHeader::parse(&data).unwrap();
@@ -540,7 +543,7 @@ mod tests {
     }
 
     #[test]
-    fn test_write_shstrtab_append() {
+    fn test_write_strings_append() {
         let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
 
         let file_header = FileHeader::parse(&data).unwrap();
@@ -591,7 +594,7 @@ mod tests {
     }
 
     #[test]
-    fn test_write_shstrtab_insert() {
+    fn test_write_strings_insert() {
         let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
 
         let file_header = FileHeader::parse(&data).unwrap();
@@ -642,7 +645,7 @@ mod tests {
     }
 
     #[test]
-    fn test_write_shstrtab_remove() {
+    fn test_write_strings_remove() {
         let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
 
         let file_header = FileHeader::parse(&data).unwrap();
@@ -693,7 +696,7 @@ mod tests {
     }
 
     #[test]
-    fn test_write_symtab_prepend() {
+    fn test_write_symbols_prepend() {
         let data = read("assets/libjpeg/libjpeg.so.9").unwrap();
 
         let file_header = FileHeader::parse(&data).unwrap();
@@ -724,17 +727,9 @@ mod tests {
         assert_eq!(table.len(),SYM_TEST.length);
         assert_eq!(table.size(),SYM_TEST.size);
 
-        let mut item = SymbolItem::default();
-        item.set_layout(table.layout());
-        item.set_width(table.width());
-        item.set_name(1);
-        item.set_value(1);
-        item.set_size(1);
-        item.set_info(SymbolInfo::new(1).unwrap());
-        item.set_other(1);
-        item.set_shndx(1);
+        let item1 = SymbolItem::default();
 
-        let result = table.prepend(item);
+        let result = table.prepend(item1.clone());
         assert!(result.is_ok());
 
         assert_eq!(table.len(),SYM_TEST.length + 1);
@@ -743,16 +738,16 @@ mod tests {
         let result = table.at(0);
         assert!(result.is_ok());
 
-        let item = result.unwrap();
-        assert_eq!(item.name(),1);
-        assert_eq!(item.value(),1);
-        assert_eq!(item.size(),1);
-        assert_eq!(item.other(),1);
-        assert_eq!(item.shndx(),1);
+        let item2 = result.unwrap();
+        assert_eq!(item2.name(),item1.name());
+        assert_eq!(item2.value(),item1.value());
+        assert_eq!(item2.size(),item1.size());
+        assert_eq!(item2.other(),item1.other());
+        assert_eq!(item2.shndx(),item1.shndx());
     }
 
     #[test]
-    fn test_write_symtab_append() {
+    fn test_write_symbols_append() {
         let data = read("assets/libjpeg/libjpeg.so.9").unwrap();
 
         let file_header = FileHeader::parse(&data).unwrap();
@@ -811,7 +806,7 @@ mod tests {
     }
 
     #[test]
-    fn test_write_symtab_insert() {
+    fn test_write_symbols_insert() {
         let data = read("assets/libjpeg/libjpeg.so.9").unwrap();
 
         let file_header = FileHeader::parse(&data).unwrap();
@@ -870,7 +865,7 @@ mod tests {
     }
 
     #[test]
-    fn test_write_symtab_remove() {
+    fn test_write_symbols_remove() {
         let data = read("assets/libjpeg/libjpeg.so.9").unwrap();
 
         let file_header = FileHeader::parse(&data).unwrap();
@@ -908,4 +903,187 @@ mod tests {
         assert_eq!(table.size(),SYM_TEST.size - SYM_TEST.entsize);
     }
 
+    #[test]
+    fn test_write_relocations_addend_prepend() {
+        let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
+
+        let file_header = FileHeader::parse(&data).unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let index = file_header.shstrndx();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+
+        let mut sections = Section::read_all(
+            &data,
+            count,
+            offset,
+            size,
+            layout,
+            width
+        ).unwrap();
+
+        let section = &mut sections[RELA_TEST.index];
+
+        let result = TableMut::<RelaItem>::try_from(section);
+        assert!(result.is_ok());
+
+        let mut table = result.unwrap();
+
+        assert_eq!(table.len(),RELA_TEST.length);
+        assert_eq!(table.size(),RELA_TEST.size);
+
+        let item1 = RelaItem::default();
+
+        let result = table.prepend(item1.clone());
+        assert!(result.is_ok());
+
+        assert_eq!(table.len(),RELA_TEST.length + 1);
+        assert_eq!(table.size(),RELA_TEST.size + RELA_TEST.entsize);
+
+        let result = table.at(0);
+        assert!(result.is_ok());
+
+        let item2 = result.unwrap();
+        assert_eq!(item2.offset(),item1.offset());
+        assert_eq!(item2.info(),item1.info());
+    }
+
+    #[test]
+    fn test_write_relocations_addend_append() {
+        let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
+
+        let file_header = FileHeader::parse(&data).unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let index = file_header.shstrndx();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+
+        let mut sections = Section::read_all(
+            &data,
+            count,
+            offset,
+            size,
+            layout,
+            width
+        ).unwrap();
+
+        let section = &mut sections[RELA_TEST.index];
+
+        let result = TableMut::<RelaItem>::try_from(section);
+        assert!(result.is_ok());
+
+        let mut table = result.unwrap();
+
+        assert_eq!(table.len(),RELA_TEST.length);
+        assert_eq!(table.size(),RELA_TEST.size);
+
+        let item1 = RelaItem::default();
+
+        let result = table.append(item1.clone());
+        assert!(result.is_ok());
+
+        assert_eq!(table.len(),RELA_TEST.length + 1);
+        assert_eq!(table.size(),RELA_TEST.size + RELA_TEST.entsize);
+
+        let result = table.at(table.len() - 1);
+        assert!(result.is_ok());
+
+        let item2 = result.unwrap();
+        assert_eq!(item2.offset(),item1.offset());
+        assert_eq!(item2.info(),item1.info());
+    }
+
+    #[test]
+    fn test_write_relocations_addend_insert() {
+        let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
+
+        let file_header = FileHeader::parse(&data).unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let index = file_header.shstrndx();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+
+        let mut sections = Section::read_all(
+            &data,
+            count,
+            offset,
+            size,
+            layout,
+            width
+        ).unwrap();
+
+        let section = &mut sections[RELA_TEST.index];
+
+        let result = TableMut::<RelaItem>::try_from(section);
+        assert!(result.is_ok());
+
+        let mut table = result.unwrap();
+
+        assert_eq!(table.len(),RELA_TEST.length);
+        assert_eq!(table.size(),RELA_TEST.size);
+
+        let item1 = RelaItem::default();
+
+        let result = table.insert(3,item1.clone());
+        assert!(result.is_ok());
+
+        assert_eq!(table.len(),RELA_TEST.length + 1);
+        assert_eq!(table.size(),RELA_TEST.size + RELA_TEST.entsize);
+
+        let result = table.at(3);
+        assert!(result.is_ok());
+
+        let item2 = result.unwrap();
+        assert_eq!(item2.offset(),item1.offset());
+        assert_eq!(item2.info(),item1.info());
+    }
+
+    #[test]
+    fn test_write_relocations_addend_remove() {
+        let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
+
+        let file_header = FileHeader::parse(&data).unwrap();
+
+        let count = file_header.shnum();
+        let offset = file_header.shoff();
+        let index = file_header.shstrndx();
+        let size = file_header.shentsize();
+        let layout = file_header.data();
+        let width = file_header.class();
+
+        let mut sections = Section::read_all(
+            &data,
+            count,
+            offset,
+            size,
+            layout,
+            width
+        ).unwrap();
+
+        let section = &mut sections[RELA_TEST.index];
+
+        let result = TableMut::<RelaItem>::try_from(section);
+        assert!(result.is_ok());
+
+        let mut table = result.unwrap();
+
+        assert_eq!(table.len(),RELA_TEST.length);
+        assert_eq!(table.size(),RELA_TEST.size);
+
+        let result = table.remove(3);
+        assert!(result.is_ok());
+
+        assert_eq!(table.len(),RELA_TEST.length - 1);
+        assert_eq!(table.size(),RELA_TEST.size - RELA_TEST.entsize);
+    }
+    
 }

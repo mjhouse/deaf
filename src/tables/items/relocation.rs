@@ -4,14 +4,14 @@ use crate::tables::TableItem;
 use crate::errors::Result;
 
 /// A Relocation item found in relocation tables
-#[derive(Clone)]
+#[derive(Clone,PartialEq)]
 pub struct RelItem {
     r_offset: Item<u32,u64>, 
     r_info: Item<u32,u64,RelocationInfo>,
 }
 
 /// A Relocation item found in relocation tables
-#[derive(Clone)]
+#[derive(Clone,PartialEq)]
 pub struct RelaItem {
     r_offset: Item<u32,u64>, 
     r_info: Item<u32,u64,RelocationInfo>,
