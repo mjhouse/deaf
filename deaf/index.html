@@ -1,40 +1,155 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="DEAF: The Definitive Elf Analysis Framework"><title>deaf - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../deaf/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../deaf/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2 class="location"><a href="#">Crate deaf</a></h2><div class="sidebar-elems"><ul class="block"><li class="version">Version 0.1.0</li><li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li></ul></section></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">deaf</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/deaf/lib.rs.html#1-17">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="deaf-the-definitive-elf-analysis-framework"><a href="#deaf-the-definitive-elf-analysis-framework">DEAF: The <strong>D</strong>efinitive <strong>E</strong>lf <strong>A</strong>nalysis <strong>F</strong>ramework</a></h2>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `deaf` crate."><title>deaf - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../deaf/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../deaf/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2 class="location"><a href="#">Crate deaf</a></h2><div class="sidebar-elems"><ul class="block"><li class="version">Version 0.1.2</li><li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li></ul></section></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">deaf</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/deaf/lib.rs.html#1-17">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><a name="readme-top"></a></p>
+<!-- PROJECT SHIELDS -->
+<div align="center">
 <p><a href="https://github.com/mjhouse/deaf/actions/workflows/test.yaml"><img src="https://github.com/mjhouse/deaf/actions/workflows/test.yaml/badge.svg?branch=testing" alt="Tests" /></a>
 <a href="https://mjhouse.github.io/deaf/"><img src="https://github.com/mjhouse/deaf/actions/workflows/docs.yaml/badge.svg?branch=documentation" alt="Docs" /></a>
 <a href="https://www.gnu.org/licenses/gpl-3.0"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="GPL v3" /></a></p>
-<p><a href="https://github.com/mjhouse/deaf/blob/master/CONTRIBUTING.md">Contribution Guide</a><br />
-<a href="https://github.com/mjhouse/deaf/blob/master/CODE_OF_CONDUCT.md">Code of Conduct</a></p>
-<p>This is a library for parsing <em>and modifying</em> ELF-format applications and libraries. There are many other 
-libraries out there for parsing the ELF format, like the appropriately-named <a href="https://crates.io/crates/elf">elf</a>, 
-<a href="https://crates.io/crates/elfy">elfy</a>, and <a href="https://crates.io/crates/elfkit">elfkit</a> crates, but they are either 
-not designed with modification in mind (elf/elfy) or are very limited (and now unmaintained) (elfkit). To fix this 
-situation, I’m writing DEAF with the explicit and primary goal of making it possible to <em>change anything you can 
-see</em>. This means that if you load a shared library and parse the dynamic symbol table, you should be able to- </p>
+</div>
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+    <h3 align="center">DEAF</h3>
+    <p align="center">
+        A Rust library for parsing and modifying ELF binaries
+        <br />
+        <a href="https://github.com/mjhouse/deaf/blob/master/CONTRIBUTING.md">Contributions</a>
+        ·
+        <a href="https://github.com/mjhouse/deaf/blob/master/CODE_OF_CONDUCT.md">Code Of Conduct</a>
+        ·
+        <a href="https://github.com/mjhouse/deaf/issues/new?labels=bug&template=bug_report.md">Report Bug</a>
+        ·
+        <a href="https://github.com/mjhouse/deaf/issues/new?labels=enhancement&template=feature_request.md">Request Feature</a>
+    </p>
+</div>
+<!-- TABLE OF CONTENTS -->
+<details>
+    <summary>Table of Contents</summary>
+    <ol>
+        <li><a href="#introduction">Introduction</a></li>
+        <li><a href="#getting-started">Getting Started</a></li>
+        <li><a href="#roadmap">Roadmap</a></li>
+        <li><a href="#contributing">Contributing</a></li>
+        <li><a href="#contact">Contact</a></li>
+    </ol>
+</details>
+<h3 id="introduction"><a href="#introduction">Introduction</a></h3>
+<p>This is a library for parsing and modifying ELF-format binaries. There are other libraries like <a href="https://crates.io/crates/elf">elf</a>, 
+<a href="https://crates.io/crates/elfy">elfy</a>, and <a href="https://crates.io/crates/elfkit">elfkit</a> for parsing the format, but they are either 
+not able to modify the ELF binary (elf and elfy) or are limited/unmaintained (elfkit). DEAF is written with the explicit goal of
+allowing users to modify anything that they can see in the binary- you should be able to add symbols to the symbol tables, remove 
+the body of a function, or change the name of a section, easily and intuitively. Some of the changes you can make will probably break 
+the binary. For example, if you remove the body of a function then relative branch instructions after the gap will no longer point 
+to the correct address.</p>
+<p>As the development of the library progresses, there should be fewer and fewer ways that your changes break the ELF binary, and the 
+end goal is to even handle updating branch instructions when code is removed from an executable section.</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<h3 id="getting-started"><a href="#getting-started">Getting Started</a></h3>
+<p>This project is still in the very early stages, so expect a lot of breaking changes, restructuring, and reorganization from one version 
+to the next as we figure out where things belong. If you still want to try it out, include deaf in your project by using cargo add:</p>
+<div class="example-wrap"><pre class="language-bash"><code>cargo add deaf
+</code></pre></div>
+<p>Or by manually updating your cargo toml:</p>
+<div class="example-wrap"><pre class="language-bash"><code>deaf = &quot;0.1.0&quot;
+</code></pre></div>
+<p>Then use it in your project like so:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>deaf::{Binary,Section,common::SectionType};
+
+<span class="kw">let </span>binary = Binary::load(<span class="string">&quot;assets/libjpeg/libjpeg.so.9&quot;</span>).unwrap();
+
+<span class="kw">for </span>section <span class="kw">in </span>binary.sections(SectionType::Strings).iter() {
+    <span class="kw">let </span>name_offset = section.name();
+    <span class="kw">let </span>name_value = binary.section_name(name_offset).unwrap();
+    <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>,name_value);
+}
+</code></pre></div>
+<p>For more details, refer to the <a href="https://mjhouse.github.io/deaf/">documentation</a>.</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<h3 id="roadmap"><a href="#roadmap">Roadmap</a></h3><h4 id="010"><a href="#010">0.1.0</a></h4>
+<p>This version is mainly aimed at providing initial functionality.</p>
 <ul>
-<li>Reorder</li>
-<li>Remove</li>
-<li>Replace</li>
-<li>Update</li>
-<li>Append</li>
+<li><input disabled="" type="checkbox" checked=""/>
+Seamless, endian aware fields that can read/write</li>
+<li><input disabled="" type="checkbox" checked=""/>
+Update fields to seamlessly support 32 or 64-bit byte ranges</li>
+<li><input disabled="" type="checkbox" checked=""/>
+Create constants for enum-style header fields</li>
+<li><input disabled="" type="checkbox" checked=""/>
+Make FileHeader struct that can read and write from/to binary data</li>
+<li><input disabled="" type="checkbox" checked=""/>
+Make ProgramHeader struct that can read and write from/to binary data</li>
+<li><input disabled="" type="checkbox" checked=""/>
+Make SectionHeader struct that can read and write from/to binary data</li>
 </ul>
-<p>-symbols and then write the resulting symbol table back into a file. Existing toolkits generally don’t
-have this capability, or it’s very limited and oriented toward cybersecurity tasks like injecting telemetry or 
-inserting malicious relocation records. If you want remove the body, symbol and relocation records of a 
-particular function from a library, then shift all following functions forward, then update any relocation/init 
-or preinit array references, you just <em>can’t</em>.</p>
-<p>DEAF exists specifically to make things like this possible.</p>
-<h2 id="notes"><a href="#notes">Notes</a></h2>
+<h4 id="020"><a href="#020">0.2.0</a></h4>
+<p>This release is generally aimed at propagating changes to keep the binary useable.</p>
 <ul>
-<li>The name “DEAF” is a back-ronym- it doesn’t mean anything. It’s just a short word that reminded me of 
-the DEADBEEF test value used in a lot of hex examples. A friend suggested “Definitive Elf Analysis Framework”
-as the meaning after I already had the name, and I couldn’t think of anything better.</li>
-<li>Any time you see an attribute/method named <code>kind</code>, it’s a synonym for <code>type</code> (e.g. Relocation::kind)
-which is a reserved keyword in the rust language, but is used for a lot of fields in the ELF format.</li>
+<li><input disabled="" type="checkbox" checked=""/>
+Add mechanism to update sections globally on local changes</li>
+<li><input disabled="" type="checkbox" checked=""/>
+Make wrapper Table&lt;TableItem&gt; structs for sections</li>
+<li><input disabled="" type="checkbox"/>
+Make wrapper Array&lt;ArrayItem&gt; structs for sections</li>
+<li><input disabled="" type="checkbox"/>
+Turn the Segment struct into a wrapper struct</li>
+<li><input disabled="" type="checkbox"/>
+Make a super list of updates and when they should be applied
+<ul>
+<li><input disabled="" type="checkbox"/>
+Update section offsets when items are added/removed from tables</li>
+<li><input disabled="" type="checkbox" checked=""/>
+Update section name indices when the section name string table changes</li>
 </ul>
-<h2 id="references"><a href="#references">References</a></h2><div><table><thead><tr><th>Topic</th><th>Url</th></tr></thead><tbody>
-<tr><td>ELF Format</td><td><a href="http://www.skyfree.org/linux/references/ELF_Format.pdf">ELF_Format.pdf</a></td></tr>
-<tr><td>Symbols</td><td><a href="https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter6-79797.html">Oracle Docs: Symbols</a></td></tr>
-<tr><td>Relocations</td><td><a href="https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter6-54839.html">Oracle Docs: Relocations</a></td></tr>
-<tr><td>Init Array</td><td><a href="https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter3-8.html">Oracle Docs: Init</a></td></tr>
-</tbody></table>
-</div></div></details><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="arrays/index.html" title="mod deaf::arrays">arrays</a></div><div class="desc docblock-short">Module that defines arrays (init, fini etc.) and array items</div></li><li><div class="item-name"><a class="mod" href="common/index.html" title="mod deaf::common">common</a></div><div class="desc docblock-short">Common structs and types used by all other modules</div></li><li><div class="item-name"><a class="mod" href="errors/index.html" title="mod deaf::errors">errors</a></div><div class="desc docblock-short">A custom error type that aggregates internal errors</div></li><li><div class="item-name"><a class="mod" href="headers/index.html" title="mod deaf::headers">headers</a></div><div class="desc docblock-short">File, program and section header definitions</div></li><li><div class="item-name"><a class="mod" href="tables/index.html" title="mod deaf::tables">tables</a></div><div class="desc docblock-short">Various types of tables and associated table items</div></li><li><div class="item-name"><a class="mod" href="utilities/index.html" title="mod deaf::utilities">utilities</a></div><div class="desc docblock-short">Utility functions for both testing and execution</div></li></ul><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.Binary.html" title="struct deaf::Binary">Binary</a></div><div class="desc docblock-short">An ELF formatted binary file</div></li><li><div class="item-name"><a class="struct" href="struct.Section.html" title="struct deaf::Section">Section</a></div><div class="desc docblock-short">A Section extracted from an ELF file</div></li><li><div class="item-name"><a class="struct" href="struct.Segment.html" title="struct deaf::Segment">Segment</a></div><div class="desc docblock-short">A Segment extracted from an ELF file</div></li></ul></section></div></main></body></html>
+</li>
+<li><input disabled="" type="checkbox"/>
+Add getter/setter methods to Binary</li>
+</ul>
+<h4 id="030"><a href="#030">0.3.0</a></h4>
+<p>This release is going to be all about gathering context about executable code, if
+not outright disassembling it.</p>
+<ul>
+<li><input disabled="" type="checkbox"/>
+Add find-page-address page size calculation methods</li>
+<li><input disabled="" type="checkbox"/>
+Create Function wrapper struct for symbol that includes binary data</li>
+<li><input disabled="" type="checkbox"/>
+Investigate integrating (or writing) a disassembly crate for deaf</li>
+<li><input disabled="" type="checkbox"/>
+Add methods for interrogating the target platform of the binary
+<ul>
+<li><input disabled="" type="checkbox"/>
+Use <code>EI_OSABI</code> and <code>e_machine</code> values in file header</li>
+<li><input disabled="" type="checkbox"/>
+Provide methods for lib user to specify binary platform</li>
+</ul>
+</li>
+<li><input disabled="" type="checkbox"/>
+Create platform parsing context that varies depending on target platform</li>
+<li><input disabled="" type="checkbox"/>
+Add basic chunking and iteration methods for function bodies</li>
+</ul>
+<h4 id="future"><a href="#future">Future</a></h4>
+<p>This is a haphazard collection of things that should be added to the library at 
+some point but that aren’t quite on the roadmap yet.</p>
+<ul>
+<li>
+<p>Make it possible to iter/iter_mut over instructions in functions without explicitly calling 
+disassembly methods, inspecting the binary target etc. You should be able to iterate instructions
+as easily as you iterate symbols.</p>
+</li>
+<li>
+<p>Provide integration tests that verify that modified binaries are still useable. I’m not sure
+how to do this without having some sort of third-party emulation platform for an ARM64 system set up.</p>
+</li>
+</ul>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<h3 id="contributing"><a href="#contributing">Contributing</a></h3>
+<p>Anyone is welcome to contribute to DEAF, just try to follow the <a href="https://github.com/mjhouse/deaf/blob/master/CODE_OF_CONDUCT.md">code of conduct</a> 
+and the <a href="https://github.com/mjhouse/deaf/blob/master/CONTRIBUTING.md">contribution guidelines</a>. If something is unclear
+or not covered in the guides, create an issue describing the problem and someone will get back to you as soon as possible.</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<h3 id="contact"><a href="#contact">Contact</a></h3>
+<p><a href="https://github.com/mjhouse/deaf/issues">Create an issue</a> and @mjhouse to get my attention, or email me at mjhouse@protonmail.com.</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<!-- MARKDOWN LINKS & IMAGES -->
+</div></details><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="arrays/index.html" title="mod deaf::arrays">arrays</a></div><div class="desc docblock-short">Module that defines arrays (init, fini etc.) and array items</div></li><li><div class="item-name"><a class="mod" href="common/index.html" title="mod deaf::common">common</a></div><div class="desc docblock-short">Common structs and types used by all other modules</div></li><li><div class="item-name"><a class="mod" href="errors/index.html" title="mod deaf::errors">errors</a></div><div class="desc docblock-short">A custom error type that aggregates internal errors</div></li><li><div class="item-name"><a class="mod" href="headers/index.html" title="mod deaf::headers">headers</a></div><div class="desc docblock-short">File, program and section header definitions</div></li><li><div class="item-name"><a class="mod" href="tables/index.html" title="mod deaf::tables">tables</a></div><div class="desc docblock-short">Various types of tables and associated table items</div></li><li><div class="item-name"><a class="mod" href="utilities/index.html" title="mod deaf::utilities">utilities</a></div><div class="desc docblock-short">Utility functions for both testing and execution</div></li></ul><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.Binary.html" title="struct deaf::Binary">Binary</a></div><div class="desc docblock-short">An ELF formatted binary file</div></li><li><div class="item-name"><a class="struct" href="struct.Section.html" title="struct deaf::Section">Section</a></div><div class="desc docblock-short">A Section extracted from an ELF file</div></li><li><div class="item-name"><a class="struct" href="struct.Segment.html" title="struct deaf::Segment">Segment</a></div><div class="desc docblock-short">A Segment extracted from an ELF file</div></li></ul></section></div></main></body></html>
