@@ -3,10 +3,9 @@
 <!-- PROJECT SHIELDS -->
 <div align="center">
 
-[![Documentation][docs-shield]][docs-url]
-[![Issues][issues-shield]][issues-url]
 [![Tests][tests-shield]][tests-url]
-[![GPLv3][license-shield]][license-url]
+[![Docs][docs-shield]][docs-url]
+[![GPL v3][license-shield]][license-url]
 
 </div>
 
@@ -21,9 +20,9 @@
         ·
         <a href="https://github.com/mjhouse/deaf/blob/master/CODE_OF_CONDUCT.md">Code Of Conduct</a>
         ·
-        <a href="https://github.com/mjhouse/deaf/issues">Report Bug</a>
+        <a href="https://github.com/mjhouse/deaf/issues/new?labels=bug&template=bug_report.md">Report Bug</a>
         ·
-        <a href="https://github.com/mjhouse/deaf/issues">Request Feature</a>
+        <a href="https://github.com/mjhouse/deaf/issues/new?labels=enhancement&template=feature_request.md">Request Feature</a>
     </p>
 </div>
 
@@ -77,26 +76,11 @@ or not covered in the guides, create an issue describing the problem and someone
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
-[contributors-shield]: https://img.shields.io/github/contributors/mjhouse/deaf.svg?style=for-the-badge
-[contributors-url]: https://github.com/mjhouse/deaf/graphs/contributors
-
-[forks-shield]: https://img.shields.io/github/forks/mjhouse/deaf.svg?style=for-the-badge
-[forks-url]: https://github.com/mjhouse/deaf/network/members
-
-[stars-shield]: https://img.shields.io/github/stars/mjhouse/deaf.svg?style=for-the-badge
-[stars-url]: https://github.com/mjhouse/deaf/stargazers
-
-[issues-shield]: https://img.shields.io/github/issues/mjhouse/deaf.svg?style=for-the-badge
-[issues-url]: https://github.com/mjhouse/deaf/issues
-
-[docs-shield]: https://img.shields.io/github/actions/workflow/status/mjhouse/deaf/docs.yaml?branch=documentation&style=for-the-badge&label=Documentation
+[docs-shield]: https://github.com/mjhouse/deaf/actions/workflows/docs.yaml/badge.svg?branch=documentation&style=for-the-badge
 [docs-url]: https://mjhouse.github.io/deaf/
 
-[tests-shield]: https://img.shields.io/github/actions/workflow/status/mjhouse/deaf/test.yaml?branch=testing&style=for-the-badge&label=Tests
+[tests-shield]: https://github.com/mjhouse/deaf/actions/workflows/test.yaml/badge.svg?branch=testing&style=for-the-badge
 [tests-url]: https://github.com/mjhouse/deaf/actions/workflows/test.yaml
 
-[license-shield]: https://img.shields.io/github/license/mjhouse/deaf.svg?style=for-the-badge
-[license-url]: https://github.com/mjhouse/deaf/blob/master/LICENSE
-
-[crate-shield]: https://img.shields.io/crates/d/deaf.svg?style=for-the-badge
-[crate-url]: https://crates.io/crates/deaf
+[license-shield]: https://img.shields.io/badge/License-GPLv3-blue.svg&style=for-the-badge
+[license-url]: https://www.gnu.org/licenses/gpl-3.0
