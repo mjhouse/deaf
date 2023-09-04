@@ -65,7 +65,7 @@ cargo add deaf
 Or by manually updating your cargo toml:
 
 ```bash
-deaf = "0.1.0"
+deaf = "0.1.2"
 ```
 
 Then use it in your project like so:
