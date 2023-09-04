@@ -116,15 +116,30 @@ This release is generally aimed at propagating changes to keep the binary useabl
 
 ### 0.3.0
 
-This release is going to be all about parsing executable code.
+This release is going to be all about gathering context about executable code, if
+not outright disassembling it.
 
 - [ ] Add find-page-address page size calculation methods
+- [ ] Create Function wrapper struct for symbol that includes binary data
 - [ ] Investigate integrating (or writing) a disassembly crate for deaf
 - [ ] Add methods for interrogating the target platform of the binary
     - [ ] Use `EI_OSABI` and `e_machine` values in file header
     - [ ] Provide methods for lib user to specify binary platform
 - [ ] Add platform target enums
+- [ ] Create platform parsing context that varies depending on target platform
+- [ ] Add basic chunking and iteration methods for function bodies
 
+### Future
+
+This is a haphazard collection of things that should be added to the library at 
+some point but that aren't quite on the roadmap yet.
+
+* Make it possible to iter/iter_mut over instructions in functions without explicitly calling 
+  disassembly methods, inspecting the binary target etc. You should be able to iterate instructions
+  as easily as you iterate symbols.
+
+* Provide integration tests that verify that modified binaries are still useable. I'm not sure
+  how to do this without having some sort of third-party emulation platform for an ARM64 system set up.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
