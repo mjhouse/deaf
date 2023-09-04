@@ -55,6 +55,38 @@ end goal is to even handle updating branch instructions when code is removed fro
 
 ## Getting Started
 
+This project is still in the very early stages, so expect a lot of breaking changes, restructuring, and reorganization from one version 
+to the next as we figure out where things belong. If you still want to try it out, include deaf in your project by using cargo add:
+
+```bash
+cargo add deaf
+```
+
+Or by manually updating your cargo toml:
+
+```bash
+...
+deaf = "0.1.0"
+```
+
+Then use it in your project like so:
+
+```rust
+use deaf::{Binary,Section,common::SectionType};
+
+let binary = Binary::load("assets/libjpeg/libjpeg.so.9").unwrap();
+
+for section in binary.sections(SectionType::Strings).iter() {
+    let name_offset = section.name();
+    let name_value = binary.section_name(name_offset).unwrap();
+    println!("{}",name_value);
+}
+
+```
+
+For more details, refer to the [documentation][docs-url].
+
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Roadmap
