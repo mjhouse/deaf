@@ -65,7 +65,6 @@ cargo add deaf
 Or by manually updating your cargo toml:
 
 ```bash
-...
 deaf = "0.1.0"
 ```
 
@@ -90,6 +89,21 @@ For more details, refer to the [documentation][docs-url].
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Roadmap
+
+### 0.1.0
+
+- [ ] Seamless, endian aware field read/write
+- [ ] Update fields to seamlessly support 32 or 64-bit byte ranges
+- [ ] Create constants for enum-style header fields
+- [ ] Read and write file headers
+- [ ] Read and write program headers
+- [ ] Read and write section headers
+
+### 0.2.0
+
+- [ ] Reinterprete sections as Table\<TableItem\> 
+
+### 0.3.0
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
