@@ -9,18 +9,25 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+      - uses: actions/checkout@v2
       - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
+        run: |
+          cargo build --release
       - name: Test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
+        run: |
+          cargo test
+
+      # - uses: actions-rs/toolchain@v1
+      #   with:
+      #     toolchain: stable
+      # - name: Build
+      #   uses: actions-rs/cargo@v1
+      #   with:
+      #     command: build
+      # - name: Test
+      #   uses: actions-rs/cargo@v1
+      #   with:
+      #     command: test
   merge:
     name: Merge
     needs: [ test ]
