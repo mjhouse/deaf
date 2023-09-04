@@ -1,6 +1,6 @@
 use crate::common::{Layout,Width,PHType,SHType,SHFlags};
-use crate::errors::{Result};
-use num_enum::{TryFromPrimitive};
+use crate::errors::Result;
+use num_enum::TryFromPrimitive;
 use enumflags2::BitFlags;
 use std::ffi::{CString,CStr};
 
