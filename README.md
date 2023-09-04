@@ -40,13 +40,13 @@
 
 ## Introduction
 
-This is a library for parsing and modifying ELF-format binaries. There are other libraries like [elf](https://crates.io/crates/elf), 
-[elfy](https://crates.io/crates/elfy), and [elfkit](https://crates.io/crates/elfkit) for parsing the format, but they are either 
+This is a library for parsing and modifying ELF-format binaries. There are other libraries like [elf][elf-url], 
+[elfy][elfy-url], and [elfkit][elfkit-url] for parsing the format, but they are either 
 not able to modify the ELF binary (elf and elfy) or are limited/unmaintained (elfkit). DEAF is written with the explicit goal of
 allowing users to modify anything that they can see in the binary- you should be able to add symbols to the symbol tables, remove 
 the body of a function, or change the name of a section, easily and intuitively. Some of the changes you can make will probably break 
-the binary. For example, if you remove the body of a function then relative branch instructions that after the gap will no longer 
-point to the correct location.
+the binary. For example, if you remove the body of a function then relative branch instructions after the gap will no longer point 
+to the correct address.
 
 As the development of the library progresses, there should be fewer and fewer ways that your changes break the ELF binary, and the 
 end goal is to even handle updating branch instructions when code is removed from an executable section.
@@ -76,11 +76,15 @@ or not covered in the guides, create an issue describing the problem and someone
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
-[docs-shield]: https://github.com/mjhouse/deaf/actions/workflows/docs.yaml/badge.svg?branch=documentation&style=for-the-badge
+[docs-shield]: https://github.com/mjhouse/deaf/actions/workflows/docs.yaml/badge.svg?branch=documentation
 [docs-url]: https://mjhouse.github.io/deaf/
 
-[tests-shield]: https://github.com/mjhouse/deaf/actions/workflows/test.yaml/badge.svg?branch=testing&style=for-the-badge
+[tests-shield]: https://github.com/mjhouse/deaf/actions/workflows/test.yaml/badge.svg?branch=testing
 [tests-url]: https://github.com/mjhouse/deaf/actions/workflows/test.yaml
 
-[license-shield]: https://img.shields.io/badge/License-GPLv3-blue.svg&style=for-the-badge
+[license-shield]: https://img.shields.io/badge/License-GPLv3-blue.svg
 [license-url]: https://www.gnu.org/licenses/gpl-3.0
+
+[elf-url]: https://crates.io/crates/elf
+[elfy-url]: https://crates.io/crates/elfy
+[elfkit-url]: https://crates.io/crates/elfkit
