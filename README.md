@@ -92,18 +92,39 @@ For more details, refer to the [documentation][docs-url].
 
 ### 0.1.0
 
-- [ ] Seamless, endian aware field read/write
-- [ ] Update fields to seamlessly support 32 or 64-bit byte ranges
-- [ ] Create constants for enum-style header fields
-- [ ] Read and write file headers
-- [ ] Read and write program headers
-- [ ] Read and write section headers
+This version is mainly aimed at providing initial functionality.
+
+- [x] Seamless, endian aware fields that can read/write
+- [x] Update fields to seamlessly support 32 or 64-bit byte ranges
+- [x] Create constants for enum-style header fields
+- [x] Make FileHeader struct that can read and write from/to binary data
+- [x] Make ProgramHeader struct that can read and write from/to binary data
+- [x] Make SectionHeader struct that can read and write from/to binary data
 
 ### 0.2.0
 
-- [ ] Reinterprete sections as Table\<TableItem\> 
+This release is generally aimed at propagating changes to keep the binary useable.
+
+- [x] Add mechanism to update sections globally on local changes
+- [x] Make wrapper Table\<TableItem\> structs for sections
+- [ ] Make wrapper Array\<ArrayItem\> structs for sections
+- [ ] Turn the Segment struct into a wrapper struct
+- [ ] Make a super list of updates and when they should be applied
+    - [ ] Update section offsets when items are added/removed from tables
+    - [x] Update section name indices when the section name string table changes
+- [ ] Add getter/setter methods to Binary
 
 ### 0.3.0
+
+This release is going to be all about parsing executable code.
+
+- [ ] Add find-page-address page size calculation methods
+- [ ] Investigate integrating (or writing) a disassembly crate for deaf
+- [ ] Add methods for interrogating the target platform of the binary
+    - [ ] Use `EI_OSABI` and `e_machine` values in file header
+    - [ ] Provide methods for lib user to specify binary platform
+- [ ] Add platform target enums
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
