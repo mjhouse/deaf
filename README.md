@@ -125,7 +125,6 @@ not outright disassembling it.
 - [ ] Add methods for interrogating the target platform of the binary
     - [ ] Use `EI_OSABI` and `e_machine` values in file header
     - [ ] Provide methods for lib user to specify binary platform
-- [ ] Add platform target enums
 - [ ] Create platform parsing context that varies depending on target platform
 - [ ] Add basic chunking and iteration methods for function bodies
 
