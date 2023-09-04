@@ -8,7 +8,7 @@ homepage = "https://github.com/mjhouse/deaf"
 documentation = "https://mjhouse.github.io/deaf/"
 repository = "https://github.com/mjhouse/deaf"
 readme = "README.md"
-keywords = [ "ELF", "Binary Analysis" ]
+keywords = [ "elf", "parse", "binary", "analysis" ]
 categories = [  ]
 
 [dependencies]
