@@ -14,7 +14,7 @@ pub trait Updateable {
     }
 }
 
-/// Generic implementation for Vec<T> where
+/// Generic implementation for Vec where
 /// `T` is updateable.
 impl<T> Updateable for Vec<T> 
 where 
@@ -27,7 +27,7 @@ where
     }
 }
 
-/// Generic implementation for Option<T> where
+/// Generic implementation for Option where
 /// `T` is updateable.
 impl<T> Updateable for Option<T> 
 where 
@@ -40,7 +40,7 @@ where
     }
 }
 
-/// Placeholder target for Update<T>
+/// Placeholder target for Update
 pub struct All {}
 
 /// The global instance of the queue of updates

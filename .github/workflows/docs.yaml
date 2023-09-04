@@ -11,10 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build Documentation
-        uses: actions-rs/cargo@v1
-        with:
-          command: doc
-          args: --all --no-deps
+        run: |
+          cargo doc --all --no-deps
       - name: Configure Documentation
         run: |
           echo "<meta http-equiv=\"refresh\" content=\"0; url=deaf/index.html\">" > target/doc/index.html
