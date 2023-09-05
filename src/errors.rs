@@ -34,6 +34,10 @@ pub enum Error {
     WrongSectionError,
 
     /// Could not parse complex type from primitive
+    #[error("Could not convert from complex value")]
+    FromComplexError,
+
+    /// Could not parse complex type from primitive
     #[error("Could not convert from primitive value")]
     FromPrimitiveError(String),
 
