@@ -135,11 +135,41 @@
 <a href="#135" id="135">135</a>
 <a href="#136" id="136">136</a>
 <a href="#137" id="137">137</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::Result;
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{<span class="prelude-ty">Result</span>, Error};
 <span class="kw">use </span><span class="kw">crate</span>::common::Convert;
 
 <span class="doccomment">/// Representation of the info field in a Relocation record
-</span><span class="attr">#[derive(Default,Clone,Copy,PartialEq)]
+</span><span class="attr">#[derive(Default,Debug,Clone,Copy,PartialEq)]
 </span><span class="kw">pub struct </span>RelocationInfo {
     symbol: u64,
     kind: u8,
@@ -147,25 +177,9 @@
 
 <span class="kw">impl </span>RelocationInfo {
 
-    <span class="doccomment">/// Initialize an empty relocation info instance
-    </span><span class="kw">pub fn </span>empty() -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ 
-            symbol: <span class="number">0</span>,
-            kind: <span class="number">0
-        </span>}
-    }
-
     <span class="doccomment">/// Parse a combined value as an info struct
-    </span><span class="kw">pub fn </span>new(v: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-            symbol: v &gt;&gt; <span class="number">8</span>,
-            kind: v <span class="kw">as </span>u8,
-        })
-    }
-
-    <span class="doccomment">/// Get the combined value of the info struct
-    </span><span class="kw">pub fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
-        (<span class="self">self</span>.symbol &lt;&lt; <span class="number">8</span>) + (<span class="self">self</span>.kind <span class="kw">as </span>u64)
+    </span><span class="kw">fn </span>new(symbol: u64, kind: u8) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ symbol, kind }
     }
 
     <span class="doccomment">/// Get the &#39;symbol&#39; component of the info struct
@@ -173,35 +187,50 @@
         <span class="self">self</span>.symbol
     }
 
+    <span class="doccomment">/// Set the &#39;symbol&#39; component of the info struct
+    </span><span class="kw">pub fn </span>set_symbol(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: u64) {
+        <span class="self">self</span>.symbol = value;
+    }
+
     <span class="doccomment">/// Get the &#39;kind&#39; component of the info struct
     </span><span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
         <span class="self">self</span>.kind
     }
 
+    <span class="doccomment">/// Set the &#39;kind&#39; component of the info struct
+    </span><span class="kw">pub fn </span>set_kind(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: u8) {
+        <span class="self">self</span>.kind = value;
+    }
+
 }
 
 <span class="kw">impl </span>Convert&lt;u64&gt; <span class="kw">for </span>RelocationInfo {
-    <span class="kw">fn </span>convert(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.value()) }
+    <span class="kw">fn </span>convert(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; { 
+        <span class="prelude-val">Ok</span>((<span class="self">self</span>.symbol <span class="kw">as </span>u64) &lt;&lt; <span class="number">32 </span>| <span class="self">self</span>.kind <span class="kw">as </span>u64) 
+    }
 }
 
 <span class="kw">impl </span>Convert&lt;u32&gt; <span class="kw">for </span>RelocationInfo {
-    <span class="kw">fn </span>convert(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u32&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>.value().try_into()<span class="question-mark">?</span>) }
+    <span class="kw">fn </span>convert(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u32&gt; { 
+        <span class="prelude-val">Ok</span>((<span class="self">self</span>.symbol <span class="kw">as </span>u32) &lt;&lt; <span class="number">8 </span>| <span class="self">self</span>.kind <span class="kw">as </span>u32) 
+    }
 }
 
 <span class="kw">impl </span>Convert&lt;RelocationInfo&gt; <span class="kw">for </span>u64 {
-    <span class="kw">fn </span>convert(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;RelocationInfo&gt; { RelocationInfo::new(<span class="self">self</span>) }
+    <span class="kw">fn </span>convert(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;RelocationInfo&gt; {
+        <span class="prelude-val">Ok</span>(RelocationInfo::new(
+            <span class="self">self </span>&gt;&gt; <span class="number">32</span>, 
+            <span class="self">self </span><span class="kw">as </span>u8)
+        )
+    }
 }
 
 <span class="kw">impl </span>Convert&lt;RelocationInfo&gt; <span class="kw">for </span>u32 {
-    <span class="kw">fn </span>convert(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;RelocationInfo&gt; { RelocationInfo::new(<span class="self">self</span>.into()) }
-}
-
-<span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>RelocationInfo {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
-        f.debug_struct(<span class="string">&quot;RelocationInfo&quot;</span>)
-         .field(<span class="string">&quot;symbol&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.symbol())
-         .field(<span class="string">&quot;kind&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.kind())
-         .finish()
+    <span class="kw">fn </span>convert(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;RelocationInfo&gt; {
+        <span class="prelude-val">Ok</span>(RelocationInfo::new(
+            (<span class="self">self </span><span class="kw">as </span>u64) &gt;&gt; <span class="number">8</span>, 
+            <span class="self">self </span><span class="kw">as </span>u8)
+        )
     }
 }
 
@@ -210,29 +239,46 @@
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_relocation_info_parse_pair() {
+    </span><span class="kw">fn </span>test_relocation_info_parse_pair_32() {
         <span class="comment">// original value (0xfe000000 + 0x06)
-        </span><span class="kw">let </span>value = <span class="number">0xfe00000006</span>;
+        </span><span class="kw">let </span>value: u32 = <span class="number">0xfe000006</span>;
 
         <span class="comment">// parse the relocation info from value
-        </span><span class="kw">let </span>result = RelocationInfo::new(value);
+        </span><span class="kw">let </span>result: <span class="prelude-ty">Result</span>&lt;RelocationInfo&gt; = value.convert();
 
         <span class="comment">// unwrap the relocation result
         </span><span class="macro">assert!</span>(result.is_ok());
         <span class="kw">let </span>info = result.unwrap();
 
         <span class="comment">// verify that fields have expected value
-        </span><span class="macro">assert_eq!</span>(info.symbol,<span class="number">0xfe000000</span>);
+        </span><span class="macro">assert_eq!</span>(info.symbol,<span class="number">0xfe0000</span>);
+        <span class="macro">assert_eq!</span>(info.kind,<span class="number">0x06</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_relocation_info_parse_pair_64() {
+        <span class="comment">// original value (0xfe000000 + 0x06)
+        </span><span class="kw">let </span>value: u64 = <span class="number">0xfe00000006</span>;
+
+        <span class="comment">// parse the relocation info from value
+        </span><span class="kw">let </span>result: <span class="prelude-ty">Result</span>&lt;RelocationInfo&gt; = value.convert();
+
+        <span class="comment">// unwrap the relocation result
+        </span><span class="macro">assert!</span>(result.is_ok());
+        <span class="kw">let </span>info = result.unwrap();
+
+        <span class="comment">// verify that fields have expected value
+        </span><span class="macro">assert_eq!</span>(info.symbol,<span class="number">0xfe</span>);
         <span class="macro">assert_eq!</span>(info.kind,<span class="number">0x06</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_relocation_info_parse_zeroes() {
         <span class="comment">// original value
-        </span><span class="kw">let </span>value = <span class="number">0x0000000000</span>;
+        </span><span class="kw">let </span>value: u64 = <span class="number">0x0000000000</span>;
 
         <span class="comment">// parse the relocation info from value
-        </span><span class="kw">let </span>result = RelocationInfo::new(value);
+        </span><span class="kw">let </span>result: <span class="prelude-ty">Result</span>&lt;RelocationInfo&gt; = value.convert();
 
         <span class="comment">// unwrap the relocation result
         </span><span class="macro">assert!</span>(result.is_ok());
@@ -246,10 +292,10 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_relocation_info_back_to_zeroes() {
         <span class="comment">// original value
-        </span><span class="kw">let </span>value = <span class="number">0x0000000000</span>;
+        </span><span class="kw">let </span>value: u64 = <span class="number">0x0000000000</span>;
 
         <span class="comment">// parse the relocation info and then convert back
-        </span><span class="kw">let </span>info = RelocationInfo::new(value).unwrap();
+        </span><span class="kw">let </span>info: RelocationInfo = value.convert().unwrap();
         <span class="kw">let </span>result: <span class="prelude-ty">Result</span>&lt;u64&gt; = info.convert();
 
         <span class="comment">// verify that the result matches the original
@@ -258,12 +304,26 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_relocation_info_back_to_value() {
+    </span><span class="kw">fn </span>test_relocation_info_back_to_value_32() {
         <span class="comment">// original value
-        </span><span class="kw">let </span>value = <span class="number">0xfe00000006</span>;
+        </span><span class="kw">let </span>value: u32 = <span class="number">0xfe000006</span>;
 
         <span class="comment">// parse the relocation info and then convert back
-        </span><span class="kw">let </span>info = RelocationInfo::new(value).unwrap();
+        </span><span class="kw">let </span>info: RelocationInfo = value.convert().unwrap();
+        <span class="kw">let </span>result: <span class="prelude-ty">Result</span>&lt;u32&gt; = info.convert();
+
+        <span class="comment">// verify that the result matches the original
+        </span><span class="macro">assert!</span>(result.is_ok());
+        <span class="macro">assert_eq!</span>(result.unwrap(),value);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_relocation_info_back_to_value_64() {
+        <span class="comment">// original value
+        </span><span class="kw">let </span>value: u64 = <span class="number">0xfe00000006</span>;
+
+        <span class="comment">// parse the relocation info and then convert back
+        </span><span class="kw">let </span>info: RelocationInfo = value.convert().unwrap();
         <span class="kw">let </span>result: <span class="prelude-ty">Result</span>&lt;u64&gt; = info.convert();
 
         <span class="comment">// verify that the result matches the original

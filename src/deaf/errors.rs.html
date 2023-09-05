@@ -99,6 +99,10 @@
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
 <a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A custom error type that aggregates internal errors
 //!
 
@@ -133,6 +137,10 @@
     <span class="doccomment">/// Filed to convert section to a table or array
     </span><span class="attr">#[error(<span class="string">&quot;Given section is of the wrong type&quot;</span>)]
     </span>WrongSectionError,
+
+    <span class="doccomment">/// Could not parse complex type from primitive
+    </span><span class="attr">#[error(<span class="string">&quot;Could not convert from complex value&quot;</span>)]
+    </span>FromComplexError,
 
     <span class="doccomment">/// Could not parse complex type from primitive
     </span><span class="attr">#[error(<span class="string">&quot;Could not convert from primitive value&quot;</span>)]
