@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["RelItem","RelaItem","RelocationInfo","StringItem","SymbolInfo","SymbolItem","Table","TableMut"],"trait":["TableItem"]};
+window.SIDEBAR_ITEMS = {"struct":["ArrayItem","RelItem","RelaItem","RelocationInfo","StringItem","SymbolInfo","SymbolItem","Table","TableMut"],"trait":["TableItem","TableView"],"type":["Array","ArrayMut","RelTable","RelTableMut","RelaTable","RelaTableMut","StringTable","StringTableMut","SymbolTable","SymbolTableMut"]};

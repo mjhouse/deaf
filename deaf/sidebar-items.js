@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["arrays","common","errors","headers","tables","utilities"],"struct":["Binary","Section","Segment"]};
+window.SIDEBAR_ITEMS = {"mod":["common","errors","headers","tables","utilities"],"struct":["Binary","Section","Segment"]};
