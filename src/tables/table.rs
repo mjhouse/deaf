@@ -1,10 +1,102 @@
 use std::marker::PhantomData;
-
 use crate::errors::{Error,Result};
 use crate::common::{ByteIter,SHType,Layout,Width};
 use crate::tables::{TableItem,StringItem,RelaItem,RelItem,SymbolItem};
 use crate::Section;
 
+/// Shared table interface between Table and TableMut
+pub trait TableView<T>
+where
+    T: TableItem + Default
+{
+    /// Get an immutable reference to the internal section
+    fn section(&self) -> &Section;
+
+    /// Get an iterator over each item's binary data
+    fn iterator(&self) -> ByteIter {
+        ByteIter::new(
+            self.section().data(),
+            T::delimiter(
+                self.section().entity_size()))
+    }
+
+    /// Get a slice of data that represents an item
+    fn data(&self, index: usize) -> Result<&[u8]> {
+        self.iterator()
+            .nth(index)
+            .ok_or(Error::OutOfBoundsError)
+    }
+
+    /// Get the offset of an item from the index
+    fn offset(&self, index: usize) -> usize {
+        if self.has_fixed_size() {
+            self.section().entity_size() * index
+        } else {
+            self.iterator()
+                .enumerate()
+                .take_while(|(i,_)| i < &index)
+                .fold(0,|a,(_,e)| a + e.len())
+        }
+    }
+
+    /// Get an element from the table
+    fn at(&self, index: usize) -> Result<T> {
+        T::parse(self.data(index)?,self.section())
+    }
+
+    /// Get an element from the table at a byte offset
+    fn at_offset(&self, offset: usize) -> Result<T> {
+        self.iterator()
+            .offset(offset)
+            .next()
+            .ok_or(Error::OutOfBoundsError)
+            .and_then(|d| T::parse(d,self.section()))
+    }
+
+    /// Get all items from the table
+    fn items(&self) -> Result<Vec<T>> {
+        self.iterator()
+            .map(|b| T::parse(b,self.section()))
+            .collect()
+    }
+
+    /// Get the number of items in the table
+    fn len(&self) -> usize {
+        if self.has_fixed_size() {
+            self.section().entity_count()
+        } else {
+            self.iterator().count()
+        }
+    }
+
+    /// Get the number of bytes in the table
+    fn size(&self) -> usize {
+        self.section().body_size()
+    }
+
+    /// Get the layout being used by this table
+    fn layout(&self) -> Layout {
+        self.section().layout()
+    }
+
+    /// Get the width being used by this table
+    fn width(&self) -> Width {
+        self.section().width()
+    }
+
+    /// True if items are all the same size
+    fn has_fixed_size(&self) -> bool {
+        self.section().entity_size() > 0
+    }
+
+    /// True if items can be different sizes
+    fn has_variable_size(&self) -> bool {
+        !self.has_fixed_size()
+    }
+
+}
+
+/// A Section represented as an immutable Table
 pub struct Table<'a,T>
 where
     T: TableItem + Default
@@ -13,6 +105,7 @@ where
     section: &'a Section
 }
 
+/// A Section represented as a mutable Table
 pub struct TableMut<'a,T>
 where
     T: TableItem + Default
@@ -25,83 +118,21 @@ impl<'a,T> Table<'a,T>
 where
     T: TableItem + Default
 {
-
     /// Create a new table from the given section
     fn new(section: &'a Section) -> Self {
         Self {
             item: PhantomData {},
-            section: section,
+            section,
         }
     }
+}
 
-    /// Get an iterator over the data
-    fn iterator(&self) -> ByteIter {
-        ByteIter::new(
-            self.section.data(),
-            T::delimiter(
-                self.section.entity_size()))
-    }
-
-    /// Get a slice of data that represents an item
-    fn item_data(&self, index: usize) -> Result<&[u8]> {
-        self.iterator()
-            .nth(index)
-            .ok_or(Error::OutOfBoundsError)
-    }
-
-    /// True if items are all the same size
-    pub fn has_fixed_size(&self) -> bool {
-        self.section.entity_size() > 0
-    }
-
-    /// True if items can be different sizes
-    pub fn has_variable_size(&self) -> bool {
-        !self.has_fixed_size()
-    }
-
-    /// Get an element from the table
-    pub fn at(&self, index: usize) -> Result<T> {
-        T::parse(self.item_data(index)?,&self.section)
-    }
-
-    /// Get an element from the table at a byte offset
-    pub fn at_offset(&self, offset: usize) -> Result<T> {
-        self.iterator()
-            .offset(offset)
-            .next()
-            .ok_or(Error::OutOfBoundsError)
-            .and_then(|d| T::parse(d,&self.section))
-    }
-
-    /// Get all items from the table
-    pub fn items(&self) -> Result<Vec<T>> {
-        self.iterator()
-            .map(|b| T::parse(b,&self.section))
-            .collect()
-    }
-
-    /// Get the number of items in the table
-    pub fn len(&self) -> usize {
-        if self.has_fixed_size() {
-            self.section.entity_count()
-        } else {
-            self.iterator().count()
-        }
-    }
-
-    /// Get the number of bytes in the table
-    pub fn size(&self) -> usize {
-        self.section.body_size()
-    }
-
-    /// Get the layout being used by this table
-    pub fn layout(&self) -> Layout {
-        self.section.layout()
-    }
-
-    /// Get the width being used by this table
-    pub fn width(&self) -> Width {
-        self.section.width()
+impl<'a,T> TableView<T> for Table<'a,T>
+where
+    T: TableItem + Default
+{
+    fn section(&self) -> &Section {
+        self.section
     }
 }
 
@@ -118,41 +149,9 @@ where
         }
     }
 
-    /// Get an iterator over the data
-    fn iterator(&self) -> ByteIter {
-        ByteIter::new(
-            self.section.data(),
-            T::delimiter(
-                self.section.entity_size()))
-    }
-
-    /// Get a slice of data that represents an item
-    fn item_data(&self, index: usize) -> Result<&[u8]> {
-        self.iterator()
-            .nth(index)
-            .ok_or(Error::OutOfBoundsError)
-    }
-
-    /// Get the offset of an item from the index
-    fn item_offset(&self, index: usize) -> usize {
-        if self.has_fixed_size() {
-            self.section.entity_size() * index
-        } else {
-            self.iterator()
-                .enumerate()
-                .take_while(|(i,_)| i < &index)
-                .fold(0,|a,(_,e)| a + e.len())
-        }
-    }
-
-    /// Get the total size of the table
-    fn table_size(&self) -> usize {
-        self.section.body_size()
-    }
-
     /// Reserve space at an offset in the section
     fn reserve(&mut self, offset: usize, size: usize) {
-        let length = self.table_size() + size;
+        let length = self.size() + size;
 
         self.section
             .data_mut()
@@ -164,7 +163,7 @@ where
 
     /// Discard space at an offset in the section
     fn discard(&mut self, offset: usize, size: usize) {
-        let length = self.table_size() - size;
+        let length = self.size() - size;
 
         self.section
             .data_mut()
@@ -190,7 +189,7 @@ where
         item.set_width(self.width());
 
         let size   = item.size();
-        let offset = self.item_offset(index);
+        let offset = self.offset(index);
 
         // reserve additional space
         self.reserve(offset,size);
@@ -206,8 +205,8 @@ where
 
     /// Remove an item from the table by index
     pub fn remove(&mut self, index: usize) -> Result<T> {
-        let data   = self.item_data(index)?;
-        let offset = self.item_offset(index);
+        let data   = self.data(index)?;
+        let offset = self.offset(index);
         let size   = data.len();
         
         let item = T::parse(data,&self.section)?;
@@ -218,59 +217,14 @@ where
         Ok(item)
     }
 
-    /// Get an element from the table
-    pub fn at(&self, index: usize) -> Result<T> {
-        T::parse(self.item_data(index)?,&self.section)
-    }
+}
 
-    /// Get an element from the table at a byte offset
-    pub fn at_offset(&self, offset: usize) -> Result<T> {
-        self.iterator()
-            .offset(offset)
-            .next()
-            .ok_or(Error::OutOfBoundsError)
-            .and_then(|d| T::parse(d,&self.section))
-    }
-
-    /// Get all items from the table
-    pub fn items(&self) -> Result<Vec<T>> {
-        self.iterator()
-            .map(|b| T::parse(b,&self.section))
-            .collect()
-    }
-
-    /// True if items are all the same size
-    pub fn has_fixed_size(&self) -> bool {
-        self.section.entity_size() > 0
-    }
-
-    /// True if items can be different sizes
-    pub fn has_variable_size(&self) -> bool {
-        !self.has_fixed_size()
-    }
-
-    /// Get the number of items in the table
-    pub fn len(&self) -> usize {
-        if self.has_fixed_size() {
-            self.section.entity_count()
-        } else {
-            self.iterator().count()
-        }
-    }
-
-    /// Get the number of bytes in the table
-    pub fn size(&self) -> usize {
-        self.table_size()
-    }
-
-    /// Get the layout being used by this table
-    pub fn layout(&self) -> Layout {
-        self.section.layout()
-    }
-
-    /// Get the width being used by this table
-    pub fn width(&self) -> Width {
-        self.section.width()
+impl<'a,T> TableView<T> for TableMut<'a,T>
+where
+    T: TableItem + Default
+{
+    fn section(&self) -> &Section {
+        self.section
     }
 }
 
@@ -402,8 +356,8 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::headers::{FileHeader};
-    use crate::common::{SectionType};
+    use crate::headers::FileHeader;
+    use crate::common::SectionType;
     use crate::utilities::read;
 
     use crate::utilities::tests::{

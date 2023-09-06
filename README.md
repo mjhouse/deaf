@@ -120,7 +120,6 @@ This release is going to be all about gathering context about executable code, i
 not outright disassembling it.
 
 - [ ] Add find-page-address page size calculation methods
-- [ ] Create Function wrapper struct for symbol that includes binary data
 - [ ] Investigate integrating (or writing) a disassembly crate for deaf
 - [ ] Add methods for interrogating the target platform of the binary
     - [ ] Use `EI_OSABI` and `e_machine` values in file header

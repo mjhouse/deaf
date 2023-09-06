@@ -23,5 +23,6 @@ pub use items::{
 
 pub use table::{
     Table,
-    TableMut
+    TableMut,
+    TableView
 };

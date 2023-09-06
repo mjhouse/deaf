@@ -2,7 +2,7 @@ use std::path::Path;
 use std::fs;
 
 use crate::Section;
-use crate::tables::{Table,StringItem};
+use crate::tables::{Table,TableView,StringItem};
 use crate::headers::FileHeader;
 use crate::errors::{Error,Result};
 use crate::common::{

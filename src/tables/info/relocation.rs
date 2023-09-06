@@ -1,4 +1,4 @@
-use crate::errors::{Result, Error};
+use crate::errors::Result;
 use crate::common::Convert;
 
 /// Representation of the info field in a Relocation record
