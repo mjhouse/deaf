@@ -11,11 +11,11 @@ pub trait TableItem: Default {
     }
 
     /// Parse the item directly from the byte array
-    fn parse(b: &[u8], section: &Section) -> Result<Self> where Self: Sized {
+    fn parse(data: &[u8], section: &Section) -> Result<Self> where Self: Sized {
         let mut item = Self::default();
         item.set_layout(section.layout());
         item.set_width(section.width());
-        item.read(b)?;
+        item.read(data)?;
         Ok(item)
     }
 

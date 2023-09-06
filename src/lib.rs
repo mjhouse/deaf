@@ -6,7 +6,6 @@ pub mod errors;
 pub mod common;
 pub mod headers;
 pub mod tables;
-pub mod arrays;
 
 mod segment;
 mod section;

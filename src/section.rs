@@ -1,9 +1,9 @@
 use crate::headers::SectionHeader;
-use crate::errors::{Result};
+use crate::errors::{Result,Error};
 use crate::common::{Layout,Width,SectionType,Update,Updateable};
 
 /// A Section extracted from an ELF file
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct Section {
     header: SectionHeader,
     data: Vec<u8>,
@@ -26,7 +26,12 @@ impl Section {
         let end    = start + size;
 
         let mut section = Section::new(header);
-        section.data = data[start..end].into();
+        
+        section.data = data
+            .get(start..end)
+            .unwrap_or_default()
+            .into();
+        
         Ok(section)
     }
 
@@ -38,7 +43,10 @@ impl Section {
         let start  = offset + index * size;
         let end    = start + size;
         
-        data[start..end].copy_from_slice(&self.data);
+        data.get_mut(start..end)
+            .ok_or(Error::OutOfBoundsError)?
+            .copy_from_slice(&self.data);
+
         Ok(self.size())
     }
 
@@ -75,12 +83,28 @@ impl Section {
         &mut self.data
     }
 
-    pub fn slice(&self, offset: usize, size: usize) -> &[u8] {
+    pub fn slice_unchecked(&self, offset: usize, size: usize) -> &[u8] {
         &self.data[offset..offset + size]
     }
 
-    pub fn slice_mut(&mut self, offset: usize, size: usize) -> &mut [u8] {
+    pub fn slice_mut_unchecked(&mut self, offset: usize, size: usize) -> &mut [u8] {
         &mut self.data[offset..offset + size]
+    }
+
+    pub fn slice(&self, offset: usize, size: usize) -> Result<&[u8]> {
+        if offset + size <= self.data.len() {
+            Ok(self.slice_unchecked(offset, size))
+        } else {
+            Err(Error::OutOfBoundsError)
+        }
+    }
+
+    pub fn slice_mut(&mut self, offset: usize, size: usize) -> Result<&mut [u8]> {
+        if offset + size <= self.data.len() {
+            Ok(self.slice_mut_unchecked(offset, size))
+        } else {
+            Err(Error::OutOfBoundsError)
+        }
     }
 
     pub fn set_data(&mut self, data: Vec<u8>) {
