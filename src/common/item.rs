@@ -1,5 +1,5 @@
 use crate::common::{Width, Layout, FromBytes, IntoBytes, Convert, Ranges, Field};
-use crate::errors::{Result};
+use crate::errors::Result;
 
 use std::fmt::Debug;
 

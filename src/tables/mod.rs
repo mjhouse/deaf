@@ -19,6 +19,7 @@ pub use items::{
     RelaItem,
     StringItem,
     SymbolItem,
+    ArrayItem,
 };
 
 pub use table::{

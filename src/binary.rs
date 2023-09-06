@@ -213,23 +213,16 @@ mod tests {
 
     #[test]
     fn test_display_sections() {
-        // let binary = Binary::load("assets/libvpf/libvpf.so.4.1").unwrap();
+        let path = "assets/libvpf/libvpf.so.4.1";
+        let binary = Binary::load(path).unwrap();
 
-        // for name in binary.section_names() {
-        //     dbg!(name);
-        // }
+        for (i,section) in binary.sections.iter().enumerate() {
+            let kind = section.kind();
+            let index = section.name();
+            let name = binary.section_name(index).unwrap();
 
-        // let names = binary
-        //     .sections(SectionType::Strings)
-        //     .iter()
-        //     .map(|s| s.name())
-        //     .map(|i| binary.section_name(i))
-        //     .collect::<Result<Vec<String>>>()
-        //     .unwrap();
-
-        // assert_eq!(names[0].as_str(),".dynstr");
-        // assert_eq!(names[1].as_str(),".shstrtab");
-        // assert_eq!(names[2].as_str(),".strtab");
+            println!("{}: {} (kind={:?})",i,name,kind);
+        }
     }
 
 }

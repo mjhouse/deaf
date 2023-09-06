@@ -1,8 +1,23 @@
 use std::marker::PhantomData;
 use crate::errors::{Error,Result};
 use crate::common::{ByteIter,SHType,Layout,Width};
-use crate::tables::{TableItem,StringItem,RelaItem,RelItem,SymbolItem};
+use crate::tables::{TableItem,StringItem,RelaItem,RelItem,SymbolItem,ArrayItem};
 use crate::Section;
+
+pub type Array<'a> = Table<'a,ArrayItem>;
+pub type ArrayMut<'a> = TableMut<'a,ArrayItem>;
+
+pub type SymbolTable<'a> = Table<'a,SymbolItem>;
+pub type SymbolTableMut<'a> = TableMut<'a,SymbolItem>;
+
+pub type RelTable<'a> = Table<'a,RelItem>;
+pub type RelTableMut<'a> = TableMut<'a,RelItem>;
+
+pub type RelaTable<'a> = Table<'a,RelaItem>;
+pub type RelaTableMut<'a> = TableMut<'a,RelaItem>;
+
+pub type StringTable<'a> = Table<'a,StringItem>;
+pub type StringTableMut<'a> = TableMut<'a,StringItem>;
 
 /// Shared table interface between Table and TableMut
 pub trait TableView<T>
@@ -195,7 +210,7 @@ where
         self.reserve(offset,size);
 
         // get a constrained, mutable slice of bytes
-        let data = self.section.slice_mut(offset,size);
+        let data = self.section.slice_mut(offset,size)?;
 
         // write the item to the byte slice
         item.write(data)?;
@@ -326,6 +341,30 @@ impl<'a> TryFrom<&'a mut Section> for TableMut<'a, RelItem>
     }
 }
 
+impl<'a> TryFrom<&'a Section> for Table<'a, ArrayItem> 
+{
+    type Error = Error;
+
+    fn try_from(section: &'a Section) -> Result<Self> {
+        match section.header().kind() {
+            SHType::SHT_INIT_ARRAY | SHType::SHT_PREINIT_ARRAY | SHType::SHT_FINI_ARRAY  => Ok(Self::new(section)),
+            _ => Err(Error::WrongSectionError)
+        }
+    }
+}
+
+impl<'a> TryFrom<&'a mut Section> for TableMut<'a, ArrayItem>
+{
+    type Error = Error;
+
+    fn try_from(section: &'a mut Section) -> Result<Self> {
+        match section.header().kind() {
+            SHType::SHT_INIT_ARRAY | SHType::SHT_PREINIT_ARRAY | SHType::SHT_FINI_ARRAY  => Ok(Self::new(section)),
+            _ => Err(Error::WrongSectionError)
+        }
+    }
+}
+
 impl<'a,T> From<TableMut<'a,T>> for Table<'a,T>
 where
     T: TableItem + Default
@@ -357,42 +396,44 @@ where
 mod tests {
     use super::*;
     use crate::headers::FileHeader;
-    use crate::common::SectionType;
     use crate::utilities::read;
 
     use crate::utilities::tests::{
         LIBJPEG_DYNSYM as SYM_TEST,
         LIBVPF_SHSTRTAB as STR_TEST,
         LIBVPF_RELA_DYN as RELA_TEST,
+        LIBQSCINTILLA_FINI_ARRAY as FINI_TEST,
+        LIBQSCINTILLA_INIT_ARRAY as INIT_TEST, 
     };
+
+    macro_rules! section {
+        ( $path: expr, $index: expr ) => {
+            read($path)
+                .and_then(|d| FileHeader::parse(&d)
+                .and_then(|h| Ok((d,h))))
+                .and_then(|(d,h)|
+                    Section::read_all(
+                        &d,
+                        h.shnum(),
+                        h.shoff(),
+                        h.shentsize(),
+                        h.data(),
+                        h.class()
+                    )
+                )
+                .and_then(|s| s
+                    .get($index)
+                    .ok_or(Error::NotFound)
+                    .cloned())
+                .expect("Section not found")
+        };
+    }
 
     #[test]
     fn test_read_symbols_as_table() {
-        let data = read("assets/libjpeg/libjpeg.so.9").unwrap();
+        let section = section!("assets/libjpeg/libjpeg.so.9", SYM_TEST.index);
 
-        let file_header = FileHeader::parse(&data).unwrap();
-
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
-
-        let sections = Section::read_all(
-            &data,
-            count,
-            offset,
-            size,
-            layout,
-            width
-        ).unwrap();
-        
-        let section = sections
-            .iter()
-            .find(|&h| h.kind() == SectionType::DynamicSymbols)
-            .unwrap();
-
-        let result = Table::<SymbolItem>::try_from(section);
+        let result = SymbolTable::try_from(&section);
         assert!(result.is_ok());
 
         let table = result.unwrap();
@@ -401,29 +442,9 @@ mod tests {
 
     #[test]
     fn test_read_strings_as_table() {
-        let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
+        let section = section!("assets/libvpf/libvpf.so.4.1", STR_TEST.index);
 
-        let file_header = FileHeader::parse(&data).unwrap();
-
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let index = file_header.shstrndx();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
-
-        let sections = Section::read_all(
-            &data,
-            count,
-            offset,
-            size,
-            layout,
-            width
-        ).unwrap();
-        
-        let section = &sections[index];
-
-        let result = Table::<StringItem>::try_from(section);
+        let result = StringTable::try_from(&section);
         assert!(result.is_ok());
 
         let table = result.unwrap();
@@ -432,31 +453,9 @@ mod tests {
 
     #[test]
     fn test_read_relocations_addend_as_table() {
-        let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
+        let section = section!("assets/libvpf/libvpf.so.4.1", RELA_TEST.index);
 
-        let file_header = FileHeader::parse(&data).unwrap();
-
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
-
-        let sections = Section::read_all(
-            &data,
-            count,
-            offset,
-            size,
-            layout,
-            width
-        ).unwrap();
-
-        let section = sections
-            .iter()
-            .find(|&h| h.kind() == SectionType::RelocationsAddend)
-            .unwrap();
-
-        let result = Table::<RelaItem>::try_from(section);
+        let result = RelaTable::try_from(&section);
         assert!(result.is_ok());
 
         let table = result.unwrap();
@@ -465,29 +464,9 @@ mod tests {
 
     #[test]
     fn test_write_strings_prepend() {
-        let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
+        let mut section = section!("assets/libvpf/libvpf.so.4.1", STR_TEST.index);
 
-        let file_header = FileHeader::parse(&data).unwrap();
-
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let index = file_header.shstrndx();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
-
-        let mut sections = Section::read_all(
-            &data,
-            count,
-            offset,
-            size,
-            layout,
-            width
-        ).unwrap();
-        
-        let section = &mut sections[index];
-
-        let result = TableMut::<StringItem>::try_from(section);
+        let result = StringTableMut::try_from(&mut section);
         assert!(result.is_ok());
 
         let mut table = result.unwrap();
@@ -515,29 +494,9 @@ mod tests {
 
     #[test]
     fn test_write_strings_append() {
-        let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
+        let mut section = section!("assets/libvpf/libvpf.so.4.1", STR_TEST.index);
 
-        let file_header = FileHeader::parse(&data).unwrap();
-
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let index = file_header.shstrndx();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
-
-        let mut sections = Section::read_all(
-            &data,
-            count,
-            offset,
-            size,
-            layout,
-            width
-        ).unwrap();
-        
-        let section = &mut sections[index];
-
-        let result = TableMut::<StringItem>::try_from(section);
+        let result = StringTableMut::try_from(&mut section);
         assert!(result.is_ok());
 
         let mut table = result.unwrap();
@@ -566,29 +525,9 @@ mod tests {
 
     #[test]
     fn test_write_strings_insert() {
-        let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
+        let mut section = section!("assets/libvpf/libvpf.so.4.1", STR_TEST.index);
 
-        let file_header = FileHeader::parse(&data).unwrap();
-
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let index = file_header.shstrndx();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
-
-        let mut sections = Section::read_all(
-            &data,
-            count,
-            offset,
-            size,
-            layout,
-            width
-        ).unwrap();
-        
-        let section = &mut sections[index];
-
-        let result = TableMut::<StringItem>::try_from(section);
+        let result = StringTableMut::try_from(&mut section);
         assert!(result.is_ok());
 
         let mut table = result.unwrap();
@@ -617,29 +556,9 @@ mod tests {
 
     #[test]
     fn test_write_strings_remove() {
-        let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
+        let mut section = section!("assets/libvpf/libvpf.so.4.1", STR_TEST.index);
 
-        let file_header = FileHeader::parse(&data).unwrap();
-
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let index = file_header.shstrndx();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
-
-        let mut sections = Section::read_all(
-            &data,
-            count,
-            offset,
-            size,
-            layout,
-            width
-        ).unwrap();
-        
-        let section = &mut sections[index];
-
-        let result = TableMut::<StringItem>::try_from(section);
+        let result = StringTableMut::try_from(&mut section);
         assert!(result.is_ok());
 
         let mut table = result.unwrap();
@@ -668,28 +587,9 @@ mod tests {
 
     #[test]
     fn test_write_symbols_prepend() {
-        let data = read("assets/libjpeg/libjpeg.so.9").unwrap();
+        let mut section = section!("assets/libjpeg/libjpeg.so.9", SYM_TEST.index);
 
-        let file_header = FileHeader::parse(&data).unwrap();
-
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
-
-        let mut sections = Section::read_all(
-            &data,
-            count,
-            offset,
-            size,
-            layout,
-            width
-        ).unwrap();
-
-        let section = &mut sections[SYM_TEST.index];
-
-        let result = TableMut::<SymbolItem>::try_from(section);
+        let result = SymbolTableMut::try_from(&mut section);
         assert!(result.is_ok());
 
         let mut table = result.unwrap();
@@ -718,28 +618,9 @@ mod tests {
 
     #[test]
     fn test_write_symbols_append() {
-        let data = read("assets/libjpeg/libjpeg.so.9").unwrap();
+        let mut section = section!("assets/libjpeg/libjpeg.so.9", SYM_TEST.index);
 
-        let file_header = FileHeader::parse(&data).unwrap();
-
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
-
-        let mut sections = Section::read_all(
-            &data,
-            count,
-            offset,
-            size,
-            layout,
-            width
-        ).unwrap();
-
-        let section = &mut sections[SYM_TEST.index];
-
-        let result = TableMut::<SymbolItem>::try_from(section);
+        let result = SymbolTableMut::try_from(&mut section);
         assert!(result.is_ok());
 
         let mut table = result.unwrap();
@@ -768,28 +649,9 @@ mod tests {
 
     #[test]
     fn test_write_symbols_insert() {
-        let data = read("assets/libjpeg/libjpeg.so.9").unwrap();
+        let mut section = section!("assets/libjpeg/libjpeg.so.9", SYM_TEST.index);
 
-        let file_header = FileHeader::parse(&data).unwrap();
-
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
-
-        let mut sections = Section::read_all(
-            &data,
-            count,
-            offset,
-            size,
-            layout,
-            width
-        ).unwrap();
-
-        let section = &mut sections[SYM_TEST.index];
-
-        let result = TableMut::<SymbolItem>::try_from(section);
+        let result = SymbolTableMut::try_from(&mut section);
         assert!(result.is_ok());
 
         let mut table = result.unwrap();
@@ -818,28 +680,9 @@ mod tests {
 
     #[test]
     fn test_write_symbols_remove() {
-        let data = read("assets/libjpeg/libjpeg.so.9").unwrap();
+        let mut section = section!("assets/libjpeg/libjpeg.so.9", SYM_TEST.index);
 
-        let file_header = FileHeader::parse(&data).unwrap();
-
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
-
-        let mut sections = Section::read_all(
-            &data,
-            count,
-            offset,
-            size,
-            layout,
-            width
-        ).unwrap();
-
-        let section = &mut sections[SYM_TEST.index];
-
-        let result = TableMut::<SymbolItem>::try_from(section);
+        let result = SymbolTableMut::try_from(&mut section);
         assert!(result.is_ok());
 
         let mut table = result.unwrap();
@@ -856,28 +699,9 @@ mod tests {
 
     #[test]
     fn test_write_relocations_addend_prepend() {
-        let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
+        let mut section = section!("assets/libvpf/libvpf.so.4.1", RELA_TEST.index);
 
-        let file_header = FileHeader::parse(&data).unwrap();
-
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
-
-        let mut sections = Section::read_all(
-            &data,
-            count,
-            offset,
-            size,
-            layout,
-            width
-        ).unwrap();
-
-        let section = &mut sections[RELA_TEST.index];
-
-        let result = TableMut::<RelaItem>::try_from(section);
+        let result = RelaTableMut::try_from(&mut section);
         assert!(result.is_ok());
 
         let mut table = result.unwrap();
@@ -903,28 +727,9 @@ mod tests {
 
     #[test]
     fn test_write_relocations_addend_append() {
-        let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
+        let mut section = section!("assets/libvpf/libvpf.so.4.1", RELA_TEST.index);
 
-        let file_header = FileHeader::parse(&data).unwrap();
-
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
-
-        let mut sections = Section::read_all(
-            &data,
-            count,
-            offset,
-            size,
-            layout,
-            width
-        ).unwrap();
-
-        let section = &mut sections[RELA_TEST.index];
-
-        let result = TableMut::<RelaItem>::try_from(section);
+        let result = RelaTableMut::try_from(&mut section);
         assert!(result.is_ok());
 
         let mut table = result.unwrap();
@@ -950,28 +755,9 @@ mod tests {
 
     #[test]
     fn test_write_relocations_addend_insert() {
-        let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
+        let mut section = section!("assets/libvpf/libvpf.so.4.1", RELA_TEST.index);
 
-        let file_header = FileHeader::parse(&data).unwrap();
-
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
-
-        let mut sections = Section::read_all(
-            &data,
-            count,
-            offset,
-            size,
-            layout,
-            width
-        ).unwrap();
-
-        let section = &mut sections[RELA_TEST.index];
-
-        let result = TableMut::<RelaItem>::try_from(section);
+        let result = RelaTableMut::try_from(&mut section);
         assert!(result.is_ok());
 
         let mut table = result.unwrap();
@@ -997,28 +783,9 @@ mod tests {
 
     #[test]
     fn test_write_relocations_addend_remove() {
-        let data = read("assets/libvpf/libvpf.so.4.1").unwrap();
+        let mut section = section!("assets/libvpf/libvpf.so.4.1", RELA_TEST.index);
 
-        let file_header = FileHeader::parse(&data).unwrap();
-
-        let count = file_header.shnum();
-        let offset = file_header.shoff();
-        let size = file_header.shentsize();
-        let layout = file_header.data();
-        let width = file_header.class();
-
-        let mut sections = Section::read_all(
-            &data,
-            count,
-            offset,
-            size,
-            layout,
-            width
-        ).unwrap();
-
-        let section = &mut sections[RELA_TEST.index];
-
-        let result = TableMut::<RelaItem>::try_from(section);
+        let result = RelaTableMut::try_from(&mut section);
         assert!(result.is_ok());
 
         let mut table = result.unwrap();
@@ -1032,5 +799,177 @@ mod tests {
         assert_eq!(table.len(),RELA_TEST.length - 1);
         assert_eq!(table.size(),RELA_TEST.size - RELA_TEST.entsize);
     }
-    
+
+    #[test]
+    fn test_read_init_array_as_array() {
+        let section = section!("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0", INIT_TEST.index);
+
+        let result = Array::try_from(&section);
+        assert!(result.is_ok());
+
+        let array = result.unwrap();
+        assert_eq!(array.len(),INIT_TEST.length);
+    }
+
+    #[test]
+    fn test_read_fini_array_as_array() {
+        let section = section!("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0", FINI_TEST.index);
+
+        let result = Array::try_from(&section);
+        assert!(result.is_ok());
+
+        let array = result.unwrap();
+        assert_eq!(array.len(),FINI_TEST.length);
+    }
+
+    #[test]
+    fn test_write_init_array_append() {
+        let mut section = section!("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0", INIT_TEST.index);
+
+        let result = ArrayMut::try_from(&mut section);
+        assert!(result.is_ok());
+
+        let mut array = result.unwrap();
+
+        assert_eq!(array.len(),INIT_TEST.length);
+        assert_eq!(array.size(),INIT_TEST.size);
+
+        let result = array.append(123.into());
+        assert!(result.is_ok());
+
+        assert_eq!(array.len(),INIT_TEST.length + 1);
+        assert_eq!(array.size(),INIT_TEST.size + INIT_TEST.entsize);
+
+        let result = array.at(array.len() - 1);
+        assert!(result.is_ok());
+
+        let item = result.unwrap();
+        assert_eq!(item.value(),123);
+    }
+
+    #[test]
+    fn test_write_fini_array_append() {
+        let mut section = section!("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0", FINI_TEST.index);
+
+        let result = ArrayMut::try_from(&mut section);
+        assert!(result.is_ok());
+
+        let mut array = result.unwrap();
+
+        assert_eq!(array.len(),FINI_TEST.length);
+        assert_eq!(array.size(),FINI_TEST.size);
+
+        let result = array.append(123.into());
+        assert!(result.is_ok());
+
+        assert_eq!(array.len(),FINI_TEST.length + 1);
+        assert_eq!(array.size(),FINI_TEST.size + FINI_TEST.entsize);
+
+        let result = array.at(array.len() - 1);
+        assert!(result.is_ok());
+
+        let item = result.unwrap();
+        assert_eq!(item.value(),123);
+    }
+
+    #[test]
+    fn test_write_init_array_prepend() {
+        let mut section = section!("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0", INIT_TEST.index);
+
+        let result = ArrayMut::try_from(&mut section);
+        assert!(result.is_ok());
+
+        let mut array = result.unwrap();
+
+        assert_eq!(array.len(),INIT_TEST.length);
+        assert_eq!(array.size(),INIT_TEST.size);
+
+        let result = array.prepend(123.into());
+        assert!(result.is_ok());
+
+        assert_eq!(array.len(),INIT_TEST.length + 1);
+        assert_eq!(array.size(),INIT_TEST.size + INIT_TEST.entsize);
+
+        let result = array.at(0);
+        assert!(result.is_ok());
+
+        let item = result.unwrap();
+        assert_eq!(item.value(),123);
+    }
+
+    #[test]
+    fn test_write_fini_array_prepend() {
+        let mut section = section!("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0", FINI_TEST.index);
+
+        let result = ArrayMut::try_from(&mut section);
+        assert!(result.is_ok());
+
+        let mut array = result.unwrap();
+
+        assert_eq!(array.len(),FINI_TEST.length);
+        assert_eq!(array.size(),FINI_TEST.size);
+
+        let result = array.prepend(123.into());
+        assert!(result.is_ok());
+
+        assert_eq!(array.len(),FINI_TEST.length + 1);
+        assert_eq!(array.size(),FINI_TEST.size + FINI_TEST.entsize);
+
+        let result = array.at(0);
+        assert!(result.is_ok());
+
+        let item = result.unwrap();
+        assert_eq!(item.value(),123);
+    }
+
+    #[test]
+    fn test_write_init_array_insert() {
+        let mut section = section!("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0", INIT_TEST.index);
+
+        let result = ArrayMut::try_from(&mut section);
+        assert!(result.is_ok());
+
+        let mut array = result.unwrap();
+
+        assert_eq!(array.len(),INIT_TEST.length);
+        assert_eq!(array.size(),INIT_TEST.size);
+
+        let result = array.insert(3,123.into());
+        assert!(result.is_ok());
+
+        assert_eq!(array.len(),INIT_TEST.length + 1);
+        assert_eq!(array.size(),INIT_TEST.size + INIT_TEST.entsize);
+
+        let result = array.at(3);
+        assert!(result.is_ok());
+
+        let item = result.unwrap();
+        assert_eq!(item.value(),123);
+    }
+
+    #[test]
+    fn test_write_fini_array_insert() {
+        let mut section = section!("assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0", FINI_TEST.index);
+
+        let result = ArrayMut::try_from(&mut section);
+        assert!(result.is_ok());
+
+        let mut array = result.unwrap();
+
+        assert_eq!(array.len(),FINI_TEST.length);
+        assert_eq!(array.size(),FINI_TEST.size);
+
+        let result = array.insert(1,123.into());
+        assert!(result.is_ok());
+
+        assert_eq!(array.len(),FINI_TEST.length + 1);
+        assert_eq!(array.size(),FINI_TEST.size + FINI_TEST.entsize);
+
+        let result = array.at(1);
+        assert!(result.is_ok());
+
+        let item = result.unwrap();
+        assert_eq!(item.value(),123);
+    }
+
 }

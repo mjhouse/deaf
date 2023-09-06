@@ -1,5 +1,5 @@
 use crate::common::{Width,Layout,Item,ranges::*};
-use crate::tables::info::{RelocationInfo};
+use crate::tables::info::RelocationInfo;
 use crate::tables::TableItem;
 use crate::errors::Result;
 
