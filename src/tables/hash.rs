@@ -48,3 +48,105 @@ impl<'a> HashTable<'a> {
     }
 
 }
+
+impl<'a> HashTableMut<'a> {
+
+    fn new(section: &'a mut Section) -> Self {
+        Self { section }
+    }
+
+}
+
+impl<'a> TryFrom<&'a Section> for HashTable<'a> 
+{
+    type Error = Error;
+
+    fn try_from(section: &'a Section) -> Result<Self> {
+        match section.header().kind() {
+            SHType::SHT_GNU_HASH | SHType::SHT_HASH => Ok(Self::new(section)),
+            _ => Err(Error::WrongSectionError)
+        }
+    }
+}
+
+impl<'a> TryFrom<&'a mut Section> for HashTableMut<'a> 
+{
+    type Error = Error;
+
+    fn try_from(section: &'a mut Section) -> Result<Self> {
+        match section.header().kind() {
+            SHType::SHT_GNU_HASH | SHType::SHT_HASH => Ok(Self::new(section)),
+            _ => Err(Error::WrongSectionError)
+        }
+    }
+}
+
+impl<'a> From<HashTableMut<'a>> for HashTable<'a> 
+{
+    fn from(table: HashTableMut<'a>) -> Self {
+        Self::new(table.section)
+    }
+}
+
+impl<'a> From<HashTableMut<'a>> for &'a mut Section 
+{
+    fn from(table: HashTableMut<'a>) -> Self {
+        table.section
+    }
+}
+
+impl<'a> From<HashTable<'a>> for &'a Section 
+{
+    fn from(table: HashTable<'a>) -> Self {
+        table.section
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::headers::FileHeader;
+    use crate::utilities::read;
+
+    use crate::utilities::tests::{
+        LIBJPEG_DYNSYM as SYM_TEST,
+        LIBVPF_SHSTRTAB as STR_TEST,
+        LIBVPF_RELA_DYN as RELA_TEST,
+        LIBQSCINTILLA_FINI_ARRAY as FINI_TEST,
+        LIBQSCINTILLA_INIT_ARRAY as INIT_TEST, 
+    };
+
+    macro_rules! section {
+        ( $path: expr, $index: expr ) => {
+            read($path)
+                .and_then(|d| FileHeader::parse(&d)
+                .and_then(|h| Ok((d,h))))
+                .and_then(|(d,h)|
+                    Section::read_all(
+                        &d,
+                        h.shnum(),
+                        h.shoff(),
+                        h.shentsize(),
+                        h.data(),
+                        h.class()
+                    )
+                )
+                .and_then(|s| s
+                    .get($index)
+                    .ok_or(Error::NotFound)
+                    .cloned())
+                .expect("Section not found")
+        };
+    }
+
+    #[test]
+    fn test_read_hash_table() {
+        let section = section!("assets/libvpf/libvpf.so.4.1", 3);
+
+        let table = HashTable::try_from(&section).unwrap();
+
+        let nbuckets = table.nbuckets();
+        dbg!(nbuckets);
+
+    }
+}
