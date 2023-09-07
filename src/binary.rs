@@ -217,7 +217,7 @@ mod tests {
         let binary = Binary::load(path).unwrap();
 
         for (i,section) in binary.sections.iter().enumerate() {
-            let kind = section.kind();
+            let kind = section.header().kind();
             let index = section.name();
             let name = binary.section_name(index).unwrap();
 
