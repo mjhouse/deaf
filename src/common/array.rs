@@ -73,8 +73,7 @@ where
             .with_width(self.width())
             .with_offset(self.offset())
             .with_index(index)
-            .parse(bytes)
-            .map(|i| i.get())
+            .read(bytes)
     }
 
     /// Get the offset of a particular index in the array

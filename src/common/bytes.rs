@@ -1,5 +1,5 @@
 use crate::common::{Layout,Width,PHType,SHType,SHFlags};
-use crate::errors::Result;
+use crate::errors::{Result,Error};
 use num_enum::TryFromPrimitive;
 use enumflags2::BitFlags;
 use std::ffi::{CString,CStr};
@@ -85,7 +85,7 @@ pub trait Convert<A> {
 
 /// Blanket implementation for NOP conversions to self
 impl<A> Convert<A> for A {
-    fn convert(self) -> Result<Self> { Ok(self) }
+    fn convert(self) -> Result<A> { Ok(self) }
 }
 
 macro_rules! from {
