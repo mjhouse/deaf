@@ -7,6 +7,7 @@ mod field;      // read and write values
 mod item;       // read and write with cache
 mod enums;      
 mod update;
+mod array;
 
 mod iterator;
 mod constants;
@@ -14,7 +15,13 @@ mod constants;
 pub use bytes::{FromBytes,IntoBytes,Convert};
 pub use ranges::Ranges;
 pub use field::Field;
-pub use item::Item;
+
+pub use item::{
+    Item,
+    T32Value,
+    T64Value,
+    TOutValue
+};
 
 pub use iterator::{
     ByteIter,
@@ -31,12 +38,16 @@ pub use constants::{
     STType,
 };
 
-pub use enums::{
-    SectionType
-};
-
 pub use update::{
     Update, 
     Updateable,
     All
+};
+
+pub use enums::{
+    SectionType
+};
+
+pub use array::{
+    ItemArray
 };

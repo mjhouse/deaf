@@ -192,6 +192,8 @@ impl Updateable for Binary {
 
 #[cfg(test)]
 mod tests {
+    use crate::tables::{StringTable, SymbolTable};
+
     use super::*;
 
     #[test]
@@ -222,6 +224,39 @@ mod tests {
             let name = binary.section_name(index).unwrap();
 
             println!("{}: {} (kind={:?})",i,name,kind);
+        }
+    }
+
+    #[test]
+    fn test_display_string_table() {
+        let path = "assets/libjpeg/libjpeg.so.9";
+        let binary = Binary::load(path).unwrap();
+
+        let sections = &binary.sections[36];
+
+        let dynstr = StringTable::try_from(sections).unwrap();
+        
+        for (i,item) in dynstr.items().unwrap().into_iter().enumerate() {
+            println!("{}: {}",i,item.string_lossy());
+        }
+    }
+
+    #[test]
+    fn test_display_symbol_table() {
+        let path = "assets/libvpf/libvpf.so.4.1";
+        let binary = Binary::load(path).unwrap();
+
+        let strings = &binary.sections[5];
+        let symbols = &binary.sections[4];
+
+        let dynstr = StringTable::try_from(strings).unwrap();
+        let dynsym = SymbolTable::try_from(symbols).unwrap();
+        
+        for (i,item) in dynsym.items().unwrap().into_iter().enumerate() {
+            let name = dynstr
+                .at_offset(item.name() as usize)
+                .map(|v| v.string_lossy());
+            println!("{}: {:?}",i,name);
         }
     }
 

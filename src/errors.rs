@@ -21,6 +21,10 @@ pub enum Error {
     #[error("Binary could not be parsed")]
     ParseError,
 
+    /// A value could not be converted to a different representation
+    #[error("Value could not be converted")]
+    ConversionError,
+
     /// Collection was accessed with an out-of-bounds index
     #[error("Slice or access is out of bounds")]
     OutOfBoundsError,

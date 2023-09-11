@@ -1,12 +1,21 @@
-use crate::common::ranges::ADDRESS;
+use crate::common::ranges::{ADDRESS, NBUCKETS, NCHAIN, SYMOFFSET, BLOOMSIZE, BLOOMSHIFT, VALUE4};
 use crate::errors::{Error,Result};
-use crate::common::{ByteIter,SHType,Layout,Width,Item};
+use crate::common::{ItemArray,ByteIter,SHType,Layout,Width,Item,FromBytes};
 use crate::Section;
 
-type Value = Item<u32,u64>;
+use super::{SymbolTable, StringTable, TableView};
+
+type Value = Item<u32>;
 
 /// A Section represented as an immutable HashTable
 pub struct HashTable<'a> {
+    bucket_count: Value,
+    symoffset: Value,
+    bloom_count: Value,
+    bloom_shift: Value,
+    bloom_array: ItemArray<u32,u64>,
+    bucket_array: ItemArray<u32>,
+    chain_array: ItemArray<u32>,
     section: &'a Section
 }
 
@@ -18,25 +27,142 @@ pub struct HashTableMut<'a> {
 impl<'a> HashTable<'a> {
 
     fn new(section: &'a Section) -> Self {
-        Self { section }
+        let w = section.width();
+        let l = section.layout();
+        Self { 
+            bucket_count: Value::make(NBUCKETS,w,l),
+            symoffset: Value::make(SYMOFFSET,w,l),
+            bloom_count: Value::make(BLOOMSIZE,w,l),
+            bloom_shift: Value::make(BLOOMSHIFT,w,l),
+            bloom_array: ItemArray::make(ADDRESS,w,l)
+                .with_offset(16)
+                .with_offset(0), // dynamic offset
+            bucket_array: ItemArray::make(VALUE4,w,l)
+                .with_offset(16)
+                .with_offset(0), // dynamic offset
+            chain_array: ItemArray::make(VALUE4,w,l)
+                .with_offset(16)
+                .with_offset(0), // dynamic offset
+            section
+        }
     }
 
-    fn read(&self, offset: usize) -> Result<u64> {
-        Value::new(ADDRESS)
-            .with_layout(self.layout())
-            .with_width(self.width())
-            .parse(&self.section.data()[offset..])
-            .map(|v| v.get())
+    fn hash(&self, name: &str) -> u32 {
+        let mut h: u32 = 0;
+        let mut g: u32;
+    
+        for c in name.as_bytes() {
+            h = (h << 4) + *c as u32;
+            g = h & 0xf000_0000;
+    
+            if g != 0 {
+                h ^= g >> 24;
+                h &= !g;
+            }
+        }
+    
+        h
     }
 
-    fn nbuckets(&self) -> u64 {
-        self.read(0)
-            .expect("Failed to read nbuckets")
+    fn gnu_hash(&self, name: &str) -> u32 {
+        let mut h: u32 = 5381;
+
+        for c in name.as_bytes() {
+            h = (h << 5)
+                .wrapping_add(h)
+                .wrapping_add(*c as u32);
+        }
+    
+        h
     }
 
-    fn nchain(&self) -> u64 {
-        self.read(0)
-            .expect("Failed to read nchain")
+    fn bucket_count(&self) -> Result<usize> {
+        self.bucket_count
+            .clone()
+            .read(&self.section.data())
+            .and_then(|v| v
+                .try_into()
+                .map_err(|_| Error::ConversionError))
+    }
+
+    fn bloom_count(&self) -> Result<usize> {
+        self.bloom_count
+            .clone()
+            .read(&self.section.data())
+            .and_then(|v| v
+                .try_into()
+                .map_err(|_| Error::ConversionError))
+    }
+
+    fn bucket_size(&self) -> Result<usize> {
+        self.bucket_count()
+            .map(|v| self
+                .buckets()
+                .length(v))
+    }
+
+    fn bloom_size(&self) -> Result<usize> {
+        self.bloom_count()
+            .map(|v| self
+                .blooms()
+                .length(v))
+    }
+
+    fn symoffset(&self) -> Result<usize> {
+        self.symoffset
+            .clone()
+            .read(&self.section.data())
+            .and_then(|v| v
+                .try_into()
+                .map_err(|_| Error::ConversionError))
+    }
+
+    fn bloom_shift(&self) -> Result<usize> {
+        self.bloom_shift
+            .clone()
+            .read(&self.section.data())
+            .and_then(|v| v
+                .try_into()
+                .map_err(|_| Error::ConversionError))
+    }
+
+    fn blooms(&self) -> ItemArray<u32,u64> {
+        self.bloom_array.clone()
+    }
+
+    fn buckets(&self) -> ItemArray<u32> {
+        self.bucket_array.clone()
+    }
+
+    fn chains(&self) -> ItemArray<u32> {
+        self.chain_array.clone()
+    }
+
+    fn bloom(&self, index: usize) -> Result<u64> {
+        self.blooms()
+            .read(&self.section.data(),index)
+            .and_then(|v| v
+                .try_into()
+                .map_err(|_| Error::ConversionError))
+    }
+
+    fn bucket(&self, index: usize) -> Result<u32> {
+        self.bloom_size()
+            .and_then(|v| self
+                .buckets()
+                .with_last_offset(v)
+                .read(&self.section.data(),index))
+    }
+
+    fn chain(&self, index: usize) -> Result<u32> {
+        self.bloom_size()
+            .and_then(|a| self
+                .bucket_size()
+                .map(|b| (a,b)))
+            .and_then(|(a,b)| self
+                .buckets()
+                .with_last_offset(a + b)
+                .read(&self.section.data(),index))
     }
 
     fn layout(&self) -> Layout {
@@ -145,8 +271,68 @@ mod tests {
 
         let table = HashTable::try_from(&section).unwrap();
 
-        let nbuckets = table.nbuckets();
-        dbg!(nbuckets);
+        let bucket_size = table.bucket_size();
+        dbg!(bucket_size);
 
+        let symoffset = table.symoffset();
+        dbg!(symoffset);
+
+        let bloom_size = table.bloom_size();
+        dbg!(bloom_size);
+
+        let bloom_shift = table.bloom_shift();
+        dbg!(bloom_shift);
+
+        dbg!(table.section.entity_size());
+
+    }
+
+    #[test]
+    fn test_validate_hash_function() {
+        let section = section!("assets/libvpf/libvpf.so.4.1", 3);
+
+        let table = HashTable::try_from(&section).unwrap();
+
+        // matches: https://flapenguin.me/elf-dt-hash
+        assert_eq!(table.hash("printf"),0x077905a6);
+        assert_eq!(table.hash("exit"),0x0006cf04);
+    }
+
+    #[test]
+    fn test_validate_gnu_hash_function() {
+        let section = section!("assets/libvpf/libvpf.so.4.1", 3);
+
+        let table = HashTable::try_from(&section).unwrap();
+
+        // https://flapenguin.me/elf-dt-gnu-hash
+        assert_eq!(table.gnu_hash("printf"),0x156b2bb8);
+        assert_eq!(table.gnu_hash("exit"),0x7c967e3f);
+    }
+
+    #[test]
+    fn test_find_function() {
+        // let path = "assets/libjpeg/libjpeg.so.9";
+        // let binary = Binary::load(path).unwrap();
+
+        // let strings = &binary.sections[36];
+        // let symbols = &binary.sections[35];
+
+        // let dynstr = StringTable::try_from(strings).unwrap();
+        // let dynsym = SymbolTable::try_from(symbols).unwrap();
+
+        // let strings = section!("assets/libjpeg/libjpeg.so.9", 36);
+        // let symbols = section!("assets/libjpeg/libjpeg.so.9", 3);
+        // let section = section!("assets/libjpeg/libjpeg.so.9", 2);
+
+        // let string_table = StringTable::try_from(&strings).unwrap();
+        // let symbol_table = SymbolTable::try_from(&symbols).unwrap();
+        // let table = HashTable::try_from(&section).unwrap();
+
+        // let nchain = table.nchain().unwrap();
+        // dbg!(nchain);
+        // dbg!(symbol_table.len());
+        // dbg!(table.width());
+
+        // table.find(&string_table,&symbol_table,"call_gmon_start");
     }
 }

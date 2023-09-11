@@ -1,3 +1,4 @@
+use crate::errors::{Error,Result};
 
 /// The delimiter used to determine the ending index of
 /// sub-slices returned by ByteIter.
@@ -44,6 +45,16 @@ impl<'a> ByteIter<'a> {
     pub fn offset(mut self, offset: usize) -> Self {
         self.index = offset;
         self
+    }
+
+    /// Skip directly to an offset in the data
+    pub fn try_offset<T>(mut self, offset: T) -> Result<Self>
+    where 
+        T: TryInto<usize>,
+        Error: From<<T as TryInto<usize>>::Error>
+    {
+        self.index = offset.try_into()?;
+        Ok(self)
     }
 
     /// Get a slice that excludes already-seen bytes
