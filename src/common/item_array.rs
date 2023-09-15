@@ -1,6 +1,6 @@
-use crate::common::{Width, Layout, FromBytes, IntoBytes, Convert, Ranges, Field};
+use crate::common::{Width, Layout, Ranges};
 use crate::common::{ByteIter,Item,T32Value,T64Value,TOutValue};
-use crate::errors::{Result,Error};
+use crate::errors::Result;
 
 #[derive(Clone)]
 pub struct ItemArray<T32, T64 = T32, Out = T64>

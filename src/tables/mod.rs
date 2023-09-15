@@ -7,7 +7,6 @@
 mod info;
 mod items;
 mod table;
-mod hash;
 
 pub use info::{
     SymbolInfo,
@@ -37,9 +36,4 @@ pub use table::{
     RelaTableMut,
     StringTable,
     StringTableMut,
-};
-
-pub use hash::{
-    HashTable,
-    HashTableMut,
 };

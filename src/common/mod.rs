@@ -7,7 +7,7 @@ mod field;      // read and write values
 mod item;       // read and write with cache
 mod enums;      
 mod update;
-mod array;
+mod item_array;
 
 mod iterator;
 mod constants;
@@ -48,6 +48,6 @@ pub use enums::{
     SectionType
 };
 
-pub use array::{
+pub use item_array::{
     ItemArray
 };
