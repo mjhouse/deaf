@@ -8,17 +8,13 @@ mod info;
 mod items;
 mod table;
 
-pub use info::{
-    SymbolInfo,
-    RelocationInfo,
-};
+pub use info::RelocationInfo;
 
 pub use items::{
     TableItem,
     RelItem,
     RelaItem,
     StringItem,
-    SymbolItem,
     ArrayItem,
 };
 

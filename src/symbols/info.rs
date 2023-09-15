@@ -18,6 +18,18 @@ impl SymbolInfo {
         }
     }
 
+    /// Builder method for setting the type of the info struct
+    pub fn with_kind(mut self, kind: STType) -> Self {
+        self.set_kind(kind);
+        self
+    }
+
+    /// Builder method for setting the binding of the info struct
+    pub fn with_bind(mut self, bind: STBind) -> Self {
+        self.set_bind(bind);
+        self
+    }
+
     /// Parse a combined value as an info struct
     pub fn new(v: u8) -> Result<Self> {
         let bind = STBind::try_from(v >> 4)?;
@@ -37,9 +49,19 @@ impl SymbolInfo {
         self.kind.clone()
     }
 
+    /// Set the 'kind' component of the info struct
+    pub fn set_kind(&mut self, kind: STType) {
+        self.kind = kind;
+    }
+
     /// Get the 'bind' component of the info struct
     pub fn bind(&self) -> STBind {
         self.bind.clone()
+    }
+
+    /// Set the 'bind' component of the info struct
+    pub fn set_bind(&mut self, bind: STBind) {
+        self.bind = bind;
     }
 
 }
@@ -101,7 +123,7 @@ mod tests {
 
     #[test]
     fn test_symbol_info_back_to_value() {
-        let value = 0x21; // STB_WEAK + STT_OBJECT
+        let value = 0x21; // STB_LOCAL + STT_OBJECT
         let info = SymbolInfo::new(value).unwrap();
         let result: Result<u8> = info.convert();
 
