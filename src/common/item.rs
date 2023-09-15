@@ -1,16 +1,23 @@
 use crate::common::{Width, Layout, FromBytes, IntoBytes, Convert, Ranges, Field};
 use crate::errors::Result;
-
 use std::fmt::Debug;
+
+pub trait T32Value<Out>: FromBytes + IntoBytes + Convert<Out> + Clone {}
+pub trait T64Value<Out>: FromBytes + IntoBytes + Convert<Out> + Clone {}
+pub trait TOutValue<T32,T64>: Convert<T32> + Convert<T64> + Debug + Clone + Default {}
+
+impl<Out, T: FromBytes + IntoBytes + Convert<Out> + Clone> T32Value<Out> for T {}
+impl<Out, T: FromBytes + IntoBytes + Convert<Out> + Clone> T64Value<Out> for T {}
+impl<T32,T64, T: Convert<T32> + Convert<T64> + Debug + Clone + Default> TOutValue<T32,T64> for T {}
 
 /// An item in a section, table item etc that contains a field 
 /// and associated value.
 #[derive(Debug,Clone)]
 pub struct Item<T32 = u8, T64 = T32, Out = T64>
 where
-    T32: FromBytes + IntoBytes + Convert<Out>,
-    T64: FromBytes + IntoBytes + Convert<Out>,
-    Out: Convert<T32> + Convert<T64> + Debug + Clone + Default,
+    T32: T32Value<Out>,
+    T64: T64Value<Out>,
+    Out: TOutValue<T32,T64>,
 {
     field: Field<T32,T64,Out>,
     value: Out,
@@ -18,9 +25,9 @@ where
 
 impl<T32, T64, Out> Item<T32, T64, Out>
 where
-    T32: FromBytes + IntoBytes + Convert<Out>,
-    T64: FromBytes + IntoBytes + Convert<Out>,
-    Out: Convert<T32> + Convert<T64> + Debug + Clone + Default,
+    T32: T32Value<Out>,
+    T64: T64Value<Out>,
+    Out: TOutValue<T32,T64>,
 {
     /// Create a new item with given ranges
     pub fn new(ranges: Ranges) -> Self {
@@ -52,6 +59,18 @@ where
     /// Builder method to set the initial value
     pub fn with_value(mut self, value: Out) -> Self {
         self.set(value);
+        self
+    }
+
+    /// Builder method to set an offset
+    pub fn with_offset(mut self, offset: usize) -> Self {
+        self.set_offset(offset);
+        self
+    }
+
+    /// Builder method to set an index
+    pub fn with_index(mut self, index: usize) -> Self {
+        self.set_index(index);
         self
     }
 
@@ -107,13 +126,23 @@ where
         self.field.set_layout(layout);
     }
 
+    /// Set an offset in bytes to read at
+    pub fn set_offset(&mut self, offset: usize) {
+        self.field.set_offset(offset);
+    }
+
+    /// Set an index based on field size to read at
+    pub fn set_index(&mut self, index: usize) {
+        self.field.set_index(index);
+    }
+
 }
 
 impl<T32, T64, Out> PartialEq for Item<T32, T64, Out>
 where
-    T32: FromBytes + IntoBytes + Convert<Out>,
-    T64: FromBytes + IntoBytes + Convert<Out>,
-    Out: Convert<T32> + Convert<T64> + Debug + Clone + Default + PartialEq,
+    T32: T32Value<Out>,
+    T64: T64Value<Out>,
+    Out: TOutValue<T32,T64> + PartialEq,
 {
     fn eq(&self, other: &Self) -> bool {
         self.get().eq(&other.get())

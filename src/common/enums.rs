@@ -11,10 +11,12 @@ pub enum SectionType {
     Relocations,       // SHT_REL
     RelocationsAddend, // SHT_RELA
     Hash,              // SHT_HASH
+    GNUHash,           // SHT_GNU_HASH
     Dynamic,           // SHT_DYNAMIC
     Notes,             // SHT_NOTE
     Empty,             // SHT_NOBITS
     Reserved,          // SHT_SHLIB
+    GNULibList,        // SHT_GNU_LIBLIST
     InitArray,         // SHT_INIT_ARRAY
     FiniArray,         // SHT_FINI_ARRAY
     PreInitArray,      // SHT_PREINIT_ARRAY
@@ -32,11 +34,13 @@ impl From<SHType> for SectionType {
             SHType::SHT_STRTAB => SectionType::Strings,
             SHType::SHT_RELA => SectionType::RelocationsAddend,
             SHType::SHT_HASH => SectionType::Hash,
+            SHType::SHT_GNU_HASH => SectionType::GNUHash,
             SHType::SHT_DYNAMIC => SectionType::Dynamic,
             SHType::SHT_NOTE => SectionType::Notes,
             SHType::SHT_NOBITS => SectionType::Empty,
             SHType::SHT_REL => SectionType::Relocations,
             SHType::SHT_SHLIB => SectionType::Reserved,
+            SHType::SHT_GNU_LIBLIST => SectionType::GNULibList,
             SHType::SHT_DYNSYM => SectionType::DynamicSymbols,
             SHType::SHT_INIT_ARRAY => SectionType::InitArray,
             SHType::SHT_FINI_ARRAY => SectionType::FiniArray,
@@ -45,7 +49,7 @@ impl From<SHType> for SectionType {
             SHType::SHT_SYMTAB_SHNDX => SectionType::ExtendedSymbols,
             SHType::SHT_NUM => SectionType::ReservedTypes,
             SHType::SHT_LOOS => SectionType::Unknown,
-            SHType::Unknown(_) => SectionType::Unknown,
+            _ => SectionType::Unknown,
         }
     }
 }
@@ -59,11 +63,13 @@ impl From<SectionType> for SHType {
             SectionType::Strings => SHType::SHT_STRTAB,
             SectionType::RelocationsAddend => SHType::SHT_RELA,
             SectionType::Hash => SHType::SHT_HASH,
+            SectionType::GNUHash => SHType::SHT_GNU_HASH,
             SectionType::Dynamic => SHType::SHT_DYNAMIC,
             SectionType::Notes => SHType::SHT_NOTE,
             SectionType::Empty => SHType::SHT_NOBITS,
             SectionType::Relocations => SHType::SHT_REL,
             SectionType::Reserved => SHType::SHT_SHLIB,
+            SectionType::GNULibList => SHType::SHT_GNU_LIBLIST,
             SectionType::DynamicSymbols => SHType::SHT_DYNSYM,
             SectionType::InitArray => SHType::SHT_INIT_ARRAY,
             SectionType::FiniArray => SHType::SHT_FINI_ARRAY,

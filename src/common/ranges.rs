@@ -57,15 +57,25 @@ pub const RT_OFFSET:      Ranges = Ranges::new(0x00..0x04,0x00..0x08); // u32 / 
 pub const RT_INFO:        Ranges = Ranges::new(0x04..0x08,0x08..0x10); // u32 / u64
 pub const RT_ADDEND:      Ranges = Ranges::new(0x08..0x0C,0x10..0x18); // i32 / i64
 
-pub const ADDRESS:        Ranges = Ranges::new(0x00..0x04,0x00..0x08); // i32 / i64
+pub const NBUCKETS:       Ranges = Ranges::new(0x00..0x04,0x00..0x04); // u32
+pub const NCHAIN:         Ranges = Ranges::new(0x04..0x08,0x04..0x08); // u32
+
+pub const SYMOFFSET:      Ranges = Ranges::new(0x04..0x08,0x04..0x08); // u32
+pub const BLOOMSIZE:      Ranges = Ranges::new(0x08..0x0c,0x08..0x0c); // u32
+pub const BLOOMSHIFT:     Ranges = Ranges::new(0x0c..0x10,0x0c..0x10); // u32
+
+pub const ADDRESS:        Ranges = Ranges::new(0x00..0x04,0x00..0x08); // u32 / u64
+
+pub const VALUE4:         Ranges = Ranges::new(0x00..0x04,0x00..0x04); // u32
+pub const VALUE8:         Ranges = Ranges::new(0x00..0x08,0x00..0x08); // u64
 
 /// This struct maintains several ranges and returns
 /// them depending on the current width.
 #[derive(Debug,Clone)]
 pub struct Ranges {
     pub width: Width,
-    x32: Range<usize>,
-    x64: Range<usize>,
+    pub x32: Range<usize>,
+    pub x64: Range<usize>,
 }
 
 impl Ranges {
@@ -87,13 +97,26 @@ impl Ranges {
             x64: 0x00..0x00,
         }
     }
-    
+
+    /// Get a reference to the current Range
+    pub fn at(&self) -> &Range<usize> {
+        match self.width {
+            Width::X32 => &self.x32,
+            Width::X64 => &self.x64,
+        }
+    }
+
+    /// Get at mutable reference to the current Range
+    pub fn at_mut(&mut self) -> &mut Range<usize> {
+        match self.width {
+            Width::X32 => &mut self.x32,
+            Width::X64 => &mut self.x64,
+        }
+    }
+
     /// Get the active Range depending on the current Width
     pub fn get(&self) -> Range<usize> {
-        match self.width {
-            Width::X32 => self.x32.clone(),
-            Width::X64 => self.x64.clone(),
-        }
+        self.at().clone()
     }
 
     /// Get the expected size in bytes of the current range

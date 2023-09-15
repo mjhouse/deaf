@@ -107,11 +107,12 @@ This release is generally aimed at propagating changes to keep the binary useabl
 
 - [x] Add mechanism to update sections globally on local changes
 - [x] Make wrapper Table\<TableItem\> structs for sections
-- [ ] Make wrapper Array\<ArrayItem\> structs for sections
+- [x] Make wrapper Array\<ArrayItem\> structs for sections
 - [ ] Turn the Segment struct into a wrapper struct
 - [ ] Make a super list of updates and when they should be applied
     - [ ] Update section offsets when items are added/removed from tables
     - [x] Update section name indices when the section name string table changes
+    - [ ] Align sections on write when body of the section changes
 - [ ] Add getter/setter methods to Binary
 
 ### 0.3.0

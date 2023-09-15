@@ -82,6 +82,21 @@ where
         self.layout = layout;
     }
 
+    /// Set an offset in bytes to read at
+    pub fn set_offset(&mut self, offset: usize) {
+        let range = self.ranges.at_mut();
+        range.start += offset;
+        range.end   += offset;
+    }
+
+    /// Set an index based on field size to read at
+    pub fn set_index(&mut self, index: usize) {
+        let size  = self.size();
+        let range = self.ranges.at_mut();
+        range.start += index * size;
+        range.end   += index * size;
+    }
+
     /// Get a constrained slice of bytes using the appropriate range
     ///
     /// If the slice is too short, this method will fail, otherwise
