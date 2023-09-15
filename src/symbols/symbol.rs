@@ -124,7 +124,7 @@ impl Symbol {
     }
 
     /// Set the current layout of the symbol
-    fn set_layout(&mut self, layout: Layout){
+    pub fn set_layout(&mut self, layout: Layout){
         TableItem::set_layout(self, layout)
     }
 
@@ -134,17 +134,17 @@ impl Symbol {
     }
 
     /// Set the current width of the symbol
-    fn set_width(&mut self, width: Width){
+    pub fn set_width(&mut self, width: Width){
         TableItem::set_width(self, width)
     }
 
     /// Read all fields from a data buffer
-    fn read(&mut self, data: &[u8]) -> Result<()> {
+    pub fn read(&mut self, data: &[u8]) -> Result<()> {
         TableItem::read(self, data)
     }
 
     /// Write all fields to a mutable data buffer
-    fn write(&self, data: &mut [u8]) -> Result<()> {
+    pub fn write(&self, data: &mut [u8]) -> Result<()> {
         TableItem::write(self,data)
     }
 
