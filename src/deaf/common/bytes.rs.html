@@ -536,7 +536,7 @@
 
 <span class="doccomment">/// Blanket implementation for NOP conversions to self
 </span><span class="kw">impl</span>&lt;A&gt; Convert&lt;A&gt; <span class="kw">for </span>A {
-    <span class="kw">fn </span>convert(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>) }
+    <span class="kw">fn </span>convert(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;A&gt; { <span class="prelude-val">Ok</span>(<span class="self">self</span>) }
 }
 
 <span class="macro">macro_rules! </span>from {

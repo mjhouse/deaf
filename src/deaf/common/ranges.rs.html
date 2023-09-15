@@ -136,6 +136,29 @@
 <a href="#136" id="136">136</a>
 <a href="#137" id="137">137</a>
 <a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::ops::Range;
 <span class="kw">use </span><span class="kw">crate</span>::common::Width;
 
@@ -195,15 +218,25 @@
 </span><span class="kw">pub const </span>RT_INFO:        Ranges = Ranges::new(<span class="number">0x04</span>..<span class="number">0x08</span>,<span class="number">0x08</span>..<span class="number">0x10</span>); <span class="comment">// u32 / u64
 </span><span class="kw">pub const </span>RT_ADDEND:      Ranges = Ranges::new(<span class="number">0x08</span>..<span class="number">0x0C</span>,<span class="number">0x10</span>..<span class="number">0x18</span>); <span class="comment">// i32 / i64
 
-</span><span class="kw">pub const </span>ADDRESS:        Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x04</span>,<span class="number">0x00</span>..<span class="number">0x08</span>); <span class="comment">// i32 / i64
+</span><span class="kw">pub const </span>NBUCKETS:       Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x04</span>,<span class="number">0x00</span>..<span class="number">0x04</span>); <span class="comment">// u32
+</span><span class="kw">pub const </span>NCHAIN:         Ranges = Ranges::new(<span class="number">0x04</span>..<span class="number">0x08</span>,<span class="number">0x04</span>..<span class="number">0x08</span>); <span class="comment">// u32
+
+</span><span class="kw">pub const </span>SYMOFFSET:      Ranges = Ranges::new(<span class="number">0x04</span>..<span class="number">0x08</span>,<span class="number">0x04</span>..<span class="number">0x08</span>); <span class="comment">// u32
+</span><span class="kw">pub const </span>BLOOMSIZE:      Ranges = Ranges::new(<span class="number">0x08</span>..<span class="number">0x0c</span>,<span class="number">0x08</span>..<span class="number">0x0c</span>); <span class="comment">// u32
+</span><span class="kw">pub const </span>BLOOMSHIFT:     Ranges = Ranges::new(<span class="number">0x0c</span>..<span class="number">0x10</span>,<span class="number">0x0c</span>..<span class="number">0x10</span>); <span class="comment">// u32
+
+</span><span class="kw">pub const </span>ADDRESS:        Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x04</span>,<span class="number">0x00</span>..<span class="number">0x08</span>); <span class="comment">// u32 / u64
+
+</span><span class="kw">pub const </span>VALUE4:         Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x04</span>,<span class="number">0x00</span>..<span class="number">0x04</span>); <span class="comment">// u32
+</span><span class="kw">pub const </span>VALUE8:         Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x08</span>,<span class="number">0x00</span>..<span class="number">0x08</span>); <span class="comment">// u64
 
 </span><span class="doccomment">/// This struct maintains several ranges and returns
 /// them depending on the current width.
 </span><span class="attr">#[derive(Debug,Clone)]
 </span><span class="kw">pub struct </span>Ranges {
     <span class="kw">pub </span>width: Width,
-    x32: Range&lt;usize&gt;,
-    x64: Range&lt;usize&gt;,
+    <span class="kw">pub </span>x32: Range&lt;usize&gt;,
+    <span class="kw">pub </span>x64: Range&lt;usize&gt;,
 }
 
 <span class="kw">impl </span>Ranges {
@@ -225,13 +258,26 @@
             x64: <span class="number">0x00</span>..<span class="number">0x00</span>,
         }
     }
-    
+
+    <span class="doccomment">/// Get a reference to the current Range
+    </span><span class="kw">pub fn </span>at(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Range&lt;usize&gt; {
+        <span class="kw">match </span><span class="self">self</span>.width {
+            Width::X32 =&gt; <span class="kw-2">&amp;</span><span class="self">self</span>.x32,
+            Width::X64 =&gt; <span class="kw-2">&amp;</span><span class="self">self</span>.x64,
+        }
+    }
+
+    <span class="doccomment">/// Get at mutable reference to the current Range
+    </span><span class="kw">pub fn </span>at_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Range&lt;usize&gt; {
+        <span class="kw">match </span><span class="self">self</span>.width {
+            Width::X32 =&gt; <span class="kw-2">&amp;mut </span><span class="self">self</span>.x32,
+            Width::X64 =&gt; <span class="kw-2">&amp;mut </span><span class="self">self</span>.x64,
+        }
+    }
+
     <span class="doccomment">/// Get the active Range depending on the current Width
     </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Range&lt;usize&gt; {
-        <span class="kw">match </span><span class="self">self</span>.width {
-            Width::X32 =&gt; <span class="self">self</span>.x32.clone(),
-            Width::X64 =&gt; <span class="self">self</span>.x64.clone(),
-        }
+        <span class="self">self</span>.at().clone()
     }
 
     <span class="doccomment">/// Get the expected size in bytes of the current range

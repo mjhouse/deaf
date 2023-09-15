@@ -155,6 +155,16 @@
 <a href="#155" id="155">155</a>
 <a href="#156" id="156">156</a>
 <a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>num_enum::{IntoPrimitive, TryFromPrimitive, FromPrimitive};
 <span class="kw">use </span>enumflags2::bitflags;
 
@@ -251,7 +261,17 @@
     SHT_SYMTAB_SHNDX = <span class="number">0x00000012</span>,
     SHT_NUM = <span class="number">0x00000013</span>,
     SHT_LOOS = <span class="number">0x60000000</span>,
-    <span class="attr">#[num_enum(catch_all)]
+    SHT_GNU_HASH = <span class="number">0x6ffffff6</span>,
+    SHT_GNU_LIBLIST = <span class="number">0x6ffffff7</span>,
+    SHT_VERDEF = <span class="number">0x6ffffffd</span>,
+    SHT_VERNEED = <span class="number">0x6ffffffe</span>,
+    SHT_VERSYM = <span class="number">0x6fffffff</span>,
+    SHT_ARM_EXIDX =	<span class="number">0x70000001</span>, <span class="comment">// ARM unwind info.
+    </span>SHT_ARM_PREEMPTMAP = <span class="number">0x70000002</span>, <span class="comment">// pre-emption details.
+    </span>SHT_ARM_ATTRIBUTES = <span class="number">0x70000003</span>, <span class="comment">// attributes.
+    </span>SHT_ARM_DEBUGOVERLAY = <span class="number">0x70000004</span>, <span class="comment">// overlay debug info.
+    </span>SHT_ARM_OVERLAYSECTION = <span class="number">0x70000005</span>, <span class="comment">// GDB and overlay integration info.
+    </span><span class="attr">#[num_enum(catch_all)]
     </span>Unknown(u32),
 }
 

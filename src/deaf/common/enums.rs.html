@@ -75,6 +75,12 @@
 <a href="#75" id="75">75</a>
 <a href="#76" id="76">76</a>
 <a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common::SHType;
 
 <span class="attr">#[derive(Debug, Clone, Copy, PartialEq)]
@@ -88,10 +94,12 @@
     </span>Relocations,       <span class="comment">// SHT_REL
     </span>RelocationsAddend, <span class="comment">// SHT_RELA
     </span>Hash,              <span class="comment">// SHT_HASH
+    </span>GNUHash,           <span class="comment">// SHT_GNU_HASH
     </span>Dynamic,           <span class="comment">// SHT_DYNAMIC
     </span>Notes,             <span class="comment">// SHT_NOTE
     </span>Empty,             <span class="comment">// SHT_NOBITS
     </span>Reserved,          <span class="comment">// SHT_SHLIB
+    </span>GNULibList,        <span class="comment">// SHT_GNU_LIBLIST
     </span>InitArray,         <span class="comment">// SHT_INIT_ARRAY
     </span>FiniArray,         <span class="comment">// SHT_FINI_ARRAY
     </span>PreInitArray,      <span class="comment">// SHT_PREINIT_ARRAY
@@ -109,11 +117,13 @@
             SHType::SHT_STRTAB =&gt; SectionType::Strings,
             SHType::SHT_RELA =&gt; SectionType::RelocationsAddend,
             SHType::SHT_HASH =&gt; SectionType::Hash,
+            SHType::SHT_GNU_HASH =&gt; SectionType::GNUHash,
             SHType::SHT_DYNAMIC =&gt; SectionType::Dynamic,
             SHType::SHT_NOTE =&gt; SectionType::Notes,
             SHType::SHT_NOBITS =&gt; SectionType::Empty,
             SHType::SHT_REL =&gt; SectionType::Relocations,
             SHType::SHT_SHLIB =&gt; SectionType::Reserved,
+            SHType::SHT_GNU_LIBLIST =&gt; SectionType::GNULibList,
             SHType::SHT_DYNSYM =&gt; SectionType::DynamicSymbols,
             SHType::SHT_INIT_ARRAY =&gt; SectionType::InitArray,
             SHType::SHT_FINI_ARRAY =&gt; SectionType::FiniArray,
@@ -122,7 +132,7 @@
             SHType::SHT_SYMTAB_SHNDX =&gt; SectionType::ExtendedSymbols,
             SHType::SHT_NUM =&gt; SectionType::ReservedTypes,
             SHType::SHT_LOOS =&gt; SectionType::Unknown,
-            SHType::Unknown(<span class="kw">_</span>) =&gt; SectionType::Unknown,
+            <span class="kw">_ </span>=&gt; SectionType::Unknown,
         }
     }
 }
@@ -136,11 +146,13 @@
             SectionType::Strings =&gt; SHType::SHT_STRTAB,
             SectionType::RelocationsAddend =&gt; SHType::SHT_RELA,
             SectionType::Hash =&gt; SHType::SHT_HASH,
+            SectionType::GNUHash =&gt; SHType::SHT_GNU_HASH,
             SectionType::Dynamic =&gt; SHType::SHT_DYNAMIC,
             SectionType::Notes =&gt; SHType::SHT_NOTE,
             SectionType::Empty =&gt; SHType::SHT_NOBITS,
             SectionType::Relocations =&gt; SHType::SHT_REL,
             SectionType::Reserved =&gt; SHType::SHT_SHLIB,
+            SectionType::GNULibList =&gt; SHType::SHT_GNU_LIBLIST,
             SectionType::DynamicSymbols =&gt; SHType::SHT_DYNSYM,
             SectionType::InitArray =&gt; SHType::SHT_INIT_ARRAY,
             SectionType::FiniArray =&gt; SHType::SHT_FINI_ARRAY,

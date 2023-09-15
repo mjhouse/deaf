@@ -103,6 +103,10 @@
 <a href="#103" id="103">103</a>
 <a href="#104" id="104">104</a>
 <a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A custom error type that aggregates internal errors
 //!
 
@@ -125,6 +129,10 @@
     <span class="doccomment">/// Binary data could not be parsed into fields
     </span><span class="attr">#[error(<span class="string">&quot;Binary could not be parsed&quot;</span>)]
     </span>ParseError,
+
+    <span class="doccomment">/// A value could not be converted to a different representation
+    </span><span class="attr">#[error(<span class="string">&quot;Value could not be converted&quot;</span>)]
+    </span>ConversionError,
 
     <span class="doccomment">/// Collection was accessed with an out-of-bounds index
     </span><span class="attr">#[error(<span class="string">&quot;Slice or access is out of bounds&quot;</span>)]
