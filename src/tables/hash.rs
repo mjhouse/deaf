@@ -1,7 +1,10 @@
-use crate::common::ranges::{ADDRESS, NBUCKETS, NCHAIN, SYMOFFSET, BLOOMSIZE, BLOOMSHIFT, VALUE4};
+use crate::common::ranges::{ADDRESS, NBUCKETS, SYMOFFSET, BLOOMSIZE, BLOOMSHIFT, VALUE4};
 use crate::errors::{Error,Result};
-use crate::common::{ItemArray,ByteIter,SHType,Layout,Width,Item,FromBytes, Convert};
+use crate::common::{ItemArray,SHType,Layout,Width,Item,Convert};
+use crate::tables::{SymbolTable,StringTable,TableView};
 use crate::Section;
+
+
 
 /// A Section represented as an immutable HashTable
 pub struct HashTable<'a> {
@@ -184,10 +187,10 @@ impl<'a> HashTable<'a> {
         self.bloom_size()
             .and_then(|a: usize| self
                 .bucket_size()
-                .map(|b| (a,b)))
-            .and_then(|(a,b)| self
-                .buckets()
-                .with_last_offset(a + b)
+                .map(|b| a + b))
+            .and_then(|v| self
+                .chains()
+                .with_last_offset(v)
                 .read(
                     self.data(),
                     index.convert()?))
@@ -196,6 +199,7 @@ impl<'a> HashTable<'a> {
     }
 
     fn in_bloom_filter(&self, name: &str) -> Result<bool> {
+        // https://blogs.oracle.com/solaris/post/gnu-hash-elf-sections
 
         let c = match self.width() {
             Width::X32 => 32,
@@ -218,6 +222,62 @@ impl<'a> HashTable<'a> {
         let v: u64 = self.bloom(n1)?;
 
         Ok(v & m == m)
+    }
+
+    fn find(&self, symbols: &SymbolTable, strings: &StringTable, name: &str) -> Result<usize> {
+        // 64: parse_get_number
+
+        if let Ok(false) = self.in_bloom_filter(name) {
+            return Err(Error::NotFound);
+        };
+
+        let nbuckets: u32 = self.bucket_count()?;
+        let symoffset: u32 = self.symoffset()?;
+        
+        let namehash = self.gnu_hash(name);
+        let mut index = namehash % nbuckets; 
+
+        if index < symoffset {
+            dbg!("index is less than symoffset");
+            return Err(Error::NotFound);
+        }
+
+        let mut count = 0;
+
+        loop {
+            let hash: u32 = self.chain(index - symoffset)?;
+            dbg!(index);
+            dbg!(symbols.len());
+            dbg!(hash);
+            dbg!(name);
+
+            let item = symbols
+                .at(index as usize)
+                .map(|i| i.name())
+                .unwrap_or(0);
+
+            let found = strings
+                .at_offset(item as usize)
+                .map(|v| v.string_lossy())
+                .unwrap_or(String::new());
+
+            dbg!(&found);
+
+            if (namehash | 1) == (hash | 1) && found == name {
+                dbg!(found);
+                break;
+            }
+
+            if hash & 1 == 1 {
+                dbg!(count);
+                break;
+            }
+
+            index += 1;
+            count += 1;
+        }
+
+        Ok(0)
     }
 
     fn layout(&self) -> Layout {
@@ -338,32 +398,34 @@ mod tests {
         let strings = StringTable::try_from(&string_section).unwrap();
 
         let bucket_size = hash.bucket_size();
-        dbg!(bucket_size);
+        // dbg!(bucket_size);
 
         let symoffset = hash.symoffset::<u32>();
         dbg!(symoffset);
 
         let bloom_size = hash.bloom_size::<u32>();
-        dbg!(bloom_size);
+        // dbg!(bloom_size);
 
         let bloom_shift = hash.bloom_shift::<u32>();
-        dbg!(bloom_shift);
-        
-        for (i,item) in symbols.items().unwrap().into_iter().enumerate() {
-            let result = strings
-                .at_offset(item.name() as usize)
-                .map(|v| v.string_lossy());
+        // dbg!(bloom_shift);
 
-            if let Ok(name) = result {
-                let check = hash
-                    .in_bloom_filter(&name)
-                    .unwrap_or(false);
-                println!("{} {}: {:?}",
-                    i,
-                    check,
-                    name);
-            }
-        }
+        hash.find(&symbols,&strings,"parse_get_number");
+        
+        // for (i,item) in symbols.items().unwrap().into_iter().enumerate() {
+        //     let result = strings
+        //         .at_offset(item.name() as usize)
+        //         .map(|v| v.string_lossy());
+
+        //     if let Ok(name) = result {
+        //         let check = hash
+        //             .in_bloom_filter(&name)
+        //             .unwrap_or(false);
+        //         println!("{} {}: {:?}",
+        //             i,
+        //             check,
+        //             name);
+        //     }
+        // }
 
     }
 
