@@ -37,6 +37,10 @@ pub enum Error {
     #[error("Given section is of the wrong type")]
     WrongSectionError,
 
+    /// Filed to convert type to some specialized type
+    #[error("Given object is of the wrong type")]
+    WrongTypeError,
+
     /// Could not parse complex type from primitive
     #[error("Could not convert from complex value")]
     FromComplexError,

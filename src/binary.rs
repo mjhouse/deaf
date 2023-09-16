@@ -2,7 +2,9 @@ use std::path::Path;
 use std::fs;
 
 use crate::Section;
-use crate::tables::{Table,TableView,StringItem};
+use crate::symbols::Symbol;
+use crate::functions::Function;
+use crate::tables::{Table,TableView,StringItem, SymbolTable, StringTable};
 use crate::headers::FileHeader;
 use crate::errors::{Error,Result};
 use crate::common::{
@@ -127,13 +129,59 @@ impl Binary {
 
     pub fn section_names(&self) -> Result<Vec<String>> {
         self.section(self.header.shstrndx())
-            .and_then(Table::<StringItem>::try_from)
+            .and_then(StringTable::try_from)
             .and_then(|t| t
                 .items())
             .and_then(|v| v
                 .iter()
                 .map(|e| e.string())
                 .collect())
+    }
+
+    /// Get all string tables except the 'shstrtab'
+    pub fn string_tables(&self) -> Vec<StringTable> {
+        let k = self.header.shstrndx();
+        self.sections
+            .iter()
+            .enumerate()
+            .filter(|(i,_)| *i != k)
+            .map(|(_,t)| t)
+            .flat_map(StringTable::try_from)
+            .collect()
+    }
+
+    pub fn symbol_tables(&self) -> Vec<SymbolTable> {
+        self.sections
+            .iter()
+            .flat_map(SymbolTable::try_from)
+            .collect()
+    }
+
+    pub fn symbol_name(&self, offset: usize) -> Option<String> {
+        self.string_tables()
+            .iter()
+            .map(|t| t.at_offset(offset))
+            .find_map(|s| s.ok())
+            .and_then(|s| s.string().ok())
+    }
+
+    pub fn symbols(&self) -> Vec<Symbol> {
+        self.symbol_tables()
+            .iter()
+            .flat_map(SymbolTable::items)
+            .flatten()
+            .collect()
+    }
+
+    pub fn functions(&self) -> Vec<Function> {
+        self.symbols()
+            .into_iter()
+            .flat_map(|f| self
+                .symbol_name(f.name())
+                .map(|s| (f,s)))
+            .flat_map(|(v,s)| Function::try_from(v)
+                .map(|f| f.with_name(s)))
+            .collect()
     }
 
     /// Get the number of section headers in the file
@@ -229,10 +277,10 @@ mod tests {
 
     #[test]
     fn test_display_string_table() {
-        let path = "assets/libjpeg/libjpeg.so.9";
+        let path = "assets/libvpf/libvpf.so.4.1";
         let binary = Binary::load(path).unwrap();
 
-        let sections = &binary.sections[36];
+        let sections = &binary.sections[27];
 
         let dynstr = StringTable::try_from(sections).unwrap();
         
@@ -258,6 +306,60 @@ mod tests {
                 .map(|v| v.string_lossy());
             println!("{}: {:?}",i,name);
         }
+    }
+
+    #[test]
+    fn test_get_symbol_tables() {
+        let path = "assets/libvpf/libvpf.so.4.1";
+        let binary = Binary::load(path).unwrap();
+
+        let tables = binary.symbol_tables();
+        assert_eq!(tables.len(),1);
+
+        let index = tables[0].name();
+        assert_eq!(index,59);
+
+        let result = binary.section_name(index);
+        assert!(result.is_ok());
+
+        let name = result.unwrap();
+        assert_eq!(name, ".dynsym".to_string());
+    }
+
+    #[test]
+    fn test_get_symbols() {
+        let path = "assets/libvpf/libvpf.so.4.1";
+        let binary = Binary::load(path).unwrap();
+
+        let symbols = binary.symbols();
+        assert_eq!(symbols.len(),294);
+
+        let index = symbols[1].name();
+        let result = binary.symbol_name(index);
+        assert!(result.is_some());
+
+        let name = result.unwrap();
+        assert_eq!(name, "__ctype_toupper_loc".to_string());
+    }
+
+    #[test]
+    fn test_get_functions() {
+        let path = "assets/libvpf/libvpf.so.4.1";
+        let binary = Binary::load(path).unwrap();
+
+        let functions = binary.functions();
+        assert_eq!(functions.len(),280);
+
+        for function in functions {
+            dbg!(function.name());
+        }
+
+        // let index = symbols[1].name();
+        // let result = binary.symbol_name(index);
+        // assert!(result.is_some());
+
+        // let name = result.unwrap();
+        // assert_eq!(name, "__ctype_toupper_loc".to_string());
     }
 
 }

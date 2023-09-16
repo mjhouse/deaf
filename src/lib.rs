@@ -7,7 +7,7 @@ pub mod common;
 pub mod headers;
 pub mod tables;
 
-mod function;
+mod functions;
 mod segment;
 mod section;
 mod binary;

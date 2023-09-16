@@ -28,6 +28,11 @@ where
     /// Get an immutable reference to the internal section
     fn section(&self) -> &Section;
 
+    /// Get the name of the internal section
+    fn name(&self) -> usize {
+        self.section().name()
+    }
+
     /// Get an iterator over each item's binary data
     fn iterator(&self) -> ByteIter {
         ByteIter::new(
