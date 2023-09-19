@@ -4,7 +4,7 @@ use std::fs;
 use crate::Section;
 use crate::symbols::Symbol;
 use crate::functions::Function;
-use crate::tables::{Table,TableView,StringItem, SymbolTable, StringTable};
+use crate::tables::{Table,TableView,StringItem, SymbolTable, SymbolTableMut, StringTable};
 use crate::headers::FileHeader;
 use crate::errors::{Error,Result};
 use crate::common::{
@@ -99,6 +99,13 @@ impl Binary {
             .ok_or(Error::NotFound)
     }
 
+    pub fn section_for_address(&self, address: usize) -> Result<&Section> {
+        self.sections
+            .iter()
+            .find(|s| s.start() < address && s.end() > address)
+            .ok_or(Error::NotFound)
+    }
+
     pub fn section_mut(&mut self, index: usize) -> Result<&mut Section> {
         self.sections
             .get_mut(index)
@@ -157,6 +164,13 @@ impl Binary {
             .collect()
     }
 
+    pub fn symbol_tables_mut(&mut self) -> Vec<SymbolTableMut> {
+        self.sections
+            .iter_mut()
+            .flat_map(SymbolTableMut::try_from)
+            .collect()
+    }
+
     pub fn symbol_name(&self, offset: usize) -> Option<String> {
         self.string_tables()
             .iter()
@@ -180,8 +194,22 @@ impl Binary {
                 .symbol_name(f.name())
                 .map(|s| (f,s)))
             .flat_map(|(v,s)| Function::try_from(v)
-                .map(|f| f.with_name(s)))
+                .map(|f| {
+                    let address = f.address() as usize;
+                    let size = f.size() as usize;
+                    
+                    f
+                    .with_name(s)
+                    .with_body(self.data(address,size))
+            }))
             .collect()
+    }
+
+    pub fn data(&self, address: usize, size: usize) -> Vec<u8> {
+        self.section_for_address(address)
+            .and_then(|s| s.slice(s.offset().saturating_sub(address), size))
+            .map(|d| d.to_vec())
+            .unwrap_or(Vec::new())
     }
 
     /// Get the number of section headers in the file
@@ -350,16 +378,17 @@ mod tests {
         let functions = binary.functions();
         assert_eq!(functions.len(),280);
 
-        for function in functions {
-            dbg!(function.name());
-        }
+        let function1 = &functions[80];
+        let function2 = &functions[171];
+        let function3 = &functions[238];
 
-        // let index = symbols[1].name();
-        // let result = binary.symbol_name(index);
-        // assert!(result.is_some());
+        assert_eq!(function1.address(),0x15df0);
+        assert_eq!(function2.address(),0x06250);
+        assert_eq!(function3.address(),0x256a0);
 
-        // let name = result.unwrap();
-        // assert_eq!(name, "__ctype_toupper_loc".to_string());
+        assert_eq!(function1.name(),"table_in_list".to_string());
+        assert_eq!(function2.name(),"swap_two".to_string());
+        assert_eq!(function3.name(),"leftjust".to_string());
     }
 
 }

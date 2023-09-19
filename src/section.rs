@@ -140,6 +140,14 @@ impl Section {
         self.header.offset()
     }
 
+    pub fn start(&self) -> usize {
+        self.offset()
+    }
+
+    pub fn end(&self) -> usize {
+        self.offset() + self.body_size()
+    }
+
     pub fn layout(&self) -> Layout {
         self.header.layout()
     }
