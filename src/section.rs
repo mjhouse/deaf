@@ -5,6 +5,7 @@ use crate::common::{Layout,Width,SectionType,Update,Updateable};
 /// A Section extracted from an ELF file
 #[derive(Debug,Clone)]
 pub struct Section {
+    name: String,
     header: SectionHeader,
     data: Vec<u8>,
 }
@@ -14,6 +15,7 @@ impl Section {
     /// Create a new section from a program header
     pub fn new(header: SectionHeader) -> Self {
         Self { 
+            name: String::new(),
             header: header, 
             data: Vec::new()
         }
@@ -67,6 +69,19 @@ impl Section {
             .collect()
     }
 
+    pub fn with_name(mut self, name: String) -> Self {
+        self.name = name;
+        self
+    }
+
+    pub fn set_name(&mut self, name: String) {
+        self.name = name;
+    }
+
+    pub fn name(&self) -> String {
+        self.name.clone()
+    }
+
     pub fn header(&self) -> &SectionHeader {
         &self.header
     }
@@ -116,8 +131,8 @@ impl Section {
         self.data.len()
     }
 
-    pub fn name(&self) -> usize {
-        self.header.name() as usize
+    pub fn name_index(&self) -> usize {
+        self.header.name_index() as usize
     }
 
     pub fn body_size(&self) -> usize {
