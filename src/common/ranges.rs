@@ -48,10 +48,10 @@ pub const SH_ENTSIZE:     Ranges = Ranges::new(0x24..0x28,0x38..0x40);
 
 pub const ST_NAME:        Ranges = Ranges::new(0x00..0x04,0x00..0x04); // u32 / u32
 pub const ST_VALUE:       Ranges = Ranges::new(0x04..0x08,0x08..0x10); // u32 / u64
-pub const ST_SIZE:        Ranges = Ranges::new(0x08..0x10,0x10..0x18); // u32 / u64
-pub const ST_INFO:        Ranges = Ranges::new(0x10..0x11,0x04..0x05); // u8  / u8
-pub const ST_OTHER:       Ranges = Ranges::new(0x11..0x12,0x05..0x06); // u8  / u8
-pub const ST_SHNDX:       Ranges = Ranges::new(0x12..0x14,0x06..0x08); // u16 / u16
+pub const ST_SIZE:        Ranges = Ranges::new(0x08..0x0c,0x10..0x18); // u32 / u64
+pub const ST_INFO:        Ranges = Ranges::new(0x0c..0x0d,0x04..0x05); // u8  / u8
+pub const ST_OTHER:       Ranges = Ranges::new(0x0d..0x0e,0x05..0x06); // u8  / u8
+pub const ST_SHNDX:       Ranges = Ranges::new(0x0e..0x10,0x06..0x08); // u16 / u16
 
 pub const RT_OFFSET:      Ranges = Ranges::new(0x00..0x04,0x00..0x08); // u32 / u64
 pub const RT_INFO:        Ranges = Ranges::new(0x04..0x08,0x08..0x10); // u32 / u64

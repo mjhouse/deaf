@@ -1,8 +1,14 @@
-use crate::errors::Result;
+use crate::errors::{Error,Result};
 use crate::common::{Convert, STBind, STType};
 
+const TYPE_MASK:  u8 = 0x0f;
+const TYPE_SHIFT: u8 = 0;
+
+const BIND_MASK:  u8 = 0xf0;
+const BIND_SHIFT: u8 = 4;
+
 /// Representation of the info field in a Symbol record
-#[derive(Default,Clone,Copy,PartialEq)]
+#[derive(Default,Debug,Clone,Copy,PartialEq)]
 pub struct SymbolInfo {
     bind: STBind,
     kind: STType,
@@ -10,38 +16,12 @@ pub struct SymbolInfo {
 
 impl SymbolInfo {
 
-    /// Initialize an empty symbol info instance
-    pub fn empty() -> Self {
-        Self { 
-            bind: STBind::STB_LOCAL,
-            kind: STType::STT_NOTYPE
+    /// Create a new SymbolInfo struct with default values
+    pub fn new() -> Self {
+        Self {
+            bind: STBind::default(),
+            kind: STType::default()
         }
-    }
-
-    /// Builder method for setting the type of the info struct
-    pub fn with_kind(mut self, kind: STType) -> Self {
-        self.set_kind(kind);
-        self
-    }
-
-    /// Builder method for setting the binding of the info struct
-    pub fn with_bind(mut self, bind: STBind) -> Self {
-        self.set_bind(bind);
-        self
-    }
-
-    /// Parse a combined value as an info struct
-    pub fn new(v: u8) -> Result<Self> {
-        let bind = STBind::try_from(v >> 4)?;
-        let kind = STType::try_from(v & 0xf)?;
-        Ok(Self { bind, kind })
-    }
-
-    /// Get the combined value of the info struct
-    pub fn value(&self) -> u8 {
-        let b: u8 = self.bind.into();
-        let t: u8 = self.kind.into();
-        (b << 4) | t
     }
 
     /// Get the 'kind' component of the info struct
@@ -54,6 +34,12 @@ impl SymbolInfo {
         self.kind = kind;
     }
 
+    /// Builder method for setting the 'kind' component of the info struct
+    pub fn with_kind(mut self, kind: STType) -> Self {
+        self.set_kind(kind);
+        self
+    }
+
     /// Get the 'bind' component of the info struct
     pub fn bind(&self) -> STBind {
         self.bind.clone()
@@ -64,23 +50,40 @@ impl SymbolInfo {
         self.bind = bind;
     }
 
+    /// Builder method for setting the 'bind' component of the info struct
+    pub fn with_bind(mut self, bind: STBind) -> Self {
+        self.set_bind(bind);
+        self
+    }
+
+}
+
+impl TryFrom<u8> for SymbolInfo {
+    type Error = Error;
+
+    fn try_from(v: u8) -> Result<Self> {
+        let bind = STBind::try_from((v & BIND_MASK) >> BIND_SHIFT)?;
+        let kind = STType::try_from((v & TYPE_MASK) >> TYPE_SHIFT)?;
+        Ok(Self { bind, kind })
+    }
+} 
+
+impl From<SymbolInfo> for u8 {
+
+    fn from(v: SymbolInfo) -> Self {
+        let b: u8 = v.bind().into();
+        let t: u8 = v.kind().into();
+        (b << BIND_SHIFT) | (t << TYPE_SHIFT)
+    }
+
 }
 
 impl Convert<u8> for SymbolInfo {
-    fn convert(self) -> Result<u8> { Ok(self.value()) }
+    fn convert(self) -> Result<u8> { Ok(self.into()) }
 }
 
 impl Convert<SymbolInfo> for u8 {
-    fn convert(self) -> Result<SymbolInfo> { SymbolInfo::new(self) }
-}
-
-impl std::fmt::Debug for SymbolInfo {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("SymbolInfo")
-         .field("kind", &self.kind())
-         .field("bind", &self.bind())
-         .finish()
-    }
+    fn convert(self) -> Result<SymbolInfo> { self.try_into() }
 }
 
 #[cfg(test)]
@@ -90,7 +93,7 @@ mod tests {
     #[test]
     fn test_symbol_info_parse_pair() {
         let value = 0x21; // STB_WEAK + STT_OBJECT
-        let result = SymbolInfo::new(value);
+        let result = SymbolInfo::try_from(value);
 
         assert!(result.is_ok());
         let info = result.unwrap();
@@ -102,7 +105,7 @@ mod tests {
     #[test]
     fn test_symbol_info_parse_zeroes() {
         let value = 0x00; // STB_LOCAL + STT_NOTYPE
-        let result = SymbolInfo::new(value);
+        let result = SymbolInfo::try_from(value);
 
         assert!(result.is_ok());
         let info = result.unwrap();
@@ -114,7 +117,7 @@ mod tests {
     #[test]
     fn test_symbol_info_back_to_zeroes() {
         let value = 0x00; // STB_LOCAL + STT_NOTYPE
-        let info = SymbolInfo::new(value).unwrap();
+        let info = SymbolInfo::try_from(value).unwrap();
         let result: Result<u8> = info.convert();
 
         assert!(result.is_ok());
@@ -124,7 +127,7 @@ mod tests {
     #[test]
     fn test_symbol_info_back_to_value() {
         let value = 0x21; // STB_LOCAL + STT_OBJECT
-        let info = SymbolInfo::new(value).unwrap();
+        let info = SymbolInfo::try_from(value).unwrap();
         let result: Result<u8> = info.convert();
 
         assert!(result.is_ok());

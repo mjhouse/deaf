@@ -141,7 +141,7 @@ pub enum SHFlags {
 /// This enum is parsed from symbol table entities (st_info).
 #[repr(u8)]
 #[allow(non_camel_case_types)]
-#[derive(Default, Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, IntoPrimitive, FromPrimitive)]
 pub enum STBind {
     #[default]
     STB_LOCAL   = 0x00,
@@ -154,7 +154,7 @@ pub enum STBind {
 /// This enum is parsed from symbol table entities (st_info).
 #[repr(u8)]
 #[allow(non_camel_case_types)]
-#[derive(Default, Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, IntoPrimitive, FromPrimitive)]
 pub enum STType {
     #[default]
     STT_NOTYPE  = 0x00,
@@ -164,4 +164,18 @@ pub enum STType {
     STT_FILE    = 0x04,
     STT_COMMON  = 0x05,
     STT_TLS     = 0x06,
+}
+
+/// The binding of a symbol entry from a static or dynamic symbol table
+///
+/// This enum is parsed from symbol table entities (st_info).
+#[repr(u8)]
+#[allow(non_camel_case_types)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, IntoPrimitive, FromPrimitive)]
+pub enum STVisibility {
+    #[default]
+    STV_DEFAULT   = 0x00,
+    STV_INTERNAL  = 0x01,
+    STV_HIDDEN    = 0x02,
+    STV_PROTECTED = 0x03
 }
