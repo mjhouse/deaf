@@ -219,7 +219,7 @@ impl Binary {
                     
                     f
                     .with_name(s)
-                    .with_body(self.data(address,size))
+                    .with_body(&self.data(address,size))
             }))
             .collect()
     }

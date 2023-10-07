@@ -232,12 +232,16 @@ impl Symbol {
         TableItem::size(self)
     }
 
-    /// Finish construction of the symbol
-    pub fn build(self) -> Self {
+    /// Finish building and validate the new symbol
+    pub fn build(self) -> Result<Self> {
+        self.validate()?;
+        Ok(self)
+    }
 
-        // TODO: validate symbol here
-
-        self
+    /// Validate the symbol fields
+    pub fn validate(&self) -> Result<()> {
+        STVisibility::try_from(self.other())?;
+        Ok(())
     }
 
 }
@@ -308,7 +312,8 @@ mod tests {
             let symbol = Symbol::new()
                 .with_layout(Layout::Little)
                 .with_width(Width::X32)
-                .build();
+                .build()
+                .unwrap();
 
             // 32-bit, little-endian hex representation of a symbol
             let data: [u8;16] = [
@@ -329,7 +334,8 @@ mod tests {
             let symbol = Symbol::new()
                 .with_layout(Layout::Little)
                 .with_width(Width::X64)
-                .build();
+                .build()
+                .unwrap();
     
             // 64-bit, little-endian hex representation of a symbol
             let data: [u8;24] = [
@@ -361,7 +367,8 @@ mod tests {
             .with_value(1)
             .with_size(24)
             .with_shndx(1)
-            .build();
+            .build()
+            .unwrap();
 
         let result = symbol.write(&mut buffer);
 
@@ -503,7 +510,8 @@ mod tests {
             .with_value(1)
             .with_size(24)
             .with_shndx(1)
-            .build();
+            .build()
+            .unwrap();
 
         let result = symbol.write(&mut buffer);
 
