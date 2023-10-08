@@ -53,15 +53,30 @@ impl Function {
         self.set_size(body.len());
     }
 
+    /// Extract the function body from section data
+    /// 
+    /// Also updates the size of the symbol to reflect
+    /// the size of the extracted body.
+    pub fn set_body_from(&mut self, data: &[u8], offset: usize) -> Result<()> {
+        self.read_body(data, offset)?;
+        Ok(())
+    }
+
     /// Builder method to set the function body
+    /// 
+    /// Also updates the size of the symbol to reflect
+    /// the size of the given body.
     pub fn with_body(mut self, body: &[u8]) -> Self {
         self.set_body(body);
         self
     }
 
-    /// Builder method to read body from section data 
+    /// Builder method to extract body from section data 
+    /// 
+    /// Also updates the size of the symbol to reflect
+    /// the size of the extracted body.
     pub fn with_body_from(mut self, data: &[u8], offset: usize) -> Result<Self> {
-        self.read_body(data, offset)?;
+        self.set_body_from(data, offset)?;
         Ok(self)
     }
 

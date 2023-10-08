@@ -190,12 +190,14 @@ impl Binary {
             .collect()
     }
 
-    pub fn symbol_name(&self, offset: usize) -> Option<String> {
+    pub fn symbol_name(&self, offset: usize) -> Result<String> {
         self.string_tables()
             .iter()
-            .map(|t| t.at_offset(offset))
-            .find_map(|s| s.ok())
-            .and_then(|s| s.string().ok())
+            .find_map(|t| t
+                .at_offset(offset)
+                .and_then(|s| s.string())
+                .ok())
+            .ok_or(Error::NotFound)
     }
 
     pub fn symbols(&self) -> Vec<Symbol> {
@@ -222,6 +224,33 @@ impl Binary {
                     .with_body(&self.data(address,size))
             }))
             .collect()
+    }
+
+    pub fn functions_ex(&self) -> Result<Vec<Function>> {
+
+        let mut functions = self
+            .symbols()
+            .into_iter()
+            .filter_map(|s| Function::try_from(s).ok())
+            .collect::<Vec<Function>>();
+
+        for function in functions.iter_mut() {
+
+            let section_index = function.section();
+            let name_index = function.symbol().name();
+
+            let section = self.section(section_index)?;
+            let name = self.symbol_name(name_index)?;
+
+            function.set_body_from(
+                &section.data(),
+                section.offset())?;
+
+            function.set_name(name)
+
+        }
+
+        Ok(functions)
     }
 
     pub fn data(&self, address: usize, size: usize) -> Vec<u8> {
@@ -336,7 +365,7 @@ mod tests {
 
         let index = symbols[1].name();
         let result = binary.symbol_name(index);
-        assert!(result.is_some());
+        assert!(result.is_ok());
 
         let name = result.unwrap();
         assert_eq!(name, "__ctype_toupper_loc".to_string());
