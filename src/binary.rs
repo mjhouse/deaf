@@ -208,25 +208,7 @@ impl Binary {
             .collect()
     }
 
-    pub fn functions(&self) -> Vec<Function> {
-        self.symbols()
-            .into_iter()
-            .flat_map(|f| self
-                .symbol_name(f.name())
-                .map(|s| (f,s)))
-            .flat_map(|(v,s)| Function::try_from(v)
-                .map(|f| {
-                    let address = f.address() as usize;
-                    let size = f.size() as usize;
-                    
-                    f
-                    .with_name(s)
-                    .with_body(&self.data(address,size))
-            }))
-            .collect()
-    }
-
-    pub fn functions_ex(&self) -> Result<Vec<Function>> {
+    pub fn functions(&self) -> Result<Vec<Function>> {
 
         let mut functions = self
             .symbols()
@@ -376,7 +358,11 @@ mod tests {
         let path = "assets/libvpf/libvpf.so.4.1";
         let binary = Binary::load(path).unwrap();
 
-        let functions = binary.functions();
+        let result = binary.functions();
+
+        assert!(result.is_ok());
+
+        let functions = result.unwrap();
         assert_eq!(functions.len(),280);
 
         let function1 = &functions[80];
