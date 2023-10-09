@@ -76,7 +76,7 @@ use deaf::{Binary,Section,common::SectionType};
 let binary = Binary::load("assets/libjpeg/libjpeg.so.9").unwrap();
 
 for section in binary.sections(SectionType::Strings).iter() {
-    let name_offset = section.name();
+    let name_offset = section.name_index();
     let name_value = binary.section_name(name_offset).unwrap();
     println!("{}",name_value);
 }

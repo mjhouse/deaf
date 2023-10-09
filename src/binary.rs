@@ -2,7 +2,9 @@ use std::path::Path;
 use std::fs;
 
 use crate::Section;
-use crate::tables::{Table,TableView,StringItem};
+use crate::symbols::Symbol;
+use crate::functions::Function;
+use crate::tables::{Table,TableView,StringItem, SymbolTable, SymbolTableMut, StringTable};
 use crate::headers::FileHeader;
 use crate::errors::{Error,Result};
 use crate::common::{
@@ -51,6 +53,7 @@ impl Binary {
             width
         )?;
 
+        self.process();
         Ok(self.size())
     }
 
@@ -84,6 +87,24 @@ impl Binary {
         Ok(size)
     }
 
+    pub fn process(&mut self) -> Result<()> {
+
+        let str_section = self.section(self.header.shstrndx())?.clone();
+        let str_table = StringTable::try_from(&str_section)?;
+
+        for section in self.sections.iter_mut() {
+            let offset = section.name_index();
+            let name = str_table
+                .at_offset(offset)
+                .and_then(|e| e.string())
+                .unwrap_or("".into());
+
+            section.set_name(name);
+        }
+
+        Ok(())
+    }
+
     pub fn size(&self) -> usize {
         self.header.size() +
         self.sections
@@ -94,6 +115,13 @@ impl Binary {
     pub fn section(&self, index: usize) -> Result<&Section> {
         self.sections
             .get(index)
+            .ok_or(Error::NotFound)
+    }
+
+    pub fn section_for_address(&self, address: usize) -> Result<&Section> {
+        self.sections
+            .iter()
+            .find(|s| s.start() <= address && s.end() > address)
             .ok_or(Error::NotFound)
     }
 
@@ -127,13 +155,109 @@ impl Binary {
 
     pub fn section_names(&self) -> Result<Vec<String>> {
         self.section(self.header.shstrndx())
-            .and_then(Table::<StringItem>::try_from)
+            .and_then(StringTable::try_from)
             .and_then(|t| t
                 .items())
             .and_then(|v| v
                 .iter()
                 .map(|e| e.string())
                 .collect())
+    }
+
+    /// Get all string tables except the 'shstrtab'
+    pub fn string_tables(&self) -> Vec<StringTable> {
+        let k = self.header.shstrndx();
+        self.sections
+            .iter()
+            .enumerate()
+            .filter(|(i,_)| *i != k)
+            .map(|(_,t)| t)
+            .flat_map(StringTable::try_from)
+            .collect()
+    }
+
+    pub fn symbol_tables(&self) -> Vec<SymbolTable> {
+        self.sections
+            .iter()
+            .flat_map(SymbolTable::try_from)
+            .collect()
+    }
+
+    pub fn symbol_tables_mut(&mut self) -> Vec<SymbolTableMut> {
+        self.sections
+            .iter_mut()
+            .flat_map(SymbolTableMut::try_from)
+            .collect()
+    }
+
+    pub fn symbol_name(&self, offset: usize) -> Result<String> {
+        self.string_tables()
+            .iter()
+            .find_map(|t| t
+                .at_offset(offset)
+                .and_then(|s| s.string())
+                .ok())
+            .ok_or(Error::NotFound)
+    }
+
+    pub fn symbols(&self) -> Vec<Symbol> {
+        self.symbol_tables()
+            .iter()
+            .flat_map(SymbolTable::items)
+            .flatten()
+            .collect()
+    }
+
+    pub fn functions(&self) -> Vec<Function> {
+        self.symbols()
+            .into_iter()
+            .flat_map(|f| self
+                .symbol_name(f.name())
+                .map(|s| (f,s)))
+            .flat_map(|(v,s)| Function::try_from(v)
+                .map(|f| {
+                    let address = f.address() as usize;
+                    let size = f.size() as usize;
+                    
+                    f
+                    .with_name(s)
+                    .with_body(&self.data(address,size))
+            }))
+            .collect()
+    }
+
+    pub fn functions_ex(&self) -> Result<Vec<Function>> {
+
+        let mut functions = self
+            .symbols()
+            .into_iter()
+            .filter_map(|s| Function::try_from(s).ok())
+            .collect::<Vec<Function>>();
+
+        for function in functions.iter_mut() {
+
+            let section_index = function.section();
+            let name_index = function.symbol().name();
+
+            let section = self.section(section_index)?;
+            let name = self.symbol_name(name_index)?;
+
+            function.set_body_from(
+                &section.data(),
+                section.offset())?;
+
+            function.set_name(name)
+
+        }
+
+        Ok(functions)
+    }
+
+    pub fn data(&self, address: usize, size: usize) -> Vec<u8> {
+        self.section_for_address(address)
+            .and_then(|s| s.slice(s.offset().saturating_sub(address), size))
+            .map(|d| d.to_vec())
+            .unwrap_or(Vec::new())
     }
 
     /// Get the number of section headers in the file
@@ -203,7 +327,7 @@ mod tests {
         let names = binary
             .sections(SectionType::Strings)
             .iter()
-            .map(|s| s.name())
+            .map(|s| s.name_index())
             .map(|i| binary.section_name(i))
             .collect::<Result<Vec<String>>>()
             .unwrap();
@@ -214,50 +338,142 @@ mod tests {
     }
 
     #[test]
-    fn test_display_sections() {
+    fn test_get_symbol_tables() {
         let path = "assets/libvpf/libvpf.so.4.1";
         let binary = Binary::load(path).unwrap();
 
-        for (i,section) in binary.sections.iter().enumerate() {
-            let kind = section.header().kind();
-            let index = section.name();
-            let name = binary.section_name(index).unwrap();
+        let tables = binary.symbol_tables();
+        assert_eq!(tables.len(),1);
 
-            println!("{}: {} (kind={:?})",i,name,kind);
-        }
+        let index = tables[0].name_index();
+        assert_eq!(index,59);
+
+        let result = binary.section_name(index);
+        assert!(result.is_ok());
+
+        let name = result.unwrap();
+        assert_eq!(name, ".dynsym".to_string());
     }
 
     #[test]
-    fn test_display_string_table() {
-        let path = "assets/libjpeg/libjpeg.so.9";
-        let binary = Binary::load(path).unwrap();
-
-        let sections = &binary.sections[36];
-
-        let dynstr = StringTable::try_from(sections).unwrap();
-        
-        for (i,item) in dynstr.items().unwrap().into_iter().enumerate() {
-            println!("{}: {}",i,item.string_lossy());
-        }
-    }
-
-    #[test]
-    fn test_display_symbol_table() {
+    fn test_get_symbols() {
         let path = "assets/libvpf/libvpf.so.4.1";
         let binary = Binary::load(path).unwrap();
 
-        let strings = &binary.sections[5];
-        let symbols = &binary.sections[4];
+        let symbols = binary.symbols();
+        assert_eq!(symbols.len(),294);
 
-        let dynstr = StringTable::try_from(strings).unwrap();
-        let dynsym = SymbolTable::try_from(symbols).unwrap();
-        
-        for (i,item) in dynsym.items().unwrap().into_iter().enumerate() {
-            let name = dynstr
-                .at_offset(item.name() as usize)
-                .map(|v| v.string_lossy());
-            println!("{}: {:?}",i,name);
-        }
+        let index = symbols[1].name();
+        let result = binary.symbol_name(index);
+        assert!(result.is_ok());
+
+        let name = result.unwrap();
+        assert_eq!(name, "__ctype_toupper_loc".to_string());
     }
+
+    #[test]
+    fn test_get_functions() {
+        let path = "assets/libvpf/libvpf.so.4.1";
+        let binary = Binary::load(path).unwrap();
+
+        let functions = binary.functions();
+        assert_eq!(functions.len(),280);
+
+        let function1 = &functions[80];
+        let function2 = &functions[171];
+        let function3 = &functions[238];
+
+        assert_eq!(function1.address(),0x15df0);
+        assert_eq!(function2.address(),0x06250);
+        assert_eq!(function3.address(),0x256a0);
+
+        assert_eq!(function1.name(),"table_in_list".to_string());
+        assert_eq!(function2.name(),"swap_two".to_string());
+        assert_eq!(function3.name(),"leftjust".to_string());
+    }
+
+    #[test]
+    fn test_get_sections_for_address() {
+        let path = "assets/libvpf/libvpf.so.4.1";
+        let binary = Binary::load(path).unwrap();
+
+        let result = binary.section_for_address(0x2d5);
+        assert!(result.is_ok());
+
+        let section = result.unwrap();
+        assert_eq!(section.name(),".note.gnu.build-id");
+
+        let result = binary.section_for_address(0x2f0);
+        assert!(result.is_ok());
+
+        let section = result.unwrap();
+        assert_eq!(section.name(),".gnu.hash");
+
+        let result = binary.section_for_address(0x5740);
+        assert!(result.is_ok());
+
+        let section = result.unwrap();
+        assert_eq!(section.name(),".text");
+
+        let result = binary.section_for_address(0x33f40);
+        assert!(result.is_ok());
+
+        let section = result.unwrap();
+        assert_eq!(section.name(),".fini");
+
+        let result = binary.section_for_address(0x33f39);
+        assert!(result.is_ok());
+
+        let section = result.unwrap();
+        assert_eq!(section.name(),".text");
+    }
+
+
+    // #[test]
+    // fn test_display_sections() {
+    //     let path = "assets/libvpf/libvpf.so.4.1";
+    //     let binary = Binary::load(path).unwrap();
+
+    //     for (i,section) in binary.sections.iter().enumerate() {
+    //         let kind = section.header().kind();
+    //         let index = section.name_index();
+    //         let name = binary.section_name(index).unwrap();
+
+    //         println!("{}: {} (kind={:?})",i,name,kind);
+    //     }
+    // }
+
+    // #[test]
+    // fn test_display_string_table() {
+    //     let path = "assets/libvpf/libvpf.so.4.1";
+    //     let binary = Binary::load(path).unwrap();
+
+    //     let sections = &binary.sections[27];
+
+    //     let dynstr = StringTable::try_from(sections).unwrap();
+        
+    //     for (i,item) in dynstr.items().unwrap().into_iter().enumerate() {
+    //         println!("{}: {}",i,item.string_lossy());
+    //     }
+    // }
+
+    // #[test]
+    // fn test_display_symbol_table() {
+    //     let path = "assets/libvpf/libvpf.so.4.1";
+    //     let binary = Binary::load(path).unwrap();
+
+    //     let strings = &binary.sections[5];
+    //     let symbols = &binary.sections[4];
+
+    //     let dynstr = StringTable::try_from(strings).unwrap();
+    //     let dynsym = SymbolTable::try_from(symbols).unwrap();
+        
+    //     for (i,item) in dynsym.items().unwrap().into_iter().enumerate() {
+    //         let name = dynstr
+    //             .at_offset(item.name() as usize)
+    //             .map(|v| v.string_lossy());
+    //         println!("{}: {:?}",i,name);
+    //     }
+    // }
 
 }

@@ -215,9 +215,9 @@ mod tests {
 
         // create a section header update
         Update::<SectionHeader>::add(move |t| {
-            let n = t.name();
+            let n = t.name_index();
             if n > limit {
-                t.set_name(n - value);
+                t.set_name_index(n - value);
             }
         });
 

@@ -1,3 +1,5 @@
+use std::default;
+
 use num_enum::{IntoPrimitive, TryFromPrimitive, FromPrimitive};
 use enumflags2::bitflags;
 
@@ -66,6 +68,32 @@ pub enum PHType {
 
 impl Default for PHType {
     fn default() -> Self { Self::PT_NULL }
+}
+
+/// Reserved values for section header indices
+#[repr(u32)]
+#[allow(non_camel_case_types)]
+#[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, FromPrimitive)]
+pub enum SHIndex {
+    #[default]
+    /// An undefined, missing, irrelevant, or otherwise meaningless section reference
+    SHN_UNDEF = 0x0000,
+
+    /// Provide for ordering in conjunction with the SHF_LINK_ORDER/SHF_ORDERED flags
+    SHN_BEFORE = 0xff00,
+
+    /// Provide for ordering in conjunction with the SHF_LINK_ORDER/SHF_ORDERED flags
+    SHN_AFTER = 0xff01,
+
+    /// Symbols defined relative to this index are not affected by relocation
+    SHN_ABS = 0xfff1,
+
+    /// Sections defined relative to this index are tenative/common symbols
+    SHN_COMMON = 0xfff2,
+
+    /// The actual section header index is too large to fit in the containing field 
+    /// (actual index is in SHT_SYMTAB_SHNDX section)
+    SHN_XINDEX = 0xffff,
 }
 
 /// The type of a section header
@@ -138,10 +166,11 @@ pub enum SHFlags {
 
 /// The binding of a symbol entry from a static or dynamic symbol table
 ///
-/// This enum is parsed from symbol table entities (st_info).
+/// This enum is parsed from the upper 4 bits of the 1-byte 'st_info' 
+/// field include in each entry of the symbol table.
 #[repr(u8)]
 #[allow(non_camel_case_types)]
-#[derive(Default, Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, IntoPrimitive, FromPrimitive)]
 pub enum STBind {
     #[default]
     STB_LOCAL   = 0x00,
@@ -151,10 +180,11 @@ pub enum STBind {
 
 /// The type of a symbol entry from a static or dynamic symbol table
 ///
-/// This enum is parsed from symbol table entities (st_info).
+/// This enum is parsed from the lower 4 bits of the 1-byte 'st_info' 
+/// field include in each entry of the symbol table.
 #[repr(u8)]
 #[allow(non_camel_case_types)]
-#[derive(Default, Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, IntoPrimitive, FromPrimitive)]
 pub enum STType {
     #[default]
     STT_NOTYPE  = 0x00,
@@ -164,4 +194,25 @@ pub enum STType {
     STT_FILE    = 0x04,
     STT_COMMON  = 0x05,
     STT_TLS     = 0x06,
+}
+
+/// The binding of a symbol entry from a static or dynamic symbol table
+///
+/// This enum is parsed entries in the symbol table.
+#[repr(u8)]
+#[allow(non_camel_case_types)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, IntoPrimitive, FromPrimitive)]
+pub enum STVisibility {
+    #[default]
+    /// The visibility is as specified by the symbol binding type
+    STV_DEFAULT   = 0x00,
+
+    /// This visibility attribute is currently reserved
+    STV_INTERNAL  = 0x01,
+
+    /// This symbol is protected and not externally visible
+    STV_HIDDEN    = 0x02,
+
+    /// External references must be resolved externally
+    STV_PROTECTED = 0x03
 }

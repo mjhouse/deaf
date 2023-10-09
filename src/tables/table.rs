@@ -1,14 +1,15 @@
 use std::marker::PhantomData;
 use crate::errors::{Error,Result};
 use crate::common::{ByteIter,SHType,Layout,Width};
-use crate::tables::{TableItem,StringItem,RelaItem,RelItem,SymbolItem,ArrayItem};
+use crate::tables::{TableItem,StringItem,RelaItem,RelItem,ArrayItem};
+use crate::symbols::Symbol;
 use crate::Section;
 
 pub type Array<'a> = Table<'a,ArrayItem>;
 pub type ArrayMut<'a> = TableMut<'a,ArrayItem>;
 
-pub type SymbolTable<'a> = Table<'a,SymbolItem>;
-pub type SymbolTableMut<'a> = TableMut<'a,SymbolItem>;
+pub type SymbolTable<'a> = Table<'a,Symbol>;
+pub type SymbolTableMut<'a> = TableMut<'a,Symbol>;
 
 pub type RelTable<'a> = Table<'a,RelItem>;
 pub type RelTableMut<'a> = TableMut<'a,RelItem>;
@@ -26,6 +27,11 @@ where
 {
     /// Get an immutable reference to the internal section
     fn section(&self) -> &Section;
+
+    /// Get the name index of the internal section
+    fn name_index(&self) -> usize {
+        self.section().name_index()
+    }
 
     /// Get an iterator over each item's binary data
     fn iterator(&self) -> ByteIter {
@@ -243,7 +249,7 @@ where
     }
 }
 
-impl<'a> TryFrom<&'a Section> for Table<'a, SymbolItem> 
+impl<'a> TryFrom<&'a Section> for Table<'a, Symbol> 
 {
     type Error = Error;
 
@@ -256,7 +262,7 @@ impl<'a> TryFrom<&'a Section> for Table<'a, SymbolItem>
     }
 }
 
-impl<'a> TryFrom<&'a mut Section> for TableMut<'a, SymbolItem>
+impl<'a> TryFrom<&'a mut Section> for TableMut<'a, Symbol>
 {
     type Error = Error;
 
@@ -597,7 +603,7 @@ mod tests {
         assert_eq!(table.len(),SYM_TEST.length);
         assert_eq!(table.size(),SYM_TEST.size);
 
-        let item1 = SymbolItem::default();
+        let item1 = Symbol::default();
 
         let result = table.prepend(item1.clone());
         assert!(result.is_ok());
@@ -628,7 +634,7 @@ mod tests {
         assert_eq!(table.len(),SYM_TEST.length);
         assert_eq!(table.size(),SYM_TEST.size);
 
-        let item1 = SymbolItem::default();
+        let item1 = Symbol::default();
 
         let result = table.append(item1.clone());
         assert!(result.is_ok());
@@ -659,7 +665,7 @@ mod tests {
         assert_eq!(table.len(),SYM_TEST.length);
         assert_eq!(table.size(),SYM_TEST.size);
 
-        let item1 = SymbolItem::default();
+        let item1 = Symbol::default();
 
         let result = table.insert(3,item1.clone());
         assert!(result.is_ok());

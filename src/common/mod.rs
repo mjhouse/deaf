@@ -36,6 +36,7 @@ pub use constants::{
     SHFlags,
     STBind,
     STType,
+    STVisibility,
 };
 
 pub use update::{

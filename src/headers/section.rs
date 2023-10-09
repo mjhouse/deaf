@@ -182,12 +182,12 @@ impl SectionHeader {
     }
 
     /// Get the `sh_name` attribute of the header
-    pub fn name(&self) -> u32 {
+    pub fn name_index(&self) -> u32 {
         self.sh_name.get()
     }
 
     /// Set the `sh_name` attribute of the header 
-    pub fn set_name(&mut self, name: u32) {
+    pub fn set_name_index(&mut self, name: u32) {
         self.sh_name.set(name);
     }
 
