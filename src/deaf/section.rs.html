@@ -227,6 +227,10 @@
 <a href="#227" id="227">227</a>
 <a href="#228" id="228">228</a>
 <a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::headers::SectionHeader;
 <span class="kw">use </span><span class="kw">crate</span>::errors::{<span class="prelude-ty">Result</span>,Error};
 <span class="kw">use </span><span class="kw">crate</span>::common::{Layout,Width,SectionType,Update,Updateable};
@@ -378,6 +382,10 @@
 
     <span class="kw">pub fn </span>entity_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.body_size() / <span class="self">self</span>.entity_size()
+    }
+
+    <span class="kw">pub fn </span>address(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.header.address() <span class="kw">as </span>usize
     }
 
     <span class="kw">pub fn </span>offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {

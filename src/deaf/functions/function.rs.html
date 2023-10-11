@@ -472,6 +472,11 @@
 <a href="#472" id="472">472</a>
 <a href="#473" id="473">473</a>
 <a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{Error,<span class="prelude-ty">Result</span>};
 <span class="kw">use </span><span class="kw">crate</span>::common::{STType,STBind,STVisibility,Layout,Width};
 <span class="kw">use </span><span class="kw">crate</span>::symbols::{Symbol,SymbolInfo};
@@ -479,7 +484,6 @@
 <span class="attr">#[derive(Default)]
 </span><span class="kw">pub struct </span>Function {
     name: String,
-    body: Vec&lt;u8&gt;,
     symbol: Symbol
 }
 
@@ -515,7 +519,7 @@
 
     <span class="doccomment">/// Get the function body
     </span><span class="kw">pub fn </span>body(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.body
+        <span class="self">self</span>.symbol.data()
     }
 
     <span class="doccomment">/// Set the function body
@@ -523,8 +527,7 @@
     /// Also updates the size of the symbol to reflect
     /// the size of the given body.
     </span><span class="kw">pub fn </span>set_body(<span class="kw-2">&amp;mut </span><span class="self">self</span>, body: <span class="kw-2">&amp;</span>[u8]) {
-        <span class="self">self</span>.body = body.into();
-        <span class="self">self</span>.set_size(body.len());
+        <span class="self">self</span>.symbol.set_data(body);
     }
 
     <span class="doccomment">/// Extract the function body from section data
@@ -779,6 +782,7 @@
 
     <span class="doccomment">/// Write the symbol entry to the beginning of the given data
     </span><span class="kw">fn </span>write_symbol(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="macro">assert!</span>(<span class="self">self</span>.symbol.is_function());
         <span class="self">self</span>.symbol.write(data)
     }
 
@@ -790,7 +794,8 @@
         <span class="kw">let </span>start = <span class="self">self</span>.start(offset);
         <span class="kw">let </span>end = <span class="self">self</span>.end(offset);
         <span class="kw">if </span>start &lt;= end &amp;&amp; end &lt;= data.len() {
-            data[start..end].copy_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.body);
+            <span class="kw">let </span>body = <span class="self">self</span>.body();
+            data[start..end].copy_from_slice(body);
             <span class="prelude-val">Ok</span>(())
         }
         <span class="kw">else </span>{
@@ -799,10 +804,15 @@
     }
 
     <span class="doccomment">/// Finish and validate the new function
-    </span><span class="kw">pub fn </span>build(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub fn </span>build(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
 
         <span class="comment">// ensure that the symbol is valid
         </span><span class="self">self</span>.symbol.validate()<span class="question-mark">?</span>;
+
+        <span class="comment">// ensure that the symbol is a function
+        </span><span class="kw">if </span>!<span class="self">self</span>.symbol.is_function() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::WrongTypeError);
+        }
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }

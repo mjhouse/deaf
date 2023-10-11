@@ -637,12 +637,133 @@
 <a href="#637" id="637">637</a>
 <a href="#638" id="638">638</a>
 <a href="#639" id="639">639</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::Result;
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>num_enum::TryFromPrimitive;
+
+<span class="kw">use crate</span>::{Binary, Section};
+<span class="kw">use </span><span class="kw">crate</span>::errors::Result;
 <span class="kw">use </span><span class="kw">crate</span>::common::{
     Width,
     Layout,
     Item,
-    ranges::<span class="kw-2">*</span>, STType, STBind, STVisibility
+    ranges::<span class="kw-2">*</span>, STType, STBind, STVisibility, SHIndex, FromBytes, IntoBytes
 };
 <span class="kw">use </span><span class="kw">crate</span>::symbols::SymbolInfo;
 <span class="kw">use </span><span class="kw">crate</span>::tables::TableItem;
@@ -656,6 +777,7 @@
     st_info: Item&lt;u8,u8,SymbolInfo&gt;,
     st_other: Item&lt;u8&gt;,
     st_shndx: Item&lt;u16,u16&gt;,
+    data: Vec&lt;u8&gt;,
 }
 
 <span class="kw">impl </span>Symbol {
@@ -669,7 +791,18 @@
             st_info: Item::new(ST_INFO),    
             st_other: Item::new(ST_OTHER),     
             st_shndx: Item::new(ST_SHNDX),
+            data: Vec::new(),
         }
+    }
+
+    <span class="doccomment">/// Get a section reference for the symbol
+    </span><span class="kw">pub fn </span>section&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, binary: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Binary) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Section&gt; {
+        binary.section(<span class="self">self</span>.shndx() <span class="kw">as </span>usize)
+    }
+
+    <span class="doccomment">/// Get a mutable section reference for the symbol
+    </span><span class="kw">pub fn </span>section_mut&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, binary: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Binary) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Section&gt; {
+        binary.section_mut(<span class="self">self</span>.shndx() <span class="kw">as </span>usize)
     }
 
     <span class="doccomment">/// Get the &#39;st_name&#39; field (name *index*) of the symbol
@@ -701,6 +834,33 @@
     <span class="doccomment">/// Builder method to set the &#39;st_value&#39; field of the symbol
     </span><span class="kw">pub fn </span>with_value(<span class="kw-2">mut </span><span class="self">self</span>, value: u64) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.set_value(value);
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Get the data of the symbol
+    </span><span class="kw">pub fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.data
+    }
+
+    <span class="doccomment">/// Get the data of the symbol as a value
+    </span><span class="kw">pub fn </span>data_as&lt;T: FromBytes&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt; {
+        T::from_bytes(<span class="self">self</span>.data(), <span class="self">self</span>.layout())
+    }
+
+    <span class="doccomment">/// Get the data of the symbol mutably
+    </span><span class="kw">pub fn </span>data_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[u8] {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.data
+    }
+
+    <span class="doccomment">/// Set the symbol data and update the `st_size` field
+    </span><span class="kw">pub fn </span>set_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw-2">&amp;</span>[u8]) {
+        <span class="self">self</span>.data = data.into();
+        <span class="self">self</span>.set_size(data.len() <span class="kw">as </span>u64);
+    }
+
+    <span class="doccomment">/// Builder method to set the function data
+    </span><span class="kw">pub fn </span>with_data(<span class="kw-2">mut </span><span class="self">self</span>, data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.set_data(data);
         <span class="self">self
     </span>}
 
@@ -881,6 +1041,63 @@
     </span><span class="kw">pub fn </span>validate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         STVisibility::try_from(<span class="self">self</span>.other())<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Returns true if the symbol is a function
+    </span><span class="kw">pub fn </span>is_function(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.kind() == STType::STT_FUNC
+    }
+
+    <span class="doccomment">/// Returns true if the symbol is an object
+    </span><span class="kw">pub fn </span>is_object(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.kind() == STType::STT_OBJECT
+    }
+
+    <span class="doccomment">/// Returns true if the symbol is a section
+    </span><span class="kw">pub fn </span>is_section(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.kind() == STType::STT_SECTION
+    }
+
+    <span class="doccomment">/// Returns true if the symbol is a file
+    </span><span class="kw">pub fn </span>is_file(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.kind() == STType::STT_FILE
+    }
+
+    <span class="doccomment">/// Returns true if the symbol is common
+    </span><span class="kw">pub fn </span>is_common(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.kind() == STType::STT_COMMON
+    }
+
+    <span class="doccomment">/// Returns true if the symbol is TLS
+    </span><span class="kw">pub fn </span>is_tls(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.kind() == STType::STT_TLS
+    }
+
+    <span class="doccomment">/// Returns true if the symbol is global
+    </span><span class="kw">pub fn </span>is_global(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.bind() == STBind::STB_GLOBAL
+    }
+
+    <span class="doccomment">/// Returns true if the symbol is local
+    </span><span class="kw">pub fn </span>is_local(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.bind() == STBind::STB_LOCAL
+    }
+
+    <span class="doccomment">/// Returns true if the symbol is weak
+    </span><span class="kw">pub fn </span>is_weak(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.bind() == STBind::STB_WEAK
+    }
+
+    <span class="doccomment">/// Returns true if the section index isn&#39;t 
+    /// a reserved value
+    </span><span class="kw">pub fn </span>has_section(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="comment">// TODO: handle SHN_XINDEX situation
+        </span><span class="kw">let </span>v = <span class="self">self</span>.value() <span class="kw">as </span>u32;
+        v != SHIndex::SHN_UNDEF.into()  &amp;&amp;
+        v != SHIndex::SHN_BEFORE.into() &amp;&amp;
+        v != SHIndex::SHN_AFTER.into()  &amp;&amp;
+        v != SHIndex::SHN_ABS.into()    &amp;&amp;
+        v != SHIndex::SHN_COMMON.into()
     }
 
 }
@@ -1275,4 +1492,23 @@
         <span class="macro">assert!</span>(result.is_ok());
         <span class="macro">assert_eq!</span>(symbol.size(),maximum);
     }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_data_symbol_read() {
+        <span class="kw">let </span>path = <span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>;
+        <span class="kw">let </span>binary = Binary::load(path).unwrap();
+
+        <span class="kw">let </span>result = binary.symbols();
+        <span class="macro">assert!</span>(result.is_ok());
+
+        <span class="kw">let </span>symbols = result.unwrap();
+
+        <span class="kw">let </span>result = symbols[<span class="number">78</span>].data_as::&lt;String&gt;();
+        <span class="macro">assert!</span>(result.is_ok());
+
+        <span class="kw">let </span>string = result.unwrap();
+        <span class="kw">let </span>value = string.trim_matches(char::from(<span class="number">0</span>));
+        <span class="macro">assert_eq!</span>(value.trim(), <span class="string">&quot;Decimal Degrees&quot;</span>.to_string());
+    }
+
 }</code></pre></div></section></main></body></html>
