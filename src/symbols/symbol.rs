@@ -1,9 +1,12 @@
+use num_enum::TryFromPrimitive;
+
+use crate::{Binary, Section};
 use crate::errors::Result;
 use crate::common::{
     Width,
     Layout,
     Item,
-    ranges::*, STType, STBind, STVisibility
+    ranges::*, STType, STBind, STVisibility, SHIndex, FromBytes, IntoBytes
 };
 use crate::symbols::SymbolInfo;
 use crate::tables::TableItem;
@@ -17,6 +20,7 @@ pub struct Symbol {
     st_info: Item<u8,u8,SymbolInfo>,
     st_other: Item<u8>,
     st_shndx: Item<u16,u16>,
+    data: Vec<u8>,
 }
 
 impl Symbol {
@@ -30,7 +34,18 @@ impl Symbol {
             st_info: Item::new(ST_INFO),    
             st_other: Item::new(ST_OTHER),     
             st_shndx: Item::new(ST_SHNDX),
+            data: Vec::new(),
         }
+    }
+
+    /// Get a section reference for the symbol
+    pub fn section<'a>(&self, binary: &'a Binary) -> Result<&'a Section> {
+        binary.section(self.shndx() as usize)
+    }
+
+    /// Get a mutable section reference for the symbol
+    pub fn section_mut<'a>(&self, binary: &'a mut Binary) -> Result<&'a mut Section> {
+        binary.section_mut(self.shndx() as usize)
     }
 
     /// Get the 'st_name' field (name *index*) of the symbol
@@ -62,6 +77,33 @@ impl Symbol {
     /// Builder method to set the 'st_value' field of the symbol
     pub fn with_value(mut self, value: u64) -> Self {
         self.set_value(value);
+        self
+    }
+
+    /// Get the data of the symbol
+    pub fn data(&self) -> &[u8] {
+        &self.data
+    }
+
+    /// Get the data of the symbol as a value
+    pub fn data_as<T: FromBytes>(&self) -> Result<T> {
+        T::from_bytes(self.data(), self.layout())
+    }
+
+    /// Get the data of the symbol mutably
+    pub fn data_mut(&mut self) -> &mut [u8] {
+        &mut self.data
+    }
+
+    /// Set the symbol data and update the `st_size` field
+    pub fn set_data(&mut self, data: &[u8]) {
+        self.data = data.into();
+        self.set_size(data.len() as u64);
+    }
+
+    /// Builder method to set the function data
+    pub fn with_data(mut self, data: &[u8]) -> Self {
+        self.set_data(data);
         self
     }
 
@@ -242,6 +284,63 @@ impl Symbol {
     pub fn validate(&self) -> Result<()> {
         STVisibility::try_from(self.other())?;
         Ok(())
+    }
+
+    /// Returns true if the symbol is a function
+    pub fn is_function(&self) -> bool {
+        self.kind() == STType::STT_FUNC
+    }
+
+    /// Returns true if the symbol is an object
+    pub fn is_object(&self) -> bool {
+        self.kind() == STType::STT_OBJECT
+    }
+
+    /// Returns true if the symbol is a section
+    pub fn is_section(&self) -> bool {
+        self.kind() == STType::STT_SECTION
+    }
+
+    /// Returns true if the symbol is a file
+    pub fn is_file(&self) -> bool {
+        self.kind() == STType::STT_FILE
+    }
+
+    /// Returns true if the symbol is common
+    pub fn is_common(&self) -> bool {
+        self.kind() == STType::STT_COMMON
+    }
+
+    /// Returns true if the symbol is TLS
+    pub fn is_tls(&self) -> bool {
+        self.kind() == STType::STT_TLS
+    }
+
+    /// Returns true if the symbol is global
+    pub fn is_global(&self) -> bool {
+        self.bind() == STBind::STB_GLOBAL
+    }
+
+    /// Returns true if the symbol is local
+    pub fn is_local(&self) -> bool {
+        self.bind() == STBind::STB_LOCAL
+    }
+
+    /// Returns true if the symbol is weak
+    pub fn is_weak(&self) -> bool {
+        self.bind() == STBind::STB_WEAK
+    }
+
+    /// Returns true if the section index isn't 
+    /// a reserved value
+    pub fn has_section(&self) -> bool {
+        // TODO: handle SHN_XINDEX situation
+        let v = self.value() as u32;
+        v != SHIndex::SHN_UNDEF.into()  &&
+        v != SHIndex::SHN_BEFORE.into() &&
+        v != SHIndex::SHN_AFTER.into()  &&
+        v != SHIndex::SHN_ABS.into()    &&
+        v != SHIndex::SHN_COMMON.into()
     }
 
 }
@@ -636,4 +735,23 @@ mod tests {
         assert!(result.is_ok());
         assert_eq!(symbol.size(),maximum);
     }
+
+    #[test]
+    fn test_data_symbol_read() {
+        let path = "assets/libvpf/libvpf.so.4.1";
+        let binary = Binary::load(path).unwrap();
+
+        let result = binary.symbols();
+        assert!(result.is_ok());
+
+        let symbols = result.unwrap();
+
+        let result = symbols[78].data_as::<String>();
+        assert!(result.is_ok());
+
+        let string = result.unwrap();
+        let value = string.trim_matches(char::from(0));
+        assert_eq!(value.trim(), "Decimal Degrees".to_string());
+    }
+
 }

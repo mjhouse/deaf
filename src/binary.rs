@@ -53,7 +53,7 @@ impl Binary {
             width
         )?;
 
-        self.process();
+        self.process()?;
         Ok(self.size())
     }
 
@@ -200,34 +200,61 @@ impl Binary {
             .ok_or(Error::NotFound)
     }
 
-    pub fn symbols(&self) -> Vec<Symbol> {
-        self.symbol_tables()
+    pub fn symbols(&self) -> Result<Vec<Symbol>> {
+
+        let mut symbols = self
+            .symbol_tables()
             .iter()
             .flat_map(SymbolTable::items)
             .flatten()
-            .collect()
+            .collect::<Vec<Symbol>>();
+
+        for symbol in symbols.iter_mut() {
+
+            if (symbol.is_object()   ||
+                symbol.is_function() ||
+                symbol.is_section()) &&
+                !symbol.is_weak()    &&
+                symbol.has_section()
+            {
+                let section = symbol.section(self)?;
+
+                // get an offset into the section
+                let offset = symbol
+                    .value()
+                    .saturating_sub(section
+                        .address() as u64);
+
+                // get a slice of bytes the size of the symbol
+                let data = section
+                    .slice(
+                        offset as usize,
+                        symbol.size() as usize)?;
+
+                // add them to the symbol
+                symbol.set_data(data);
+
+            }
+        }
+
+        Ok(symbols)
     }
 
     pub fn functions(&self) -> Result<Vec<Function>> {
 
         let mut functions = self
-            .symbols()
+            .symbols()?
             .into_iter()
             .filter_map(|s| Function::try_from(s).ok())
             .collect::<Vec<Function>>();
 
         for function in functions.iter_mut() {
 
-            let section_index = function.section();
-            let name_index = function.symbol().name();
+            // get the function name
+            let index = function.symbol().name();
+            let name = self.symbol_name(index)?;
 
-            let section = self.section(section_index)?;
-            let name = self.symbol_name(name_index)?;
-
-            function.set_body_from(
-                &section.data(),
-                section.offset())?;
-
+            // set the function name
             function.set_name(name)
 
         }
@@ -298,8 +325,6 @@ impl Updateable for Binary {
 
 #[cfg(test)]
 mod tests {
-    use crate::tables::{StringTable, SymbolTable};
-
     use super::*;
 
     #[test]
@@ -342,7 +367,10 @@ mod tests {
         let path = "assets/libvpf/libvpf.so.4.1";
         let binary = Binary::load(path).unwrap();
 
-        let symbols = binary.symbols();
+        let result = binary.symbols();
+        assert!(result.is_ok());
+
+        let symbols = result.unwrap();
         assert_eq!(symbols.len(),294);
 
         let index = symbols[1].name();
@@ -351,6 +379,13 @@ mod tests {
 
         let name = result.unwrap();
         assert_eq!(name, "__ctype_toupper_loc".to_string());
+
+        let index = symbols[78].name();
+        let result = binary.symbol_name(index);
+        assert!(result.is_ok());
+
+        let name = result.unwrap();
+        assert_eq!(name, "NOPROJ".to_string());
     }
 
     #[test]

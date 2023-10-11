@@ -151,6 +151,10 @@ impl Section {
         self.body_size() / self.entity_size()
     }
 
+    pub fn address(&self) -> usize {
+        self.header.address() as usize
+    }
+
     pub fn offset(&self) -> usize {
         self.header.offset()
     }
