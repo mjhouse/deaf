@@ -34,6 +34,7 @@ pub use constants::{
     PHType,
     SHType,
     SHFlags,
+    SHIndex,
     STBind,
     STType,
     STVisibility,

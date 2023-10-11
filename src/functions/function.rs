@@ -5,7 +5,6 @@ use crate::symbols::{Symbol,SymbolInfo};
 #[derive(Default)]
 pub struct Function {
     name: String,
-    body: Vec<u8>,
     symbol: Symbol
 }
 
@@ -41,7 +40,7 @@ impl Function {
 
     /// Get the function body
     pub fn body(&self) -> &[u8] {
-        &self.body
+        self.symbol.data()
     }
 
     /// Set the function body
@@ -49,8 +48,7 @@ impl Function {
     /// Also updates the size of the symbol to reflect
     /// the size of the given body.
     pub fn set_body(&mut self, body: &[u8]) {
-        self.body = body.into();
-        self.set_size(body.len());
+        self.symbol.set_data(body);
     }
 
     /// Extract the function body from section data
@@ -305,6 +303,7 @@ impl Function {
 
     /// Write the symbol entry to the beginning of the given data
     fn write_symbol(&self, data: &mut [u8]) -> Result<()> {
+        assert!(self.symbol.is_function());
         self.symbol.write(data)
     }
 
@@ -316,7 +315,8 @@ impl Function {
         let start = self.start(offset);
         let end = self.end(offset);
         if start <= end && end <= data.len() {
-            data[start..end].copy_from_slice(&self.body);
+            let body = self.body();
+            data[start..end].copy_from_slice(body);
             Ok(())
         }
         else {
@@ -325,10 +325,15 @@ impl Function {
     }
 
     /// Finish and validate the new function
-    pub fn build(mut self) -> Result<Self> {
+    pub fn build(self) -> Result<Self> {
 
         // ensure that the symbol is valid
         self.symbol.validate()?;
+
+        // ensure that the symbol is a function
+        if !self.symbol.is_function() {
+            return Err(Error::WrongTypeError);
+        }
 
         Ok(self)
     }
