@@ -265,7 +265,7 @@ impl Binary {
     pub fn data(&self, address: usize, size: usize) -> Vec<u8> {
         self.section_for_address(address)
             .and_then(|s| s.slice(s.offset().saturating_sub(address), size))
-            .map(|d| d.to_vec())
+            .and_then(|d| Ok(d.to_vec()))
             .unwrap_or(Vec::new())
     }
 
