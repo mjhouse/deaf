@@ -1,12 +1,10 @@
-use num_enum::TryFromPrimitive;
-
 use crate::{Binary, Section};
 use crate::errors::Result;
 use crate::common::{
     Width,
     Layout,
     Item,
-    ranges::*, STType, STBind, STVisibility, SHIndex, FromBytes, IntoBytes
+    ranges::*, STType, STBind, STVisibility, SHIndex, FromBytes
 };
 use crate::symbols::SymbolInfo;
 use crate::tables::TableItem;

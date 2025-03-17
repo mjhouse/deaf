@@ -1,5 +1,3 @@
-use std::default;
-
 use num_enum::{IntoPrimitive, TryFromPrimitive, FromPrimitive};
 use enumflags2::bitflags;
 

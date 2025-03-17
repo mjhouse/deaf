@@ -61,7 +61,7 @@ where
     }
 
     /// Get an iterator over slices of the data
-    pub fn iterator<'a>(&'a self, bytes: &'a [u8]) -> ByteIter {
+    pub fn iterator<'a>(&'a self, bytes: &'a [u8]) -> ByteIter<'a> {
         ByteIter::length(bytes,self.item_size())
     }
 
