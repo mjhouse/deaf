@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/tables/table.rs`."><title>table.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.1 (d5c2e9c34 2023-09-13)" data-channel="1.72.1" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../../static.files/source-script-106908c7a7964ba4.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../deaf/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/tables/table.rs`."><title>table.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0 (4d91de4e4 2025-02-17)" data-channel="1.85.0" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">deaf/tables/</div>table.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -978,28 +979,27 @@
 <a href="#978" id="978">978</a>
 <a href="#979" id="979">979</a>
 <a href="#980" id="980">980</a>
-<a href="#981" id="981">981</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::marker::PhantomData;
+<a href="#981" id="981">981</a></pre></div><pre class="rust"><code><span class="kw">use </span>std::marker::PhantomData;
 <span class="kw">use </span><span class="kw">crate</span>::errors::{Error,<span class="prelude-ty">Result</span>};
 <span class="kw">use </span><span class="kw">crate</span>::common::{ByteIter,SHType,Layout,Width};
 <span class="kw">use </span><span class="kw">crate</span>::tables::{TableItem,StringItem,RelaItem,RelItem,ArrayItem};
 <span class="kw">use </span><span class="kw">crate</span>::symbols::Symbol;
 <span class="kw">use </span><span class="kw">crate</span>::Section;
 
-<span class="kw">pub type </span>Array&lt;<span class="lifetime">&#39;a</span>&gt; = Table&lt;<span class="lifetime">&#39;a</span>,ArrayItem&gt;;
-<span class="kw">pub type </span>ArrayMut&lt;<span class="lifetime">&#39;a</span>&gt; = TableMut&lt;<span class="lifetime">&#39;a</span>,ArrayItem&gt;;
+<span class="kw">pub type </span>Array&lt;<span class="lifetime">'a</span>&gt; = Table&lt;<span class="lifetime">'a</span>,ArrayItem&gt;;
+<span class="kw">pub type </span>ArrayMut&lt;<span class="lifetime">'a</span>&gt; = TableMut&lt;<span class="lifetime">'a</span>,ArrayItem&gt;;
 
-<span class="kw">pub type </span>SymbolTable&lt;<span class="lifetime">&#39;a</span>&gt; = Table&lt;<span class="lifetime">&#39;a</span>,Symbol&gt;;
-<span class="kw">pub type </span>SymbolTableMut&lt;<span class="lifetime">&#39;a</span>&gt; = TableMut&lt;<span class="lifetime">&#39;a</span>,Symbol&gt;;
+<span class="kw">pub type </span>SymbolTable&lt;<span class="lifetime">'a</span>&gt; = Table&lt;<span class="lifetime">'a</span>,Symbol&gt;;
+<span class="kw">pub type </span>SymbolTableMut&lt;<span class="lifetime">'a</span>&gt; = TableMut&lt;<span class="lifetime">'a</span>,Symbol&gt;;
 
-<span class="kw">pub type </span>RelTable&lt;<span class="lifetime">&#39;a</span>&gt; = Table&lt;<span class="lifetime">&#39;a</span>,RelItem&gt;;
-<span class="kw">pub type </span>RelTableMut&lt;<span class="lifetime">&#39;a</span>&gt; = TableMut&lt;<span class="lifetime">&#39;a</span>,RelItem&gt;;
+<span class="kw">pub type </span>RelTable&lt;<span class="lifetime">'a</span>&gt; = Table&lt;<span class="lifetime">'a</span>,RelItem&gt;;
+<span class="kw">pub type </span>RelTableMut&lt;<span class="lifetime">'a</span>&gt; = TableMut&lt;<span class="lifetime">'a</span>,RelItem&gt;;
 
-<span class="kw">pub type </span>RelaTable&lt;<span class="lifetime">&#39;a</span>&gt; = Table&lt;<span class="lifetime">&#39;a</span>,RelaItem&gt;;
-<span class="kw">pub type </span>RelaTableMut&lt;<span class="lifetime">&#39;a</span>&gt; = TableMut&lt;<span class="lifetime">&#39;a</span>,RelaItem&gt;;
+<span class="kw">pub type </span>RelaTable&lt;<span class="lifetime">'a</span>&gt; = Table&lt;<span class="lifetime">'a</span>,RelaItem&gt;;
+<span class="kw">pub type </span>RelaTableMut&lt;<span class="lifetime">'a</span>&gt; = TableMut&lt;<span class="lifetime">'a</span>,RelaItem&gt;;
 
-<span class="kw">pub type </span>StringTable&lt;<span class="lifetime">&#39;a</span>&gt; = Table&lt;<span class="lifetime">&#39;a</span>,StringItem&gt;;
-<span class="kw">pub type </span>StringTableMut&lt;<span class="lifetime">&#39;a</span>&gt; = TableMut&lt;<span class="lifetime">&#39;a</span>,StringItem&gt;;
+<span class="kw">pub type </span>StringTable&lt;<span class="lifetime">'a</span>&gt; = Table&lt;<span class="lifetime">'a</span>,StringItem&gt;;
+<span class="kw">pub type </span>StringTableMut&lt;<span class="lifetime">'a</span>&gt; = TableMut&lt;<span class="lifetime">'a</span>,StringItem&gt;;
 
 <span class="doccomment">/// Shared table interface between Table and TableMut
 </span><span class="kw">pub trait </span>TableView&lt;T&gt;
@@ -1014,7 +1014,7 @@
         <span class="self">self</span>.section().name_index()
     }
 
-    <span class="doccomment">/// Get an iterator over each item&#39;s binary data
+    <span class="doccomment">/// Get an iterator over each item's binary data
     </span><span class="kw">fn </span>iterator(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ByteIter {
         ByteIter::new(
             <span class="self">self</span>.section().data(),
@@ -1099,29 +1099,29 @@
 }
 
 <span class="doccomment">/// A Section represented as an immutable Table
-</span><span class="kw">pub struct </span>Table&lt;<span class="lifetime">&#39;a</span>,T&gt;
+</span><span class="kw">pub struct </span>Table&lt;<span class="lifetime">'a</span>,T&gt;
 <span class="kw">where
     </span>T: TableItem + Default
 {
     item: PhantomData&lt;T&gt;,
-    section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Section
+    section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section
 }
 
 <span class="doccomment">/// A Section represented as a mutable Table
-</span><span class="kw">pub struct </span>TableMut&lt;<span class="lifetime">&#39;a</span>,T&gt;
+</span><span class="kw">pub struct </span>TableMut&lt;<span class="lifetime">'a</span>,T&gt;
 <span class="kw">where
     </span>T: TableItem + Default
 {
     item: PhantomData&lt;T&gt;,
-    section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Section
+    section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Section
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>,T&gt; Table&lt;<span class="lifetime">&#39;a</span>,T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>,T&gt; Table&lt;<span class="lifetime">'a</span>,T&gt;
 <span class="kw">where
     </span>T: TableItem + Default
 {
     <span class="doccomment">/// Create a new table from the given section
-    </span><span class="kw">fn </span>new(section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Section) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>new(section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             item: PhantomData {},
             section,
@@ -1129,7 +1129,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>,T&gt; TableView&lt;T&gt; <span class="kw">for </span>Table&lt;<span class="lifetime">&#39;a</span>,T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>,T&gt; TableView&lt;T&gt; <span class="kw">for </span>Table&lt;<span class="lifetime">'a</span>,T&gt;
 <span class="kw">where
     </span>T: TableItem + Default
 {
@@ -1138,13 +1138,13 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>,T&gt; TableMut&lt;<span class="lifetime">&#39;a</span>,T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>,T&gt; TableMut&lt;<span class="lifetime">'a</span>,T&gt;
 <span class="kw">where
     </span>T: TableItem + Default
 {
 
     <span class="doccomment">/// Create a new mutable table for the given section
-    </span><span class="kw">fn </span>new(section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Section) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>new(section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Section) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             item: PhantomData {},
             section: section,
@@ -1221,7 +1221,7 @@
 
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>,T&gt; TableView&lt;T&gt; <span class="kw">for </span>TableMut&lt;<span class="lifetime">&#39;a</span>,T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>,T&gt; TableView&lt;T&gt; <span class="kw">for </span>TableMut&lt;<span class="lifetime">'a</span>,T&gt;
 <span class="kw">where
     </span>T: TableItem + Default
 {
@@ -1230,11 +1230,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Section&gt; <span class="kw">for </span>Table&lt;<span class="lifetime">&#39;a</span>, Symbol&gt; 
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section&gt; <span class="kw">for </span>Table&lt;<span class="lifetime">'a</span>, Symbol&gt; 
 {
     <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>section.header().kind() {
             SHType::SHT_SYMTAB =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(section)),
             SHType::SHT_DYNSYM =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(section)),
@@ -1243,11 +1243,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Section&gt; <span class="kw">for </span>TableMut&lt;<span class="lifetime">&#39;a</span>, Symbol&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Section&gt; <span class="kw">for </span>TableMut&lt;<span class="lifetime">'a</span>, Symbol&gt;
 {
     <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>section.header().kind() {
             SHType::SHT_SYMTAB =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(section)),
             SHType::SHT_DYNSYM =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(section)),
@@ -1256,11 +1256,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Section&gt; <span class="kw">for </span>Table&lt;<span class="lifetime">&#39;a</span>, StringItem&gt; 
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section&gt; <span class="kw">for </span>Table&lt;<span class="lifetime">'a</span>, StringItem&gt; 
 {
     <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>section.header().kind() {
             SHType::SHT_STRTAB =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(section)),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::WrongSectionError)
@@ -1268,11 +1268,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Section&gt; <span class="kw">for </span>TableMut&lt;<span class="lifetime">&#39;a</span>, StringItem&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Section&gt; <span class="kw">for </span>TableMut&lt;<span class="lifetime">'a</span>, StringItem&gt;
 {
     <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>section.header().kind() {
             SHType::SHT_STRTAB =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(section)),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::WrongSectionError)
@@ -1280,11 +1280,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Section&gt; <span class="kw">for </span>Table&lt;<span class="lifetime">&#39;a</span>, RelaItem&gt; 
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section&gt; <span class="kw">for </span>Table&lt;<span class="lifetime">'a</span>, RelaItem&gt; 
 {
     <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>section.header().kind() {
             SHType::SHT_RELA =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(section)),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::WrongSectionError)
@@ -1292,11 +1292,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Section&gt; <span class="kw">for </span>TableMut&lt;<span class="lifetime">&#39;a</span>, RelaItem&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Section&gt; <span class="kw">for </span>TableMut&lt;<span class="lifetime">'a</span>, RelaItem&gt;
 {
     <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>section.header().kind() {
             SHType::SHT_RELA =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(section)),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::WrongSectionError)
@@ -1304,11 +1304,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Section&gt; <span class="kw">for </span>Table&lt;<span class="lifetime">&#39;a</span>, RelItem&gt; 
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section&gt; <span class="kw">for </span>Table&lt;<span class="lifetime">'a</span>, RelItem&gt; 
 {
     <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>section.header().kind() {
             SHType::SHT_REL =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(section)),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::WrongSectionError)
@@ -1316,11 +1316,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Section&gt; <span class="kw">for </span>TableMut&lt;<span class="lifetime">&#39;a</span>, RelItem&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Section&gt; <span class="kw">for </span>TableMut&lt;<span class="lifetime">'a</span>, RelItem&gt;
 {
     <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>section.header().kind() {
             SHType::SHT_REL =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(section)),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::WrongSectionError)
@@ -1328,11 +1328,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Section&gt; <span class="kw">for </span>Table&lt;<span class="lifetime">&#39;a</span>, ArrayItem&gt; 
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section&gt; <span class="kw">for </span>Table&lt;<span class="lifetime">'a</span>, ArrayItem&gt; 
 {
     <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>section.header().kind() {
             SHType::SHT_INIT_ARRAY | SHType::SHT_PREINIT_ARRAY | SHType::SHT_FINI_ARRAY  =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(section)),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::WrongSectionError)
@@ -1340,11 +1340,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Section&gt; <span class="kw">for </span>TableMut&lt;<span class="lifetime">&#39;a</span>, ArrayItem&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Section&gt; <span class="kw">for </span>TableMut&lt;<span class="lifetime">'a</span>, ArrayItem&gt;
 {
     <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>try_from(section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Section) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>section.header().kind() {
             SHType::SHT_INIT_ARRAY | SHType::SHT_PREINIT_ARRAY | SHType::SHT_FINI_ARRAY  =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(section)),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::WrongSectionError)
@@ -1352,29 +1352,29 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>,T&gt; From&lt;TableMut&lt;<span class="lifetime">&#39;a</span>,T&gt;&gt; <span class="kw">for </span>Table&lt;<span class="lifetime">&#39;a</span>,T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>,T&gt; From&lt;TableMut&lt;<span class="lifetime">'a</span>,T&gt;&gt; <span class="kw">for </span>Table&lt;<span class="lifetime">'a</span>,T&gt;
 <span class="kw">where
     </span>T: TableItem + Default
 {
-    <span class="kw">fn </span>from(table: TableMut&lt;<span class="lifetime">&#39;a</span>,T&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>from(table: TableMut&lt;<span class="lifetime">'a</span>,T&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new(table.section)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>,T&gt; From&lt;TableMut&lt;<span class="lifetime">&#39;a</span>,T&gt;&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Section
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>,T&gt; From&lt;TableMut&lt;<span class="lifetime">'a</span>,T&gt;&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Section
 <span class="kw">where
     </span>T: TableItem + Default
 {
-    <span class="kw">fn </span>from(table: TableMut&lt;<span class="lifetime">&#39;a</span>,T&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>from(table: TableMut&lt;<span class="lifetime">'a</span>,T&gt;) -&gt; <span class="self">Self </span>{
         table.section
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>,T&gt; From&lt;Table&lt;<span class="lifetime">&#39;a</span>,T&gt;&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Section
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>,T&gt; From&lt;Table&lt;<span class="lifetime">'a</span>,T&gt;&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section
 <span class="kw">where
     </span>T: TableItem + Default
 {
-    <span class="kw">fn </span>from(table: Table&lt;<span class="lifetime">&#39;a</span>,T&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>from(table: Table&lt;<span class="lifetime">'a</span>,T&gt;) -&gt; <span class="self">Self </span>{
         table.section
     }
 }
@@ -1393,7 +1393,7 @@
         LIBQSCINTILLA_INIT_ARRAY <span class="kw">as </span>INIT_TEST, 
     };
 
-    <span class="macro">macro_rules! </span>section {
+    <span class="macro">macro_rules!</span> section {
         ( <span class="macro-nonterminal">$path</span>: expr, <span class="macro-nonterminal">$index</span>: expr ) =&gt; {
             read(<span class="macro-nonterminal">$path</span>)
                 .and_then(|d| FileHeader::parse(<span class="kw-2">&amp;</span>d)
@@ -1412,13 +1412,13 @@
                     .get(<span class="macro-nonterminal">$index</span>)
                     .ok_or(Error::NotFound)
                     .cloned())
-                .expect(<span class="string">&quot;Section not found&quot;</span>)
+                .expect(<span class="string">"Section not found"</span>)
         };
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_read_symbols_as_table() {
-        <span class="kw">let </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libjpeg/libjpeg.so.9&quot;</span>, SYM_TEST.index);
+        <span class="kw">let </span>section = <span class="macro">section!</span>(<span class="string">"assets/libjpeg/libjpeg.so.9"</span>, SYM_TEST.index);
 
         <span class="kw">let </span>result = SymbolTable::try_from(<span class="kw-2">&amp;</span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1429,7 +1429,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_read_strings_as_table() {
-        <span class="kw">let </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>, STR_TEST.index);
+        <span class="kw">let </span>section = <span class="macro">section!</span>(<span class="string">"assets/libvpf/libvpf.so.4.1"</span>, STR_TEST.index);
 
         <span class="kw">let </span>result = StringTable::try_from(<span class="kw-2">&amp;</span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1440,7 +1440,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_read_relocations_addend_as_table() {
-        <span class="kw">let </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>, RELA_TEST.index);
+        <span class="kw">let </span>section = <span class="macro">section!</span>(<span class="string">"assets/libvpf/libvpf.so.4.1"</span>, RELA_TEST.index);
 
         <span class="kw">let </span>result = RelaTable::try_from(<span class="kw-2">&amp;</span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1451,7 +1451,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_strings_prepend() {
-        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>, STR_TEST.index);
+        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">"assets/libvpf/libvpf.so.4.1"</span>, STR_TEST.index);
 
         <span class="kw">let </span>result = StringTableMut::try_from(<span class="kw-2">&amp;mut </span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1461,7 +1461,7 @@
         <span class="macro">assert_eq!</span>(table.len(),STR_TEST.length);
         <span class="macro">assert_eq!</span>(table.size(),STR_TEST.size);
 
-        <span class="kw">let </span>result = table.prepend(<span class="string">&quot;TEST&quot;</span>.try_into().unwrap());
+        <span class="kw">let </span>result = table.prepend(<span class="string">"TEST"</span>.try_into().unwrap());
         <span class="macro">assert!</span>(result.is_ok());
 
         <span class="macro">assert_eq!</span>(table.len(),STR_TEST.length + <span class="number">1</span>);
@@ -1476,12 +1476,12 @@
         <span class="macro">assert!</span>(result.is_ok());
 
         <span class="kw">let </span>value = result.unwrap();
-        <span class="macro">assert_eq!</span>(value,<span class="string">&quot;TEST&quot;</span>.to_string());
+        <span class="macro">assert_eq!</span>(value,<span class="string">"TEST"</span>.to_string());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_strings_append() {
-        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>, STR_TEST.index);
+        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">"assets/libvpf/libvpf.so.4.1"</span>, STR_TEST.index);
 
         <span class="kw">let </span>result = StringTableMut::try_from(<span class="kw-2">&amp;mut </span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1491,7 +1491,7 @@
         <span class="macro">assert_eq!</span>(table.len(),STR_TEST.length);
         <span class="macro">assert_eq!</span>(table.size(),STR_TEST.size);
 
-        <span class="kw">let </span>result = table.append(<span class="string">&quot;TEST&quot;</span>.try_into().unwrap());
+        <span class="kw">let </span>result = table.append(<span class="string">"TEST"</span>.try_into().unwrap());
         <span class="macro">assert!</span>(result.is_ok());
 
         <span class="macro">assert_eq!</span>(table.len(),STR_TEST.length + <span class="number">1</span>);
@@ -1507,12 +1507,12 @@
 
         <span class="kw">let </span>string = result.unwrap();
         <span class="kw">let </span>value = string.as_str();
-        <span class="macro">assert_eq!</span>(value,<span class="string">&quot;TEST&quot;</span>);
+        <span class="macro">assert_eq!</span>(value,<span class="string">"TEST"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_strings_insert() {
-        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>, STR_TEST.index);
+        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">"assets/libvpf/libvpf.so.4.1"</span>, STR_TEST.index);
 
         <span class="kw">let </span>result = StringTableMut::try_from(<span class="kw-2">&amp;mut </span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1522,7 +1522,7 @@
         <span class="macro">assert_eq!</span>(table.len(),STR_TEST.length);
         <span class="macro">assert_eq!</span>(table.size(),STR_TEST.size);
 
-        <span class="kw">let </span>result = table.insert(<span class="number">1</span>,<span class="string">&quot;TEST&quot;</span>.try_into().unwrap());
+        <span class="kw">let </span>result = table.insert(<span class="number">1</span>,<span class="string">"TEST"</span>.try_into().unwrap());
         <span class="macro">assert!</span>(result.is_ok());
 
         <span class="macro">assert_eq!</span>(table.len(),STR_TEST.length + <span class="number">1</span>);
@@ -1538,12 +1538,12 @@
 
         <span class="kw">let </span>string = result.unwrap();
         <span class="kw">let </span>value = string.as_str();
-        <span class="macro">assert_eq!</span>(value,<span class="string">&quot;TEST&quot;</span>);
+        <span class="macro">assert_eq!</span>(value,<span class="string">"TEST"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_strings_remove() {
-        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>, STR_TEST.index);
+        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">"assets/libvpf/libvpf.so.4.1"</span>, STR_TEST.index);
 
         <span class="kw">let </span>result = StringTableMut::try_from(<span class="kw-2">&amp;mut </span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1569,12 +1569,12 @@
 
         <span class="kw">let </span>string = result.unwrap();
         <span class="kw">let </span>value = string.as_str();
-        <span class="macro">assert_ne!</span>(value,<span class="string">&quot;.shstrtab&quot;</span>);
+        <span class="macro">assert_ne!</span>(value,<span class="string">".shstrtab"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_symbols_prepend() {
-        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libjpeg/libjpeg.so.9&quot;</span>, SYM_TEST.index);
+        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">"assets/libjpeg/libjpeg.so.9"</span>, SYM_TEST.index);
 
         <span class="kw">let </span>result = SymbolTableMut::try_from(<span class="kw-2">&amp;mut </span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1605,7 +1605,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_symbols_append() {
-        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libjpeg/libjpeg.so.9&quot;</span>, SYM_TEST.index);
+        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">"assets/libjpeg/libjpeg.so.9"</span>, SYM_TEST.index);
 
         <span class="kw">let </span>result = SymbolTableMut::try_from(<span class="kw-2">&amp;mut </span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1636,7 +1636,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_symbols_insert() {
-        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libjpeg/libjpeg.so.9&quot;</span>, SYM_TEST.index);
+        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">"assets/libjpeg/libjpeg.so.9"</span>, SYM_TEST.index);
 
         <span class="kw">let </span>result = SymbolTableMut::try_from(<span class="kw-2">&amp;mut </span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1667,7 +1667,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_symbols_remove() {
-        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libjpeg/libjpeg.so.9&quot;</span>, SYM_TEST.index);
+        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">"assets/libjpeg/libjpeg.so.9"</span>, SYM_TEST.index);
 
         <span class="kw">let </span>result = SymbolTableMut::try_from(<span class="kw-2">&amp;mut </span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1686,7 +1686,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_relocations_addend_prepend() {
-        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>, RELA_TEST.index);
+        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">"assets/libvpf/libvpf.so.4.1"</span>, RELA_TEST.index);
 
         <span class="kw">let </span>result = RelaTableMut::try_from(<span class="kw-2">&amp;mut </span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1714,7 +1714,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_relocations_addend_append() {
-        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>, RELA_TEST.index);
+        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">"assets/libvpf/libvpf.so.4.1"</span>, RELA_TEST.index);
 
         <span class="kw">let </span>result = RelaTableMut::try_from(<span class="kw-2">&amp;mut </span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1742,7 +1742,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_relocations_addend_insert() {
-        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>, RELA_TEST.index);
+        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">"assets/libvpf/libvpf.so.4.1"</span>, RELA_TEST.index);
 
         <span class="kw">let </span>result = RelaTableMut::try_from(<span class="kw-2">&amp;mut </span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1770,7 +1770,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_relocations_addend_remove() {
-        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libvpf/libvpf.so.4.1&quot;</span>, RELA_TEST.index);
+        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">"assets/libvpf/libvpf.so.4.1"</span>, RELA_TEST.index);
 
         <span class="kw">let </span>result = RelaTableMut::try_from(<span class="kw-2">&amp;mut </span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1789,7 +1789,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_read_init_array_as_array() {
-        <span class="kw">let </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0&quot;</span>, INIT_TEST.index);
+        <span class="kw">let </span>section = <span class="macro">section!</span>(<span class="string">"assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0"</span>, INIT_TEST.index);
 
         <span class="kw">let </span>result = Array::try_from(<span class="kw-2">&amp;</span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1800,7 +1800,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_read_fini_array_as_array() {
-        <span class="kw">let </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0&quot;</span>, FINI_TEST.index);
+        <span class="kw">let </span>section = <span class="macro">section!</span>(<span class="string">"assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0"</span>, FINI_TEST.index);
 
         <span class="kw">let </span>result = Array::try_from(<span class="kw-2">&amp;</span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1811,7 +1811,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_init_array_append() {
-        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0&quot;</span>, INIT_TEST.index);
+        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">"assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0"</span>, INIT_TEST.index);
 
         <span class="kw">let </span>result = ArrayMut::try_from(<span class="kw-2">&amp;mut </span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1836,7 +1836,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_fini_array_append() {
-        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0&quot;</span>, FINI_TEST.index);
+        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">"assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0"</span>, FINI_TEST.index);
 
         <span class="kw">let </span>result = ArrayMut::try_from(<span class="kw-2">&amp;mut </span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1861,7 +1861,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_init_array_prepend() {
-        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0&quot;</span>, INIT_TEST.index);
+        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">"assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0"</span>, INIT_TEST.index);
 
         <span class="kw">let </span>result = ArrayMut::try_from(<span class="kw-2">&amp;mut </span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1886,7 +1886,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_fini_array_prepend() {
-        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0&quot;</span>, FINI_TEST.index);
+        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">"assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0"</span>, FINI_TEST.index);
 
         <span class="kw">let </span>result = ArrayMut::try_from(<span class="kw-2">&amp;mut </span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1911,7 +1911,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_init_array_insert() {
-        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0&quot;</span>, INIT_TEST.index);
+        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">"assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0"</span>, INIT_TEST.index);
 
         <span class="kw">let </span>result = ArrayMut::try_from(<span class="kw-2">&amp;mut </span>section);
         <span class="macro">assert!</span>(result.is_ok());
@@ -1936,7 +1936,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_write_fini_array_insert() {
-        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">&quot;assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0&quot;</span>, FINI_TEST.index);
+        <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="macro">section!</span>(<span class="string">"assets/libqscintilla2/libqscintilla2_qt5.so.15.0.0"</span>, FINI_TEST.index);
 
         <span class="kw">let </span>result = ArrayMut::try_from(<span class="kw-2">&amp;mut </span>section);
         <span class="macro">assert!</span>(result.is_ok());

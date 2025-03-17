@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/functions/function.rs`."><title>function.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.1 (d5c2e9c34 2023-09-13)" data-channel="1.72.1" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../../static.files/source-script-106908c7a7964ba4.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../deaf/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/functions/function.rs`."><title>function.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0 (4d91de4e4 2025-02-17)" data-channel="1.85.0" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">deaf/functions/</div>function.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -476,8 +477,7 @@
 <a href="#476" id="476">476</a>
 <a href="#477" id="477">477</a>
 <a href="#478" id="478">478</a>
-<a href="#479" id="479">479</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{Error,<span class="prelude-ty">Result</span>};
+<a href="#479" id="479">479</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{Error,<span class="prelude-ty">Result</span>};
 <span class="kw">use </span><span class="kw">crate</span>::common::{STType,STBind,STVisibility,Layout,Width};
 <span class="kw">use </span><span class="kw">crate</span>::symbols::{Symbol,SymbolInfo};
 
@@ -500,7 +500,7 @@
 
     <span class="doccomment">/// Set the name of the function
     /// 
-    /// This function will override the &#39;st_name&#39; field in the 
+    /// This function will override the 'st_name' field in the 
     /// symbol when the function is added to a binary and may
     /// insert a new value into the string table.
     </span><span class="kw">pub fn </span>set_name&lt;T: Into&lt;String&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: T) {
@@ -509,7 +509,7 @@
 
     <span class="doccomment">/// Builder method to set the name of the function
     /// 
-    /// This function will override the &#39;st_name&#39; field in the 
+    /// This function will override the 'st_name' field in the 
     /// symbol when the function is added to a binary and may
     /// insert a new value into the string table.
     </span><span class="kw">pub fn </span>with_name&lt;T: Into&lt;String&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, name: T) -&gt; <span class="self">Self </span>{
@@ -557,49 +557,49 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Get the &#39;st_value&#39; field of the function symbol
+    <span class="doccomment">/// Get the 'st_value' field of the function symbol
     </span><span class="kw">pub fn </span>address(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.symbol.value() <span class="kw">as </span>usize
     }
 
-    <span class="doccomment">/// Set the &#39;st_value&#39; field of the function symbol
+    <span class="doccomment">/// Set the 'st_value' field of the function symbol
     </span><span class="kw">pub fn </span>set_address(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: usize) {
         <span class="self">self</span>.symbol.set_value(value <span class="kw">as </span>u64);
     }
 
-    <span class="doccomment">/// Builder method to set the &#39;st_value&#39; field of the function symbol
+    <span class="doccomment">/// Builder method to set the 'st_value' field of the function symbol
     </span><span class="kw">pub fn </span>with_address(<span class="kw-2">mut </span><span class="self">self</span>, value: usize) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.set_address(value);
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Get the &#39;st_size&#39; field of the function symbol
+    <span class="doccomment">/// Get the 'st_size' field of the function symbol
     </span><span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.symbol.size() <span class="kw">as </span>usize
     }
 
-    <span class="doccomment">/// Set the &#39;st_size&#39; field of the function symbol
+    <span class="doccomment">/// Set the 'st_size' field of the function symbol
     </span><span class="kw">pub fn </span>set_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: usize) {
         <span class="self">self</span>.symbol.set_size(value <span class="kw">as </span>u64);
     }
 
-    <span class="doccomment">/// Builder method to set the &#39;st_size&#39; field of the function symbol
+    <span class="doccomment">/// Builder method to set the 'st_size' field of the function symbol
     </span><span class="kw">pub fn </span>with_size(<span class="kw-2">mut </span><span class="self">self</span>, value: usize) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.set_size(value);
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Get the &#39;st_info&#39; field of the function symbol
+    <span class="doccomment">/// Get the 'st_info' field of the function symbol
     </span><span class="kw">pub fn </span>info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SymbolInfo {
         <span class="self">self</span>.symbol.info()
     }
 
-    <span class="doccomment">/// Set the &#39;st_info&#39; field of the function symbol
+    <span class="doccomment">/// Set the 'st_info' field of the function symbol
     </span><span class="kw">pub fn </span>set_info(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: SymbolInfo) {
         <span class="self">self</span>.symbol.set_info(value)
     }
 
-    <span class="doccomment">/// Builder method to set the &#39;st_info&#39; field of the function symbol
+    <span class="doccomment">/// Builder method to set the 'st_info' field of the function symbol
     </span><span class="kw">pub fn </span>with_info(<span class="kw-2">mut </span><span class="self">self</span>, value: SymbolInfo) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.set_info(value);
         <span class="self">self
@@ -637,17 +637,17 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Get the &#39;st_other&#39; field as an enum
+    <span class="doccomment">/// Get the 'st_other' field as an enum
     </span><span class="kw">pub fn </span>visibility(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; STVisibility {
         <span class="self">self</span>.symbol.visibility()
     }
 
-    <span class="doccomment">/// Set the &#39;st_other&#39; field as an enum
+    <span class="doccomment">/// Set the 'st_other' field as an enum
     </span><span class="kw">pub fn </span>set_visibility(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: STVisibility) {
         <span class="self">self</span>.symbol.set_visibility(value);
     }
 
-    <span class="doccomment">/// Builder method to set the &#39;st_other&#39; field as an enum
+    <span class="doccomment">/// Builder method to set the 'st_other' field as an enum
     </span><span class="kw">pub fn </span>with_visibility(<span class="kw-2">mut </span><span class="self">self</span>, value: STVisibility) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.set_visibility(value);
         <span class="self">self
@@ -655,21 +655,21 @@
 
     <span class="doccomment">/// Get the section index of the function symbol 
     /// 
-    /// This gets the &#39;st_shndx&#39; field of the internal symbol.
+    /// This gets the 'st_shndx' field of the internal symbol.
     </span><span class="kw">pub fn </span>section(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.symbol.shndx() <span class="kw">as </span>usize
     }
 
     <span class="doccomment">/// Set the section index of the function symbol 
     /// 
-    /// This sets the &#39;st_shndx&#39; field of the internal symbol.
+    /// This sets the 'st_shndx' field of the internal symbol.
     </span><span class="kw">pub fn </span>set_section(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: usize) {
         <span class="self">self</span>.symbol.set_shndx(value <span class="kw">as </span>u16);
     }
 
     <span class="doccomment">/// Builder method to set the sextion index of the function symbol
     /// 
-    /// This sets the &#39;st_shndx&#39; field of the internal symbol.
+    /// This sets the 'st_shndx' field of the internal symbol.
     </span><span class="kw">pub fn </span>with_section(<span class="kw-2">mut </span><span class="self">self</span>, value: usize) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.set_section(value);
         <span class="self">self
@@ -712,7 +712,7 @@
     /// Fields on the symbol will not reflect some changes
     /// until the function is added to the binary. The 
     /// function name, for example, may be set as a string, 
-    /// but will not update the &#39;st_name&#39; field of the symbol 
+    /// but will not update the 'st_name' field of the symbol 
     /// until the string is added to the string table.
     </span><span class="kw">pub fn </span>symbol(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Symbol {
         <span class="kw-2">&amp;</span><span class="self">self</span>.symbol
@@ -721,9 +721,9 @@
     <span class="doccomment">/// Get the mutable symbol that represents this function
     /// 
     /// Changes made directly to the symbol may be overridden
-    /// when the function is added to the binary. The &#39;st_name&#39;
+    /// when the function is added to the binary. The 'st_name'
     /// field of the symbol, for example, will be overwritten
-    /// when the string &#39;name&#39; is added to the string table.
+    /// when the string 'name' is added to the string table.
     </span><span class="kw">pub fn </span>symbol_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Symbol {
         <span class="kw-2">&amp;mut </span><span class="self">self</span>.symbol
     }
@@ -838,7 +838,7 @@
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="macro">macro_rules! </span>setup_32 {
+    <span class="macro">macro_rules!</span> setup_32 {
         () =&gt; {{
             <span class="comment">// 32-bit, little-endian hex representation of a symbol
             // with attached assembly function body
@@ -864,7 +864,7 @@
         }};
     }
 
-    <span class="macro">macro_rules! </span>setup_64 {
+    <span class="macro">macro_rules!</span> setup_64 {
         () =&gt; {{
             <span class="comment">// 64-bit, little-endian hex representation of a symbol
             // with attached assembly
@@ -907,13 +907,13 @@
                 .with_shndx(<span class="number">1</span>)
                 .build()
                 .unwrap())
-            .with_name(<span class="string">&quot;Test&quot;</span>)
+            .with_name(<span class="string">"Test"</span>)
             .with_size(<span class="number">28</span>)
             .with_address(<span class="number">24</span>)
             .with_body_from(<span class="kw-2">&amp;</span>data, <span class="number">0</span>)
-            .expect(<span class="string">&quot;could not read body from data&quot;</span>)
+            .expect(<span class="string">"could not read body from data"</span>)
             .build()
-            .expect(<span class="string">&quot;could not build new function&quot;</span>);
+            .expect(<span class="string">"could not build new function"</span>);
 
         <span class="kw">let </span>result = function.write_symbol(<span class="kw-2">&amp;mut </span>buffer);
         <span class="macro">assert!</span>(result.is_ok());
@@ -931,7 +931,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>buffer: [u8;<span class="number">44</span>] = [<span class="number">0</span>;<span class="number">44</span>];
 
         <span class="kw">let </span><span class="kw-2">mut </span>function = Function::new()
-            .with_name(<span class="string">&quot;Test&quot;</span>)
+            .with_name(<span class="string">"Test"</span>)
             .with_size(<span class="number">28</span>)
             .with_section(<span class="number">1</span>)
             .with_address(<span class="number">16</span>)

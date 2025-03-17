@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `deaf` crate."><title>deaf - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.1 (d5c2e9c34 2023-09-13)" data-channel="1.72.1" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../deaf/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../deaf/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2 class="location"><a href="#">Crate deaf</a></h2><div class="sidebar-elems"><ul class="block"><li class="version">Version 0.1.2</li><li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li></ul></section></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">deaf</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/deaf/lib.rs.html#1-18">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><a name="readme-top"></a></p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `deaf` crate."><title>deaf - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0 (4d91de4e4 2025-02-17)" data-channel="1.85.0" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../static.files/storage-59e33391.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../deaf/index.html">deaf</a><span class="version">0.1.3</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#introduction" title="Introduction">Introduction</a></li><li><a href="#getting-started" title="Getting Started">Getting Started</a></li><li><a href="#roadmap" title="Roadmap">Roadmap</a><ul><li><a href="#010" title="0.1.0">0.1.0</a></li><li><a href="#020" title="0.2.0">0.2.0</a></li><li><a href="#030" title="0.3.0">0.3.0</a></li><li><a href="#future" title="Future">Future</a></li></ul></li><li><a href="#contributing" title="Contributing">Contributing</a></li><li><a href="#contact" title="Contact">Contact</a></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>deaf</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/deaf/lib.rs.html#1-18">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><a name="readme-top"></a></p>
 <!-- PROJECT SHIELDS -->
 <div align="center">
 <p><a href="https://github.com/mjhouse/deaf/actions/workflows/test.yaml"><img src="https://github.com/mjhouse/deaf/actions/workflows/test.yaml/badge.svg?branch=testing" alt="Tests" /></a>
@@ -32,40 +32,38 @@
         <li><a href="#contact">Contact</a></li>
     </ol>
 </details>
-<h3 id="introduction"><a href="#introduction">Introduction</a></h3>
-<p>This is a library for parsing and modifying ELF-format binaries. There are other libraries like <a href="https://crates.io/crates/elf">elf</a>, 
-<a href="https://crates.io/crates/elfy">elfy</a>, and <a href="https://crates.io/crates/elfkit">elfkit</a> for parsing the format, but they are either 
+<h3 id="introduction"><a class="doc-anchor" href="#introduction">§</a>Introduction</h3>
+<p>This is a library for parsing and modifying ELF-format binaries. There are other libraries like <a href="https://crates.io/crates/elf">elf</a>,
+<a href="https://crates.io/crates/elfy">elfy</a>, and <a href="https://crates.io/crates/elfkit">elfkit</a> for parsing the format, but they are either
 not able to modify the ELF binary (elf and elfy) or are limited/unmaintained (elfkit). DEAF is written with the explicit goal of
-allowing users to modify anything that they can see in the binary- you should be able to add symbols to the symbol tables, remove 
-the body of a function, or change the name of a section, easily and intuitively. Some of the changes you can make will probably break 
-the binary. For example, if you remove the body of a function then relative branch instructions after the gap will no longer point 
+allowing users to modify anything that they can see in the binary- you should be able to add symbols to the symbol tables, remove
+the body of a function, or change the name of a section, easily and intuitively. Some of the changes you can make will probably break
+the binary. For example, if you remove the body of a function then relative branch instructions after the gap will no longer point
 to the correct address.</p>
-<p>As the development of the library progresses, there should be fewer and fewer ways that your changes break the ELF binary, and the 
+<p>As the development of the library progresses, there should be fewer and fewer ways that your changes break the ELF binary, and the
 end goal is to even handle updating branch instructions when code is removed from an executable section.</p>
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-<h3 id="getting-started"><a href="#getting-started">Getting Started</a></h3>
-<p>This project is still in the very early stages, so expect a lot of breaking changes, restructuring, and reorganization from one version 
+<h3 id="getting-started"><a class="doc-anchor" href="#getting-started">§</a>Getting Started</h3>
+<p>This project is still in the very early stages, so expect a lot of breaking changes, restructuring, and reorganization from one version
 to the next as we figure out where things belong. If you still want to try it out, include deaf in your project by using cargo add:</p>
-<div class="example-wrap"><pre class="language-bash"><code>cargo add deaf
-</code></pre></div>
+<div class="example-wrap"><pre class="language-bash"><code>cargo add deaf</code></pre></div>
 <p>Or by manually updating your cargo toml:</p>
-<div class="example-wrap"><pre class="language-bash"><code>deaf = &quot;0.1.2&quot;
-</code></pre></div>
+<div class="example-wrap"><pre class="language-bash"><code>deaf = &quot;0.1.2&quot;</code></pre></div>
 <p>Then use it in your project like so:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>deaf::{Binary,Section,common::SectionType};
 
-<span class="kw">let </span>binary = Binary::load(<span class="string">&quot;assets/libjpeg/libjpeg.so.9&quot;</span>).unwrap();
+<span class="kw">let </span>binary = Binary::load(<span class="string">"assets/libjpeg/libjpeg.so.9"</span>).unwrap();
 
 <span class="kw">for </span>section <span class="kw">in </span>binary.sections(SectionType::Strings).iter() {
     <span class="kw">let </span>name_offset = section.name_index();
     <span class="kw">let </span>name_value = binary.section_name(name_offset).unwrap();
-    <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>,name_value);
+    <span class="macro">println!</span>(<span class="string">"{}"</span>,name_value);
 }
 </code></pre></div>
 <p>For more details, refer to the <a href="https://mjhouse.github.io/deaf/">documentation</a>.</p>
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-<h3 id="roadmap"><a href="#roadmap">Roadmap</a></h3><h4 id="010"><a href="#010">0.1.0</a></h4>
+<h3 id="roadmap"><a class="doc-anchor" href="#roadmap">§</a>Roadmap</h3><h4 id="010"><a class="doc-anchor" href="#010">§</a>0.1.0</h4>
 <p>This version is mainly aimed at providing initial functionality.</p>
 <ul>
 <li><input disabled="" type="checkbox" checked=""/>
@@ -81,7 +79,7 @@ Make ProgramHeader struct that can read and write from/to binary data</li>
 <li><input disabled="" type="checkbox" checked=""/>
 Make SectionHeader struct that can read and write from/to binary data</li>
 </ul>
-<h4 id="020"><a href="#020">0.2.0</a></h4>
+<h4 id="020"><a class="doc-anchor" href="#020">§</a>0.2.0</h4>
 <p>This release is generally aimed at propagating changes to keep the binary useable.</p>
 <ul>
 <li><input disabled="" type="checkbox" checked=""/>
@@ -106,7 +104,7 @@ Align sections on write when body of the section changes</li>
 <li><input disabled="" type="checkbox"/>
 Add getter/setter methods to Binary</li>
 </ul>
-<h4 id="030"><a href="#030">0.3.0</a></h4>
+<h4 id="030"><a class="doc-anchor" href="#030">§</a>0.3.0</h4>
 <p>This release is going to be all about gathering context about executable code, if
 not outright disassembling it.</p>
 <ul>
@@ -128,12 +126,12 @@ Create platform parsing context that varies depending on target platform</li>
 <li><input disabled="" type="checkbox"/>
 Add basic chunking and iteration methods for function bodies</li>
 </ul>
-<h4 id="future"><a href="#future">Future</a></h4>
-<p>This is a haphazard collection of things that should be added to the library at 
+<h4 id="future"><a class="doc-anchor" href="#future">§</a>Future</h4>
+<p>This is a haphazard collection of things that should be added to the library at
 some point but that aren’t quite on the roadmap yet.</p>
 <ul>
 <li>
-<p>Make it possible to iter/iter_mut over instructions in functions without explicitly calling 
+<p>Make it possible to iter/iter_mut over instructions in functions without explicitly calling
 disassembly methods, inspecting the binary target etc. You should be able to iterate instructions
 as easily as you iterate symbols.</p>
 </li>
@@ -143,13 +141,13 @@ how to do this without having some sort of third-party emulation platform for an
 </li>
 </ul>
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-<h3 id="contributing"><a href="#contributing">Contributing</a></h3>
-<p>Anyone is welcome to contribute to DEAF, just try to follow the <a href="https://github.com/mjhouse/deaf/blob/master/CODE_OF_CONDUCT.md">code of conduct</a> 
+<h3 id="contributing"><a class="doc-anchor" href="#contributing">§</a>Contributing</h3>
+<p>Anyone is welcome to contribute to DEAF, just try to follow the <a href="https://github.com/mjhouse/deaf/blob/master/CODE_OF_CONDUCT.md">code of conduct</a>
 and the <a href="https://github.com/mjhouse/deaf/blob/master/CONTRIBUTING.md">contribution guidelines</a>. If something is unclear
 or not covered in the guides, create an issue describing the problem and someone will get back to you as soon as possible.</p>
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-<h3 id="contact"><a href="#contact">Contact</a></h3>
+<h3 id="contact"><a class="doc-anchor" href="#contact">§</a>Contact</h3>
 <p><a href="https://github.com/mjhouse/deaf/issues">Create an issue</a> and @mjhouse to get my attention, or email me at mjhouse@protonmail.com.</p>
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 <!-- MARKDOWN LINKS & IMAGES -->
-</div></details><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="common/index.html" title="mod deaf::common">common</a></div><div class="desc docblock-short">Common structs and types used by all other modules</div></li><li><div class="item-name"><a class="mod" href="errors/index.html" title="mod deaf::errors">errors</a></div><div class="desc docblock-short">A custom error type that aggregates internal errors</div></li><li><div class="item-name"><a class="mod" href="headers/index.html" title="mod deaf::headers">headers</a></div><div class="desc docblock-short">File, program and section header definitions</div></li><li><div class="item-name"><a class="mod" href="tables/index.html" title="mod deaf::tables">tables</a></div><div class="desc docblock-short">Various types of tables and associated table items</div></li><li><div class="item-name"><a class="mod" href="utilities/index.html" title="mod deaf::utilities">utilities</a></div><div class="desc docblock-short">Utility functions for both testing and execution</div></li></ul><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.Binary.html" title="struct deaf::Binary">Binary</a></div><div class="desc docblock-short">An ELF formatted binary file</div></li><li><div class="item-name"><a class="struct" href="struct.Section.html" title="struct deaf::Section">Section</a></div><div class="desc docblock-short">A Section extracted from an ELF file</div></li><li><div class="item-name"><a class="struct" href="struct.Segment.html" title="struct deaf::Segment">Segment</a></div><div class="desc docblock-short">A Segment extracted from an ELF file</div></li></ul></section></div></main></body></html>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="common/index.html" title="mod deaf::common">common</a></div><div class="desc docblock-short">Common structs and types used by all other modules</div></li><li><div class="item-name"><a class="mod" href="errors/index.html" title="mod deaf::errors">errors</a></div><div class="desc docblock-short">A custom error type that aggregates internal errors</div></li><li><div class="item-name"><a class="mod" href="headers/index.html" title="mod deaf::headers">headers</a></div><div class="desc docblock-short">File, program and section header definitions</div></li><li><div class="item-name"><a class="mod" href="tables/index.html" title="mod deaf::tables">tables</a></div><div class="desc docblock-short">Various types of tables and associated table items</div></li><li><div class="item-name"><a class="mod" href="utilities/index.html" title="mod deaf::utilities">utilities</a></div><div class="desc docblock-short">Utility functions for both testing and execution</div></li></ul><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.Binary.html" title="struct deaf::Binary">Binary</a></div><div class="desc docblock-short">An ELF formatted binary file</div></li><li><div class="item-name"><a class="struct" href="struct.Section.html" title="struct deaf::Section">Section</a></div><div class="desc docblock-short">A Section extracted from an ELF file</div></li><li><div class="item-name"><a class="struct" href="struct.Segment.html" title="struct deaf::Segment">Segment</a></div><div class="desc docblock-short">A Segment extracted from an ELF file</div></li></ul><script type="text/json" id="notable-traits-data">{"ByteIter<'_>":"<h3>Notable traits for <code><a class=\"struct\" href=\"common/struct.ByteIter.html\" title=\"struct deaf::common::ByteIter\">ByteIter</a>&lt;'a&gt;</code></h3><pre><code><div class=\"where\">impl&lt;'a&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.85.0/core/iter/traits/iterator/trait.Iterator.html\" title=\"trait core::iter::traits::iterator::Iterator\">Iterator</a> for <a class=\"struct\" href=\"common/struct.ByteIter.html\" title=\"struct deaf::common::ByteIter\">ByteIter</a>&lt;'a&gt;</div><div class=\"where\">    type <a href=\"https://doc.rust-lang.org/1.85.0/core/iter/traits/iterator/trait.Iterator.html#associatedtype.Item\" class=\"associatedtype\">Item</a> = &amp;'a [<a class=\"primitive\" href=\"https://doc.rust-lang.org/1.85.0/std/primitive.u8.html\">u8</a>];</div>"}</script></section></div></main></body></html>

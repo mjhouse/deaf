@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/errors.rs`."><title>errors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.1 (d5c2e9c34 2023-09-13)" data-channel="1.72.1" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../static.files/source-script-106908c7a7964ba4.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../deaf/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/errors.rs`."><title>errors.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="deaf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0 (4d91de4e4 2025-02-17)" data-channel="1.85.0" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">deaf/</div>errors.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -110,8 +111,7 @@
 <a href="#110" id="110">110</a>
 <a href="#111" id="111">111</a>
 <a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! A custom error type that aggregates internal errors
+<a href="#113" id="113">113</a></pre></div><pre class="rust"><code><span class="doccomment">//! A custom error type that aggregates internal errors
 //!
 
 </span><span class="kw">use </span>thiserror::Error <span class="kw">as </span>ThisError;
@@ -119,7 +119,7 @@
 <span class="kw">use </span>num_enum::{TryFromPrimitiveError,TryFromPrimitive};
 <span class="kw">use </span>enumflags2::{FromBitsError,BitFlag};
 
-<span class="doccomment">/// Type alias for &#39;Result&#39; that uses our Error type
+<span class="doccomment">/// Type alias for 'Result' that uses our Error type
 </span><span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T&gt; = std::result::Result&lt;T, Error&gt;;
 
 <span class="doccomment">/// Custom error type used everywhere in this crate
@@ -127,82 +127,82 @@
 </span><span class="kw">pub enum </span>Error {
 
     <span class="doccomment">/// A resource could not be found
-    </span><span class="attr">#[error(<span class="string">&quot;That resource or value could not be found&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"That resource or value could not be found"</span>)]
     </span>NotFound,
 
     <span class="doccomment">/// Binary data could not be parsed into fields
-    </span><span class="attr">#[error(<span class="string">&quot;Binary could not be parsed&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Binary could not be parsed"</span>)]
     </span>ParseError,
 
     <span class="doccomment">/// A value could not be converted to a different representation
-    </span><span class="attr">#[error(<span class="string">&quot;Value could not be converted&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Value could not be converted"</span>)]
     </span>ConversionError,
 
     <span class="doccomment">/// Collection was accessed with an out-of-bounds index
-    </span><span class="attr">#[error(<span class="string">&quot;Slice or access is out of bounds&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Slice or access is out of bounds"</span>)]
     </span>OutOfBoundsError,
 
     <span class="doccomment">/// Given data has missing or wrong values for the action
-    </span><span class="attr">#[error(<span class="string">&quot;Given data has the wrong shape for operation&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Given data has the wrong shape for operation"</span>)]
     </span>MalformedDataError,
 
     <span class="doccomment">/// Filed to convert section to a table or array
-    </span><span class="attr">#[error(<span class="string">&quot;Given section is of the wrong type&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Given section is of the wrong type"</span>)]
     </span>WrongSectionError,
 
     <span class="doccomment">/// Filed to convert type to some specialized type
-    </span><span class="attr">#[error(<span class="string">&quot;Given object is of the wrong type&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Given object is of the wrong type"</span>)]
     </span>WrongTypeError,
 
     <span class="doccomment">/// Could not parse complex type from primitive
-    </span><span class="attr">#[error(<span class="string">&quot;Could not convert from complex value&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Could not convert from complex value"</span>)]
     </span>FromComplexError,
 
     <span class="doccomment">/// Could not parse complex type from primitive
-    </span><span class="attr">#[error(<span class="string">&quot;Could not convert from primitive value&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Could not convert from primitive value"</span>)]
     </span>FromPrimitiveError(String),
 
     <span class="doccomment">/// Failed to access shared data because Mutex is poisoned
-    </span><span class="attr">#[error(<span class="string">&quot;Mutex is poisoned and data is unavailable&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Mutex is poisoned and data is unavailable"</span>)]
     </span>PoisonError(String),
 
     <span class="doccomment">/// Bytes with no nul terminator could not be parsed as c-string
-    </span><span class="attr">#[error(<span class="string">&quot;Could not parse bytes into CStr representation&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Could not parse bytes into CStr representation"</span>)]
     </span>FromBytesWithNulError(<span class="attr">#[from] </span>std::ffi::FromBytesWithNulError),
 
     <span class="doccomment">/// String with no nul terminator could not be parsed as c-string
-    </span><span class="attr">#[error(<span class="string">&quot;Could not convert String to CString&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Could not convert String to CString"</span>)]
     </span>FromStringError(<span class="attr">#[from] </span>std::ffi::NulError),
 
     <span class="doccomment">/// CString failed to convert to UTF-8 encoded String
-    </span><span class="attr">#[error(<span class="string">&quot;Could not convert CString to String&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Could not convert CString to String"</span>)]
     </span>IntoStringError(<span class="attr">#[from] </span>std::ffi::IntoStringError),
 
     <span class="doccomment">/// This error will never actually be created
-    </span><span class="attr">#[error(<span class="string">&quot;This error will never actually be created&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"This error will never actually be created"</span>)]
     </span>InfallibleError(<span class="attr">#[from] </span>std::convert::Infallible),
 
     <span class="doccomment">/// Failed to convert bytes to a value representation
-    </span><span class="attr">#[error(<span class="string">&quot;Failed while converting bytes to integer values&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Failed while converting bytes to integer values"</span>)]
     </span>ParseValueError(<span class="attr">#[from] </span>std::array::TryFromSliceError),
 
     <span class="doccomment">/// Bytes could not be converted to UTF-8 encoded String
-    </span><span class="attr">#[error(<span class="string">&quot;Failed while converting bytes to str&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Failed while converting bytes to str"</span>)]
     </span>ParseUtf8Error(<span class="attr">#[from] </span>std::str::Utf8Error),
 
     <span class="doccomment">/// Could not open a file for reading
-    </span><span class="attr">#[error(<span class="string">&quot;Could not open a file for reading&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Could not open a file for reading"</span>)]
     </span>IOError(<span class="attr">#[from] </span>std::io::Error),
 
     <span class="doccomment">/// Could not convert integer to a different integer type
-    </span><span class="attr">#[error(<span class="string">&quot;Failed while converting integer to different integer&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Failed while converting integer to different integer"</span>)]
     </span>IntConvertError(<span class="attr">#[from] </span>std::num::TryFromIntError),
 
 }
 
 <span class="kw">impl</span>&lt;T&gt; From&lt;std::sync::PoisonError&lt;T&gt;&gt; <span class="kw">for </span>Error {
     <span class="kw">fn </span>from(e: std::sync::PoisonError&lt;T&gt;) -&gt; <span class="self">Self </span>{
-        Error::PoisonError(<span class="macro">format!</span>(<span class="string">&quot;std::sync::PoisonError: {}&quot;</span>,e.to_string()))
+        Error::PoisonError(<span class="macro">format!</span>(<span class="string">"std::sync::PoisonError: {}"</span>,e.to_string()))
     }
 }
 
@@ -211,7 +211,7 @@
     </span>T: TryFromPrimitive
 {
     <span class="kw">fn </span>from(e: TryFromPrimitiveError&lt;T&gt;) -&gt; <span class="self">Self </span>{
-        Error::FromPrimitiveError(<span class="macro">format!</span>(<span class="string">&quot;TryFromPrimitiveError: {}&quot;</span>,e.to_string()))
+        Error::FromPrimitiveError(<span class="macro">format!</span>(<span class="string">"TryFromPrimitiveError: {}"</span>,e.to_string()))
     }
 }
 
@@ -221,6 +221,6 @@
     T::Numeric: core::fmt::LowerHex
 {
     <span class="kw">fn </span>from(e: FromBitsError&lt;T&gt;) -&gt; <span class="self">Self </span>{
-        Error::FromPrimitiveError(<span class="macro">format!</span>(<span class="string">&quot;FromBitsError: {:x}&quot;</span>,e.invalid_bits()))
+        Error::FromPrimitiveError(<span class="macro">format!</span>(<span class="string">"FromBitsError: {:x}"</span>,e.invalid_bits()))
     }
 }</code></pre></div></section></main></body></html>
