@@ -5,7 +5,6 @@ edition = "2021"
 license = "GPL-3.0-only"
 description = "A library for parsing and modifying ELF binaries"
 homepage = "https://github.com/mjhouse/deaf"
-documentation = "https://mjhouse.github.io/deaf/"
 repository = "https://github.com/mjhouse/deaf"
 readme = "README.md"
 keywords = [ "elf", "parse", "binary", "analysis" ]
