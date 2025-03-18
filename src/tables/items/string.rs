@@ -3,7 +3,7 @@ use crate::tables::TableItem;
 use crate::errors::{Error,Result};
 use std::ffi::CString;
 
-/// A String item found in string tables
+/// A string item found in string tables
 #[derive(Default,Debug,Clone,PartialEq)]
 pub struct StringItem {
     value: CString,

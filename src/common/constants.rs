@@ -31,35 +31,79 @@ pub enum Layout {
     Big = 0x02
 }
 
+/// The object file type
+/// 
+/// This enum is parsed from the header of the object file (e_type), and indicates 
+/// what type of file it is.
+#[repr(u16)]
+#[allow(non_camel_case_types)]
+#[derive( Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+pub enum OFType {
+    /// Unknown file type
+    ET_NONE = 0x0000,
+    /// Relocatable file
+    ET_REL = 0x0001,
+    /// Executable file
+    ET_EXEC = 0x0002,
+    /// Shared object file
+    ET_DYN = 0x0003,
+    /// Core dump file
+    ET_CORE = 0x0004,
+    /// Lower bound of OS-specific values
+    ET_LOOS = 0xfe00,
+    /// Upper bound of OS-specific values
+    ET_HIOS = 0xfeff,
+    /// Lower bound of processor-specific values
+    ET_LOPROC = 0xff00,
+    /// Upper bound of processor-specific values
+    ET_HIPROC = 0xffff
+}
+
 /// The type of a program header
 ///
-/// This enum is generally parsed from the program headers (p_type).
+/// This enum is generally parsed from the program headers (p_type). More information
+/// for each of the values for this flag are available in linux documentation[^1].
+/// 
+/// [^1]: <https://refspecs.linuxbase.org/elf/gabi4+/ch5.pheader.html#p_type>
 #[repr(u32)]
 #[allow(non_camel_case_types)]
 #[derive( Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
 pub enum PHType {
-    PT_NULL = 0x00000000,         // 	Program header table entry unused.
-    PT_LOAD = 0x00000001,         // 	Loadable segment.
-    PT_DYNAMIC = 0x00000002,      // 	Dynamic linking information.
-    PT_INTERP = 0x00000003,       // 	Interpreter information.
-    PT_NOTE = 0x00000004,         // 	Auxiliary information.
-    PT_SHLIB = 0x00000005,        // 	Reserved.
-    PT_PHDR = 0x00000006,         // 	Segment containing program header table itself.
-    PT_TLS = 0x00000007,          // 	Thread-Local Storage template.
-    PT_LOOS = 0x60000000,         //   Lower bound of OS-specific types
-    PT_GNU_EH_FRAME = 0x6474e550, //   OS-specific location of .eh_frame section for stack unwinding
-    PT_GNU_PROPERTY = 0x6474e553, //   OS-specific location of .note.gnu.property section  for special loader notes
-    PT_GNU_STACK = 0x6474e551,    //   OS-specific location of stack segment?
-    GNU_RELRO = 0x6474e552,       //   OS-specific segment to be made read-only after linking
+    /// Program header table entry unused
+    PT_NULL = 0x00000000,
+    /// Loadable segment
+    PT_LOAD = 0x00000001,
+    /// Dynamic linking information
+    PT_DYNAMIC = 0x00000002,
+    /// Entry contains size and location of a path to an interpreter
+    PT_INTERP = 0x00000003,
+    /// Entry contains size and location of auxiliary information
+    PT_NOTE = 0x00000004,
+    /// Segment type is reserved but has unspecified semantics
+    PT_SHLIB = 0x00000005,
+    /// Segment containing program header table itself
+    PT_PHDR = 0x00000006,
+    /// Thread-Local Storage template
+    PT_TLS = 0x00000007,
+    /// Entry contains the location and size of exception handling information
+    PT_GNU_EH_FRAME = 0x6474e550,
+    /// OS-specific location of .note.gnu.property section for special loader notes
+    PT_GNU_PROPERTY = 0x6474e553,
+    /// Used to indicate whether the stack should be executable (absence of flag = true)
+    PT_GNU_STACK = 0x6474e551,
+    /// OS-specific segment to be made read-only after linking
+    GNU_RELRO = 0x6474e552,
 
-    // add other os-specific types here
+    /// Lower bound of OS-specific types
+    PT_LOOS = 0x60000000,
+    /// Upper bound of OS-specific types
+    PT_HIOS = 0x6fffffff,
+    /// Lower bound of processor-specific types
+    PT_LOPROC = 0x70000000,
+    /// Upper bound of processor-specific types
+    PT_HIPROC = 0x7fffffff,
 
-    PT_HIOS = 0x6fffffff,         //   Uppder bound of OS-specific types
-    PT_LOPROC = 0x70000000,       //   Lower bound of processor-specific types
-
-    // add other processor specific types here
-
-    PT_HIPROC = 0x7fffffff,       //   Upper bound of processor-specific types
+    /// Unknown p_type value
     #[num_enum(catch_all)]
     Unknown(u32)
 }
@@ -96,42 +140,120 @@ pub enum SHIndex {
 
 /// The type of a section header
 ///
-/// This enum is generally parsed from the section headers (sh_type).
+/// This enum is generally parsed from the section headers (sh_type). Most of these section types can be found 
+/// in [this](https://docs.oracle.com/cd/E19683-01/817-3677/chapter6-94076/index.html) Oracle documentation, 
+/// with the exception of SHT_GNU_HASH and SHT_GNU_LIBLIST which are undocumented. Information regarding these 
+/// two section types was found in the freebsd documentation and various blogs, and (an abbreviated explanation) 
+/// is included below for reference.
+/// 
+/// ## SHT_GNU_HASH
+/// This does the same job at SHT_HASH, but adds a bloom filter to stop lookup for nonexistent symbols earlier. This provides
+/// some performance gains on GNU systems that use this lookup table over the standard one. The structure of the section is 
+/// something like the following struct[^1].
+/// 
+/// ```
+/// struct gnu_hash_table<'a> {
+///     nbuckets: u32,
+///     symoffset: u32,
+///     bloom_size: u32,
+///     bloom_shift: u32,
+///     bloom: &'a [u64], // [bloom_size]; /* u32 for 32-bit binaries */
+///     buckets: &'a [u32], //[nbuckets];
+///     chain: &'a [u32], //[];
+/// };
+/// 
+/// ```
+/// 
+/// ## SHT_GNU_LIBLIST
+/// According to the freebsd documentation[^2], the SHT_GNU_LIBLIST is a section that contains a series of structs of type
+/// Elf32_Lib or Elf64_Lib with the following shape. These entries define external libraries that should be pre-linked
+/// when the current binary runs.
+/// 
+/// ```
+/// struct Elf32_Lib {
+///     l_name: u32,       /* Name (string table index) */
+///     l_time_stamp: u32, /* Timestamp */
+///     l_checksum: u32,   /* Checksum */
+///     l_version: u32,    /* Interface version */
+///     l_flags: u32,      /* Flags */
+/// }
+/// 
+/// struct Elf64_Lib {
+///     l_name: u64,
+///     l_time_stamp: u64,
+///     l_checksum: u64,
+///     l_version: u64,
+///     l_flags: u64,
+/// }
+/// ```
+/// 
+/// [^1]: <https://flapenguin.me/elf-dt-gnu-hash>
+/// [^2]: <https://man.freebsd.org/cgi/man.cgi?elf(3)>
 #[repr(u32)]
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, FromPrimitive)]
 pub enum SHType {
+    /// Section is inactive
     SHT_NULL = 0x00000000,
+    /// Information defined by the program
     SHT_PROGBITS = 0x00000001,
+    /// Symbol table section
     SHT_SYMTAB = 0x00000002,
+    /// String table section
     SHT_STRTAB = 0x00000003,
+    /// Relocation table with explicit addends
     SHT_RELA = 0x00000004,
+    /// Symbol hash table section
     SHT_HASH = 0x00000005,
+    /// Dynamic linking information
     SHT_DYNAMIC = 0x00000006,
+    /// General notes about the object file
     SHT_NOTE = 0x00000007,
+    /// Section with no content
     SHT_NOBITS = 0x00000008,
+    /// Relocation table index
     SHT_REL = 0x00000009,
+    /// Reserved section with unspecified semantics
     SHT_SHLIB = 0x0000000A,
+    /// Dynamic symbol table section 
     SHT_DYNSYM = 0x0000000B,
+    /// Array of pointers to initialization functions
     SHT_INIT_ARRAY = 0x0000000E,
+    /// Array of pointers to termination functions
     SHT_FINI_ARRAY = 0x0000000F,
+    /// Array of pointers to preinit functions
     SHT_PREINIT_ARRAY = 0x00000010,
+    /// Identifies an interrelated group of sections
     SHT_GROUP = 0x00000011,
+    /// Extended symbol table index
     SHT_SYMTAB_SHNDX = 0x00000012,
+    /// Marker value for section type iteration
     SHT_NUM = 0x00000013,
+    /// Low bound for reserved OS-specific semantics
     SHT_LOOS = 0x60000000,
+    /// High bound for reserved OS-specific semantics
+    SHT_HIOS = 0x6fffffff,
+    /// GNU-specific hash table
     SHT_GNU_HASH = 0x6ffffff6,
+    /// GNU-specific list of libraries to be pre-linked
     SHT_GNU_LIBLIST = 0x6ffffff7,
-    SHT_VERDEF = 0x6ffffffd,
-    SHT_VERNEED = 0x6ffffffe,
-    SHT_VERSYM = 0x6fffffff,
-    SHT_ARM_EXIDX =	0x70000001, // ARM unwind info.
-    SHT_ARM_PREEMPTMAP = 0x70000002, // pre-emption details.
-    SHT_ARM_ATTRIBUTES = 0x70000003, // attributes.
-    SHT_ARM_DEBUGOVERLAY = 0x70000004, // overlay debug info.
-    SHT_ARM_OVERLAYSECTION = 0x70000005, // GDB and overlay integration info.
+    /// ARM unwind info
+    SHT_ARM_EXIDX =	0x70000001,
+    /// Contains a pre-emption map that allows symbols to be overriden
+    SHT_ARM_PREEMPTMAP = 0x70000002,
+    /// Contains build attributes for ARM systems
+    SHT_ARM_ATTRIBUTES = 0x70000003,
+    /// Overlay debug info
+    SHT_ARM_DEBUGOVERLAY = 0x70000004,
+    /// GDB and overlay integration info
+    SHT_ARM_OVERLAYSECTION = 0x70000005,
+    /// Unknown catch-all type 
     #[num_enum(catch_all)]
     Unknown(u32),
+
+    // SHT_VERDEF = 0x6ffffffd,
+    // SHT_VERNEED = 0x6ffffffe,
+    // SHT_VERSYM = 0x6fffffff,
 }
 
 impl Default for SHType {
@@ -146,20 +268,32 @@ impl Default for SHType {
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum SHFlags {
-    SHF_WRITE            = 0x00000001, //   Contains data that is writable during process execution. 
-    SHF_ALLOC            = 0x00000002, //   Occupies memory during process execution.
-    SHF_EXECINSTR        = 0x00000004, //   Contains executable machine instructions. 
-    SHF_MERGE            = 0x00000010, //   Identifies a section containing data that may be merged to eliminate duplication
-    SHF_STRINGS          = 0x00000020, //   Identifies a section that consists of null-terminated character strings
-    SHF_INFO_LINK        = 0x00000040, //   This section headers sh_info field holds a section header table index.
-    SHF_LINK_ORDER       = 0x00000080, //   This section adds special ordering requirements to the link-editor
-    SHF_OS_NONCONFORMING = 0x00000100, //   This section requires special OS-specific processing
-    SHF_GROUP            = 0x00000200, //   This section is a member, perhaps the only one, of a section group
-    SHF_TLS              = 0x00000400, //   This section holds thread-local storage
-    // SHF_MASKOS           = 0x0ff00000, //   All bits included in this mask are reserved for operating system-specific semantics.
-    SHF_ORDERED          = 0x40000000, //   This section requires ordering in relation to other sections of the same type
-    SHF_EXCLUDE          = 0x80000000, //   This section is excluded from input to the link-edit of an executable or shared object
-    // SHF_MASKPROC         = 0xf0000000, //   Reserved for processor-specific semantics. 
+    /// Data is writable during process execution
+    SHF_WRITE = 0x00000001,
+    /// Occupies memory during process execution
+    SHF_ALLOC = 0x00000002,
+    /// Contains executable machine instructions
+    SHF_EXECINSTR = 0x00000004,
+    /// Section has data that may be merged to eliminate duplication
+    SHF_MERGE = 0x00000010,
+    /// Section that consists of null-terminated character strings
+    SHF_STRINGS = 0x00000020,
+    /// The section header holds a section header table index
+    SHF_INFO_LINK = 0x00000040,
+    /// Add special ordering requirements to the link-editor
+    SHF_LINK_ORDER = 0x00000080,
+    /// Section requires special OS-specific processing
+    SHF_OS_NONCONFORMING = 0x00000100,
+    /// Section is a member, perhaps the only one, of a section group
+    SHF_GROUP = 0x00000200,
+    /// Section holds thread-local storage
+    SHF_TLS = 0x00000400,
+    /// Section requires ordering in relation to other sections of the same type
+    SHF_ORDERED = 0x40000000,
+    /// Section is excluded from input to the link-edit of an executable or shared object
+    SHF_EXCLUDE = 0x80000000,
+    // SHF_MASKPROC = 0xf0000000, // Mask of bits reserved for processor-specific semantics. 
+    // SHF_MASKOS = 0x0ff00000, // Mask of bits reserved for OS-specific semantics.
 }
 
 /// The binding of a symbol entry from a static or dynamic symbol table
@@ -170,10 +304,13 @@ pub enum SHFlags {
 #[allow(non_camel_case_types)]
 #[derive(Default, Debug, Clone, Copy, PartialEq, IntoPrimitive, FromPrimitive)]
 pub enum STBind {
+    /// Symbol is not visible outside the object file containing its definition
     #[default]
-    STB_LOCAL   = 0x00,
-    STB_GLOBAL  = 0x01,
-    STB_WEAK    = 0x02,
+    STB_LOCAL = 0x00,
+    /// Symbols is visible to all object files being combined
+    STB_GLOBAL = 0x01,
+    /// Same as STB_GLOBAL, but lower precedence
+    STB_WEAK = 0x02,
 }
 
 /// The type of a symbol entry from a static or dynamic symbol table
@@ -184,14 +321,21 @@ pub enum STBind {
 #[allow(non_camel_case_types)]
 #[derive(Default, Debug, Clone, Copy, PartialEq, IntoPrimitive, FromPrimitive)]
 pub enum STType {
+    /// The symbol type is not specified
     #[default]
-    STT_NOTYPE  = 0x00,
-    STT_OBJECT  = 0x01,
-    STT_FUNC    = 0x02,
+    STT_NOTYPE = 0x00,
+    /// Symbol is associated with a data object, such as a variable, an array, etc.
+    STT_OBJECT = 0x01,
+    /// Symbol is associated with a function or other executable code
+    STT_FUNC = 0x02,
+    /// Symbol is associated with a section
     STT_SECTION = 0x03,
-    STT_FILE    = 0x04,
-    STT_COMMON  = 0x05,
-    STT_TLS     = 0x06,
+    /// Symbol gives the name of an associated source file
+    STT_FILE = 0x04,
+    /// An uninitialized common block, treated the same as [STT_OBJECT](STType::STT_OBJECT)
+    STT_COMMON = 0x05,
+    /// Symbol is a thread local storage template (value is offset in [SHF_TLS](SHFlags::SHF_TLS) section)
+    STT_TLS = 0x06,
 }
 
 /// The binding of a symbol entry from a static or dynamic symbol table

@@ -7,4 +7,4 @@ mod section;
 
 pub use file::FileHeader;
 pub use program::ProgramHeader;
-pub use section::{SectionHeader,SectionHeaderData};
+pub use section::SectionHeader;

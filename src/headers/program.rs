@@ -6,7 +6,7 @@ use crate::common::{
 };
 
 use crate::common::{Item, ranges::*};
-use crate::errors::{Result};
+use crate::errors::Result;
 
 /// Program headers extracted from an ELF file.
 /// 

@@ -2,6 +2,7 @@ use crate::common::{Width, Layout, Ranges};
 use crate::common::{ByteIter,Item,T32Value,T64Value,TOutValue};
 use crate::errors::Result;
 
+/// An array of items in a section
 #[derive(Clone)]
 pub struct ItemArray<T32, T64 = T32, Out = T64>
 where
