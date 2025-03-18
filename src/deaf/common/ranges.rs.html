@@ -159,76 +159,234 @@
 <a href="#158" id="158">158</a>
 <a href="#159" id="159">159</a>
 <a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a></pre></div><pre class="rust"><code><span class="kw">use </span>std::ops::Range;
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a></pre></div><pre class="rust"><code><span class="kw">use </span>std::ops::Range;
 <span class="kw">use </span><span class="kw">crate</span>::common::Width;
 
-<span class="kw">pub const </span>EI_KEY:         Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x01</span>,<span class="number">0x00</span>..<span class="number">0x01</span>); <span class="comment">// u8
-</span><span class="kw">pub const </span>EI_MAGIC:       Ranges = Ranges::new(<span class="number">0x01</span>..<span class="number">0x04</span>,<span class="number">0x01</span>..<span class="number">0x04</span>); <span class="comment">// String
-</span><span class="kw">pub const </span>EI_CLASS:       Ranges = Ranges::new(<span class="number">0x04</span>..<span class="number">0x05</span>,<span class="number">0x04</span>..<span class="number">0x05</span>); <span class="comment">// u8
-</span><span class="kw">pub const </span>EI_DATA:        Ranges = Ranges::new(<span class="number">0x05</span>..<span class="number">0x06</span>,<span class="number">0x05</span>..<span class="number">0x06</span>); <span class="comment">// u8
-</span><span class="kw">pub const </span>EI_VERSION:     Ranges = Ranges::new(<span class="number">0x06</span>..<span class="number">0x07</span>,<span class="number">0x06</span>..<span class="number">0x07</span>); <span class="comment">// u8
-</span><span class="kw">pub const </span>EI_OSABI:       Ranges = Ranges::new(<span class="number">0x07</span>..<span class="number">0x08</span>,<span class="number">0x07</span>..<span class="number">0x08</span>); <span class="comment">// u8
-</span><span class="kw">pub const </span>EI_ABIVERSION:  Ranges = Ranges::new(<span class="number">0x08</span>..<span class="number">0x09</span>,<span class="number">0x08</span>..<span class="number">0x09</span>); <span class="comment">// u8
-</span><span class="kw">pub const </span>EI_PAD:         Ranges = Ranges::new(<span class="number">0x09</span>..<span class="number">0x10</span>,<span class="number">0x09</span>..<span class="number">0x10</span>); <span class="comment">// u64
+<span class="doccomment">/// Leading byte of the ELF "magic number", should always be `0x7F`
+</span><span class="kw">pub const </span>EI_KEY: Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x01</span>,<span class="number">0x00</span>..<span class="number">0x01</span>); <span class="comment">// u8
 
-</span><span class="kw">pub const </span>E_TYPE:         Ranges = Ranges::new(<span class="number">0x10</span>..<span class="number">0x12</span>,<span class="number">0x10</span>..<span class="number">0x12</span>); <span class="comment">// u16
-</span><span class="kw">pub const </span>E_MACHINE:      Ranges = Ranges::new(<span class="number">0x12</span>..<span class="number">0x14</span>,<span class="number">0x12</span>..<span class="number">0x14</span>); <span class="comment">// u16
-</span><span class="kw">pub const </span>E_VERSION:      Ranges = Ranges::new(<span class="number">0x14</span>..<span class="number">0x18</span>,<span class="number">0x14</span>..<span class="number">0x18</span>); <span class="comment">// u32
+</span><span class="doccomment">/// The ASCII representation of the letters ELF
+</span><span class="kw">pub const </span>EI_MAGIC: Ranges = Ranges::new(<span class="number">0x01</span>..<span class="number">0x04</span>,<span class="number">0x01</span>..<span class="number">0x04</span>); <span class="comment">// String
 
-</span><span class="kw">pub const </span>E_ENTRY:        Ranges = Ranges::new(<span class="number">0x18</span>..<span class="number">0x1C</span>, <span class="number">0x18</span>..<span class="number">0x20</span>); <span class="comment">// u32 / u64
-</span><span class="kw">pub const </span>E_PHOFF:        Ranges = Ranges::new(<span class="number">0x1C</span>..<span class="number">0x20</span>, <span class="number">0x20</span>..<span class="number">0x28</span>); <span class="comment">// u32 / u64
-</span><span class="kw">pub const </span>E_SHOFF:        Ranges = Ranges::new(<span class="number">0x20</span>..<span class="number">0x24</span>, <span class="number">0x28</span>..<span class="number">0x30</span>); <span class="comment">// u32 / u64
-</span><span class="kw">pub const </span>E_FLAGS:        Ranges = Ranges::new(<span class="number">0x24</span>..<span class="number">0x28</span>, <span class="number">0x30</span>..<span class="number">0x34</span>); <span class="comment">// u32 / u32
+</span><span class="doccomment">/// The format of the file (1 = 32-bit, 2 = 64-bit)
+</span><span class="kw">pub const </span>EI_CLASS: Ranges = Ranges::new(<span class="number">0x04</span>..<span class="number">0x05</span>,<span class="number">0x04</span>..<span class="number">0x05</span>); <span class="comment">// u8
 
-</span><span class="kw">pub const </span>E_EHSIZE:       Ranges = Ranges::new(<span class="number">0x28</span>..<span class="number">0x2A</span>, <span class="number">0x34</span>..<span class="number">0x36</span>); <span class="comment">// u16 / u16
-</span><span class="kw">pub const </span>E_PHENTSIZE:    Ranges = Ranges::new(<span class="number">0x2A</span>..<span class="number">0x2C</span>, <span class="number">0x36</span>..<span class="number">0x38</span>); <span class="comment">// u16 / u16
-</span><span class="kw">pub const </span>E_PHNUM:        Ranges = Ranges::new(<span class="number">0x2C</span>..<span class="number">0x2E</span>, <span class="number">0x38</span>..<span class="number">0x3A</span>); <span class="comment">// u16 / u16
-</span><span class="kw">pub const </span>E_SHENTSIZE:    Ranges = Ranges::new(<span class="number">0x2E</span>..<span class="number">0x30</span>, <span class="number">0x3A</span>..<span class="number">0x3C</span>); <span class="comment">// u16 / u16
-</span><span class="kw">pub const </span>E_SHNUM:        Ranges = Ranges::new(<span class="number">0x30</span>..<span class="number">0x32</span>, <span class="number">0x3C</span>..<span class="number">0x3E</span>); <span class="comment">// u16 / u16
-</span><span class="kw">pub const </span>E_SHSTRNDX:     Ranges = Ranges::new(<span class="number">0x32</span>..<span class="number">0x34</span>, <span class="number">0x3E</span>..<span class="number">0x40</span>); <span class="comment">// u16 / u16
+</span><span class="doccomment">/// Endianness of the file (1 = little, 2 = big)
+</span><span class="kw">pub const </span>EI_DATA: Ranges = Ranges::new(<span class="number">0x05</span>..<span class="number">0x06</span>,<span class="number">0x05</span>..<span class="number">0x06</span>); <span class="comment">// u8
 
-</span><span class="kw">pub const </span>P_TYPE:         Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x04</span>,<span class="number">0x00</span>..<span class="number">0x04</span>);
-<span class="kw">pub const </span>P_FLAGS:        Ranges = Ranges::new(<span class="number">0x18</span>..<span class="number">0x1C</span>,<span class="number">0x04</span>..<span class="number">0x08</span>);
-<span class="kw">pub const </span>P_OFFSET:       Ranges = Ranges::new(<span class="number">0x04</span>..<span class="number">0x08</span>,<span class="number">0x08</span>..<span class="number">0x10</span>);
-<span class="kw">pub const </span>P_VADDR:        Ranges = Ranges::new(<span class="number">0x08</span>..<span class="number">0x0C</span>,<span class="number">0x10</span>..<span class="number">0x18</span>);
-<span class="kw">pub const </span>P_PADDR:        Ranges = Ranges::new(<span class="number">0x0C</span>..<span class="number">0x10</span>,<span class="number">0x18</span>..<span class="number">0x20</span>);
-<span class="kw">pub const </span>P_FILESZ:       Ranges = Ranges::new(<span class="number">0x10</span>..<span class="number">0x14</span>,<span class="number">0x20</span>..<span class="number">0x28</span>);
-<span class="kw">pub const </span>P_MEMSZ:        Ranges = Ranges::new(<span class="number">0x14</span>..<span class="number">0x18</span>,<span class="number">0x28</span>..<span class="number">0x30</span>);
-<span class="kw">pub const </span>P_ALIGN:        Ranges = Ranges::new(<span class="number">0x1C</span>..<span class="number">0x20</span>,<span class="number">0x30</span>..<span class="number">0x38</span>);
+</span><span class="doccomment">/// Version of ELF format (always 1)
+</span><span class="kw">pub const </span>EI_VERSION: Ranges = Ranges::new(<span class="number">0x06</span>..<span class="number">0x07</span>,<span class="number">0x06</span>..<span class="number">0x07</span>); <span class="comment">// u8
 
-<span class="kw">pub const </span>SH_NAME:        Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x04</span>,<span class="number">0x00</span>..<span class="number">0x04</span>);
-<span class="kw">pub const </span>SH_TYPE:        Ranges = Ranges::new(<span class="number">0x04</span>..<span class="number">0x08</span>,<span class="number">0x04</span>..<span class="number">0x08</span>);
-<span class="kw">pub const </span>SH_FLAGS:       Ranges = Ranges::new(<span class="number">0x08</span>..<span class="number">0x0C</span>,<span class="number">0x08</span>..<span class="number">0x10</span>);
-<span class="kw">pub const </span>SH_ADDR:        Ranges = Ranges::new(<span class="number">0x0C</span>..<span class="number">0x10</span>,<span class="number">0x10</span>..<span class="number">0x18</span>);
-<span class="kw">pub const </span>SH_OFFSET:      Ranges = Ranges::new(<span class="number">0x10</span>..<span class="number">0x14</span>,<span class="number">0x18</span>..<span class="number">0x20</span>);
-<span class="kw">pub const </span>SH_SIZE:        Ranges = Ranges::new(<span class="number">0x14</span>..<span class="number">0x18</span>,<span class="number">0x20</span>..<span class="number">0x28</span>);
-<span class="kw">pub const </span>SH_LINK:        Ranges = Ranges::new(<span class="number">0x18</span>..<span class="number">0x1C</span>,<span class="number">0x28</span>..<span class="number">0x2C</span>);
-<span class="kw">pub const </span>SH_INFO:        Ranges = Ranges::new(<span class="number">0x1C</span>..<span class="number">0x20</span>,<span class="number">0x2C</span>..<span class="number">0x30</span>);
-<span class="kw">pub const </span>SH_ADDRALIGN:   Ranges = Ranges::new(<span class="number">0x20</span>..<span class="number">0x24</span>,<span class="number">0x30</span>..<span class="number">0x38</span>);
-<span class="kw">pub const </span>SH_ENTSIZE:     Ranges = Ranges::new(<span class="number">0x24</span>..<span class="number">0x28</span>,<span class="number">0x38</span>..<span class="number">0x40</span>);
+</span><span class="doccomment">/// Identifies the target operating system ABI
+</span><span class="kw">pub const </span>EI_OSABI: Ranges = Ranges::new(<span class="number">0x07</span>..<span class="number">0x08</span>,<span class="number">0x07</span>..<span class="number">0x08</span>); <span class="comment">// u8
 
-<span class="kw">pub const </span>ST_NAME:        Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x04</span>,<span class="number">0x00</span>..<span class="number">0x04</span>); <span class="comment">// u32 / u32
-</span><span class="kw">pub const </span>ST_VALUE:       Ranges = Ranges::new(<span class="number">0x04</span>..<span class="number">0x08</span>,<span class="number">0x08</span>..<span class="number">0x10</span>); <span class="comment">// u32 / u64
-</span><span class="kw">pub const </span>ST_SIZE:        Ranges = Ranges::new(<span class="number">0x08</span>..<span class="number">0x0c</span>,<span class="number">0x10</span>..<span class="number">0x18</span>); <span class="comment">// u32 / u64
-</span><span class="kw">pub const </span>ST_INFO:        Ranges = Ranges::new(<span class="number">0x0c</span>..<span class="number">0x0d</span>,<span class="number">0x04</span>..<span class="number">0x05</span>); <span class="comment">// u8  / u8
-</span><span class="kw">pub const </span>ST_OTHER:       Ranges = Ranges::new(<span class="number">0x0d</span>..<span class="number">0x0e</span>,<span class="number">0x05</span>..<span class="number">0x06</span>); <span class="comment">// u8  / u8
-</span><span class="kw">pub const </span>ST_SHNDX:       Ranges = Ranges::new(<span class="number">0x0e</span>..<span class="number">0x10</span>,<span class="number">0x06</span>..<span class="number">0x08</span>); <span class="comment">// u16 / u16
+</span><span class="doccomment">/// Further identifies specific version of ABI
+</span><span class="kw">pub const </span>EI_ABIVERSION: Ranges = Ranges::new(<span class="number">0x08</span>..<span class="number">0x09</span>,<span class="number">0x08</span>..<span class="number">0x09</span>); <span class="comment">// u8
 
-</span><span class="kw">pub const </span>RT_OFFSET:      Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x04</span>,<span class="number">0x00</span>..<span class="number">0x08</span>); <span class="comment">// u32 / u64
-</span><span class="kw">pub const </span>RT_INFO:        Ranges = Ranges::new(<span class="number">0x04</span>..<span class="number">0x08</span>,<span class="number">0x08</span>..<span class="number">0x10</span>); <span class="comment">// u32 / u64
-</span><span class="kw">pub const </span>RT_ADDEND:      Ranges = Ranges::new(<span class="number">0x08</span>..<span class="number">0x0C</span>,<span class="number">0x10</span>..<span class="number">0x18</span>); <span class="comment">// i32 / i64
+</span><span class="doccomment">/// Padding bytes that should always be filled with zeroes
+</span><span class="kw">pub const </span>EI_PAD: Ranges = Ranges::new(<span class="number">0x09</span>..<span class="number">0x10</span>,<span class="number">0x09</span>..<span class="number">0x10</span>); <span class="comment">// u64
 
-</span><span class="kw">pub const </span>NBUCKETS:       Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x04</span>,<span class="number">0x00</span>..<span class="number">0x04</span>); <span class="comment">// u32
-</span><span class="kw">pub const </span>NCHAIN:         Ranges = Ranges::new(<span class="number">0x04</span>..<span class="number">0x08</span>,<span class="number">0x04</span>..<span class="number">0x08</span>); <span class="comment">// u32
+</span><span class="doccomment">/// The type of the object file
+</span><span class="kw">pub const </span>E_TYPE: Ranges = Ranges::new(<span class="number">0x10</span>..<span class="number">0x12</span>,<span class="number">0x10</span>..<span class="number">0x12</span>); <span class="comment">// u16
 
-</span><span class="kw">pub const </span>SYMOFFSET:      Ranges = Ranges::new(<span class="number">0x04</span>..<span class="number">0x08</span>,<span class="number">0x04</span>..<span class="number">0x08</span>); <span class="comment">// u32
-</span><span class="kw">pub const </span>BLOOMSIZE:      Ranges = Ranges::new(<span class="number">0x08</span>..<span class="number">0x0c</span>,<span class="number">0x08</span>..<span class="number">0x0c</span>); <span class="comment">// u32
-</span><span class="kw">pub const </span>BLOOMSHIFT:     Ranges = Ranges::new(<span class="number">0x0c</span>..<span class="number">0x10</span>,<span class="number">0x0c</span>..<span class="number">0x10</span>); <span class="comment">// u32
+</span><span class="doccomment">/// Specifies target instruction set architecture
+</span><span class="kw">pub const </span>E_MACHINE: Ranges = Ranges::new(<span class="number">0x12</span>..<span class="number">0x14</span>,<span class="number">0x12</span>..<span class="number">0x14</span>); <span class="comment">// u16
 
-</span><span class="kw">pub const </span>ADDRESS:        Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x04</span>,<span class="number">0x00</span>..<span class="number">0x08</span>); <span class="comment">// u32 / u64
+</span><span class="doccomment">/// Set to 1 for the original ELF format
+</span><span class="kw">pub const </span>E_VERSION: Ranges = Ranges::new(<span class="number">0x14</span>..<span class="number">0x18</span>,<span class="number">0x14</span>..<span class="number">0x18</span>); <span class="comment">// u32
 
-</span><span class="kw">pub const </span>VALUE4:         Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x04</span>,<span class="number">0x00</span>..<span class="number">0x04</span>); <span class="comment">// u32
-</span><span class="kw">pub const </span>VALUE8:         Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x08</span>,<span class="number">0x00</span>..<span class="number">0x08</span>); <span class="comment">// u64
+</span><span class="doccomment">/// Offset of the entry point for execution (0 if none)
+</span><span class="kw">pub const </span>E_ENTRY: Ranges = Ranges::new(<span class="number">0x18</span>..<span class="number">0x1C</span>, <span class="number">0x18</span>..<span class="number">0x20</span>); <span class="comment">// u32 / u64
+
+</span><span class="doccomment">/// Offset of the program header within the file
+</span><span class="kw">pub const </span>E_PHOFF: Ranges = Ranges::new(<span class="number">0x1C</span>..<span class="number">0x20</span>, <span class="number">0x20</span>..<span class="number">0x28</span>); <span class="comment">// u32 / u64
+
+</span><span class="doccomment">/// Offset of the section header table
+</span><span class="kw">pub const </span>E_SHOFF: Ranges = Ranges::new(<span class="number">0x20</span>..<span class="number">0x24</span>, <span class="number">0x28</span>..<span class="number">0x30</span>); <span class="comment">// u32 / u64
+
+</span><span class="doccomment">/// Target architecture-specific flags
+</span><span class="kw">pub const </span>E_FLAGS: Ranges = Ranges::new(<span class="number">0x24</span>..<span class="number">0x28</span>, <span class="number">0x30</span>..<span class="number">0x34</span>); <span class="comment">// u32 / u32
+
+</span><span class="doccomment">/// Size of the header
+</span><span class="kw">pub const </span>E_EHSIZE: Ranges = Ranges::new(<span class="number">0x28</span>..<span class="number">0x2A</span>, <span class="number">0x34</span>..<span class="number">0x36</span>); <span class="comment">// u16 / u16
+
+</span><span class="doccomment">/// Size of an entry in the program header
+</span><span class="kw">pub const </span>E_PHENTSIZE: Ranges = Ranges::new(<span class="number">0x2A</span>..<span class="number">0x2C</span>, <span class="number">0x36</span>..<span class="number">0x38</span>); <span class="comment">// u16 / u16
+
+</span><span class="doccomment">/// Number of items in the program header
+</span><span class="kw">pub const </span>E_PHNUM: Ranges = Ranges::new(<span class="number">0x2C</span>..<span class="number">0x2E</span>, <span class="number">0x38</span>..<span class="number">0x3A</span>); <span class="comment">// u16 / u16
+
+</span><span class="doccomment">/// Size of an entry in the section header
+</span><span class="kw">pub const </span>E_SHENTSIZE: Ranges = Ranges::new(<span class="number">0x2E</span>..<span class="number">0x30</span>, <span class="number">0x3A</span>..<span class="number">0x3C</span>); <span class="comment">// u16 / u16
+
+</span><span class="doccomment">/// Number of items in the section header
+</span><span class="kw">pub const </span>E_SHNUM: Ranges = Ranges::new(<span class="number">0x30</span>..<span class="number">0x32</span>, <span class="number">0x3C</span>..<span class="number">0x3E</span>); <span class="comment">// u16 / u16
+
+</span><span class="doccomment">/// Index of the section header that contains section names
+</span><span class="kw">pub const </span>E_SHSTRNDX: Ranges = Ranges::new(<span class="number">0x32</span>..<span class="number">0x34</span>, <span class="number">0x3E</span>..<span class="number">0x40</span>); <span class="comment">// u16 / u16
+
+</span><span class="doccomment">/// Type of the segment
+</span><span class="kw">pub const </span>P_TYPE: Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x04</span>,<span class="number">0x00</span>..<span class="number">0x04</span>);
+
+<span class="doccomment">/// Segment-specific flags
+</span><span class="kw">pub const </span>P_FLAGS: Ranges = Ranges::new(<span class="number">0x18</span>..<span class="number">0x1C</span>,<span class="number">0x04</span>..<span class="number">0x08</span>);
+
+<span class="doccomment">/// Offset of the segment in the file
+</span><span class="kw">pub const </span>P_OFFSET: Ranges = Ranges::new(<span class="number">0x04</span>..<span class="number">0x08</span>,<span class="number">0x08</span>..<span class="number">0x10</span>);
+
+<span class="doccomment">/// Virtual address of the segment in memory
+</span><span class="kw">pub const </span>P_VADDR: Ranges = Ranges::new(<span class="number">0x08</span>..<span class="number">0x0C</span>,<span class="number">0x10</span>..<span class="number">0x18</span>);
+
+<span class="doccomment">/// Physical address of the segment
+</span><span class="kw">pub const </span>P_PADDR: Ranges = Ranges::new(<span class="number">0x0C</span>..<span class="number">0x10</span>,<span class="number">0x18</span>..<span class="number">0x20</span>);
+
+<span class="doccomment">/// Size in bytes of the segment in the file
+</span><span class="kw">pub const </span>P_FILESZ: Ranges = Ranges::new(<span class="number">0x10</span>..<span class="number">0x14</span>,<span class="number">0x20</span>..<span class="number">0x28</span>);
+
+<span class="doccomment">/// Size in bytes of the segment in memory
+</span><span class="kw">pub const </span>P_MEMSZ: Ranges = Ranges::new(<span class="number">0x14</span>..<span class="number">0x18</span>,<span class="number">0x28</span>..<span class="number">0x30</span>);
+
+<span class="doccomment">/// Alignment of the file in memory (0/1 = no alignment, otherwise positive power of 2)
+</span><span class="kw">pub const </span>P_ALIGN: Ranges = Ranges::new(<span class="number">0x1C</span>..<span class="number">0x20</span>,<span class="number">0x30</span>..<span class="number">0x38</span>);
+
+<span class="doccomment">/// Offset to a string name in the string table
+</span><span class="kw">pub const </span>SH_NAME: Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x04</span>,<span class="number">0x00</span>..<span class="number">0x04</span>);
+
+<span class="doccomment">/// The type of the section header
+</span><span class="kw">pub const </span>SH_TYPE: Ranges = Ranges::new(<span class="number">0x04</span>..<span class="number">0x08</span>,<span class="number">0x04</span>..<span class="number">0x08</span>);
+
+<span class="doccomment">/// Attributes of the section header
+</span><span class="kw">pub const </span>SH_FLAGS: Ranges = Ranges::new(<span class="number">0x08</span>..<span class="number">0x0C</span>,<span class="number">0x08</span>..<span class="number">0x10</span>);
+
+<span class="doccomment">/// Virtual address of the section in memory
+</span><span class="kw">pub const </span>SH_ADDR: Ranges = Ranges::new(<span class="number">0x0C</span>..<span class="number">0x10</span>,<span class="number">0x10</span>..<span class="number">0x18</span>);
+
+<span class="doccomment">/// Offset of the section in the file image
+</span><span class="kw">pub const </span>SH_OFFSET: Ranges = Ranges::new(<span class="number">0x10</span>..<span class="number">0x14</span>,<span class="number">0x18</span>..<span class="number">0x20</span>);
+
+<span class="doccomment">/// The size of the section
+</span><span class="kw">pub const </span>SH_SIZE: Ranges = Ranges::new(<span class="number">0x14</span>..<span class="number">0x18</span>,<span class="number">0x20</span>..<span class="number">0x28</span>);
+
+<span class="doccomment">/// Section index of an associated section
+</span><span class="kw">pub const </span>SH_LINK: Ranges = Ranges::new(<span class="number">0x18</span>..<span class="number">0x1C</span>,<span class="number">0x28</span>..<span class="number">0x2C</span>);
+
+<span class="doccomment">/// Extra information about the section
+</span><span class="kw">pub const </span>SH_INFO: Ranges = Ranges::new(<span class="number">0x1C</span>..<span class="number">0x20</span>,<span class="number">0x2C</span>..<span class="number">0x30</span>);
+
+<span class="doccomment">/// Required alignment of the section (must be power of 2)
+</span><span class="kw">pub const </span>SH_ADDRALIGN: Ranges = Ranges::new(<span class="number">0x20</span>..<span class="number">0x24</span>,<span class="number">0x30</span>..<span class="number">0x38</span>);
+
+<span class="doccomment">/// Contains size of entries in bytes, if the section has entries
+</span><span class="kw">pub const </span>SH_ENTSIZE: Ranges = Ranges::new(<span class="number">0x24</span>..<span class="number">0x28</span>,<span class="number">0x38</span>..<span class="number">0x40</span>);
+
+<span class="doccomment">/// Index of the symbols name in the string table
+</span><span class="kw">pub const </span>ST_NAME: Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x04</span>,<span class="number">0x00</span>..<span class="number">0x04</span>); <span class="comment">// u32 / u32
+
+</span><span class="doccomment">/// The value of the symbol table entry
+</span><span class="kw">pub const </span>ST_VALUE: Ranges = Ranges::new(<span class="number">0x04</span>..<span class="number">0x08</span>,<span class="number">0x08</span>..<span class="number">0x10</span>); <span class="comment">// u32 / u64
+
+</span><span class="doccomment">/// The size in bytes of the symbol data
+</span><span class="kw">pub const </span>ST_SIZE: Ranges = Ranges::new(<span class="number">0x08</span>..<span class="number">0x0c</span>,<span class="number">0x10</span>..<span class="number">0x18</span>); <span class="comment">// u32 / u64
+
+</span><span class="doccomment">/// Type and binding attributes of the symbol
+</span><span class="kw">pub const </span>ST_INFO: Ranges = Ranges::new(<span class="number">0x0c</span>..<span class="number">0x0d</span>,<span class="number">0x04</span>..<span class="number">0x05</span>); <span class="comment">// u8  / u8
+
+</span><span class="doccomment">/// Visibility of the symbol
+</span><span class="kw">pub const </span>ST_OTHER: Ranges = Ranges::new(<span class="number">0x0d</span>..<span class="number">0x0e</span>,<span class="number">0x05</span>..<span class="number">0x06</span>); <span class="comment">// u8  / u8
+
+</span><span class="doccomment">/// Index of the symbol's section in the section header table
+</span><span class="kw">pub const </span>ST_SHNDX: Ranges = Ranges::new(<span class="number">0x0e</span>..<span class="number">0x10</span>,<span class="number">0x06</span>..<span class="number">0x08</span>); <span class="comment">// u16 / u16
+
+</span><span class="doccomment">/// Offset of the relocation entry
+</span><span class="kw">pub const </span>RT_OFFSET: Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x04</span>,<span class="number">0x00</span>..<span class="number">0x08</span>); <span class="comment">// u32 / u64
+
+</span><span class="doccomment">/// Relocation info for relocation entry
+</span><span class="kw">pub const </span>RT_INFO: Ranges = Ranges::new(<span class="number">0x04</span>..<span class="number">0x08</span>,<span class="number">0x08</span>..<span class="number">0x10</span>); <span class="comment">// u32 / u64
+
+</span><span class="doccomment">/// Addend of the relocation, if found
+</span><span class="kw">pub const </span>RT_ADDEND: Ranges = Ranges::new(<span class="number">0x08</span>..<span class="number">0x0C</span>,<span class="number">0x10</span>..<span class="number">0x18</span>); <span class="comment">// i32 / i64
+
+</span><span class="doccomment">/// Range for extracting addresses from init/preinit/fini tables
+</span><span class="kw">pub const </span>ADDRESS: Ranges = Ranges::new(<span class="number">0x00</span>..<span class="number">0x04</span>,<span class="number">0x00</span>..<span class="number">0x08</span>); <span class="comment">// u32 / u64
 
 </span><span class="doccomment">/// This struct maintains several ranges and returns
 /// them depending on the current width.

@@ -477,11 +477,14 @@
 <a href="#476" id="476">476</a>
 <a href="#477" id="477">477</a>
 <a href="#478" id="478">478</a>
-<a href="#479" id="479">479</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{Error,<span class="prelude-ty">Result</span>};
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{Error,<span class="prelude-ty">Result</span>};
 <span class="kw">use </span><span class="kw">crate</span>::common::{STType,STBind,STVisibility,Layout,Width};
 <span class="kw">use </span><span class="kw">crate</span>::symbols::{Symbol,SymbolInfo};
 
-<span class="attr">#[derive(Default)]
+<span class="doccomment">/// A symbol that represents a function located in the object file.
+</span><span class="attr">#[derive(Default)]
 </span><span class="kw">pub struct </span>Function {
     name: String,
     symbol: Symbol
@@ -489,7 +492,8 @@
 
 <span class="kw">impl </span>Function {
 
-    <span class="kw">pub fn </span>new() -&gt; Function {
+    <span class="doccomment">/// Create an empty function struct
+    </span><span class="kw">pub fn </span>new() -&gt; Function {
         <span class="self">Self</span>::default()
     }
 

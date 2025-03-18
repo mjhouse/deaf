@@ -214,7 +214,151 @@
 <a href="#213" id="213">213</a>
 <a href="#214" id="214">214</a>
 <a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a></pre></div><pre class="rust"><code><span class="kw">use </span>num_enum::{IntoPrimitive, TryFromPrimitive, FromPrimitive};
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a></pre></div><pre class="rust"><code><span class="kw">use </span>num_enum::{IntoPrimitive, TryFromPrimitive, FromPrimitive};
 <span class="kw">use </span>enumflags2::bitflags;
 
 <span class="doccomment">/// The mode of the ELF file
@@ -247,35 +391,79 @@
     </span>Big = <span class="number">0x02
 </span>}
 
+<span class="doccomment">/// The object file type
+/// 
+/// This enum is parsed from the header of the object file (e_type), and indicates 
+/// what type of file it is.
+</span><span class="attr">#[repr(u16)]
+#[allow(non_camel_case_types)]
+#[derive( Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+</span><span class="kw">pub enum </span>OFType {
+    <span class="doccomment">/// Unknown file type
+    </span>ET_NONE = <span class="number">0x0000</span>,
+    <span class="doccomment">/// Relocatable file
+    </span>ET_REL = <span class="number">0x0001</span>,
+    <span class="doccomment">/// Executable file
+    </span>ET_EXEC = <span class="number">0x0002</span>,
+    <span class="doccomment">/// Shared object file
+    </span>ET_DYN = <span class="number">0x0003</span>,
+    <span class="doccomment">/// Core dump file
+    </span>ET_CORE = <span class="number">0x0004</span>,
+    <span class="doccomment">/// Lower bound of OS-specific values
+    </span>ET_LOOS = <span class="number">0xfe00</span>,
+    <span class="doccomment">/// Upper bound of OS-specific values
+    </span>ET_HIOS = <span class="number">0xfeff</span>,
+    <span class="doccomment">/// Lower bound of processor-specific values
+    </span>ET_LOPROC = <span class="number">0xff00</span>,
+    <span class="doccomment">/// Upper bound of processor-specific values
+    </span>ET_HIPROC = <span class="number">0xffff
+</span>}
+
 <span class="doccomment">/// The type of a program header
 ///
-/// This enum is generally parsed from the program headers (p_type).
+/// This enum is generally parsed from the program headers (p_type). More information
+/// for each of the values for this flag are available in linux documentation[^1].
+/// 
+/// [^1]: &lt;https://refspecs.linuxbase.org/elf/gabi4+/ch5.pheader.html#p_type&gt;
 </span><span class="attr">#[repr(u32)]
 #[allow(non_camel_case_types)]
 #[derive( Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
 </span><span class="kw">pub enum </span>PHType {
-    PT_NULL = <span class="number">0x00000000</span>,         <span class="comment">// 	Program header table entry unused.
-    </span>PT_LOAD = <span class="number">0x00000001</span>,         <span class="comment">// 	Loadable segment.
-    </span>PT_DYNAMIC = <span class="number">0x00000002</span>,      <span class="comment">// 	Dynamic linking information.
-    </span>PT_INTERP = <span class="number">0x00000003</span>,       <span class="comment">// 	Interpreter information.
-    </span>PT_NOTE = <span class="number">0x00000004</span>,         <span class="comment">// 	Auxiliary information.
-    </span>PT_SHLIB = <span class="number">0x00000005</span>,        <span class="comment">// 	Reserved.
-    </span>PT_PHDR = <span class="number">0x00000006</span>,         <span class="comment">// 	Segment containing program header table itself.
-    </span>PT_TLS = <span class="number">0x00000007</span>,          <span class="comment">// 	Thread-Local Storage template.
-    </span>PT_LOOS = <span class="number">0x60000000</span>,         <span class="comment">//   Lower bound of OS-specific types
-    </span>PT_GNU_EH_FRAME = <span class="number">0x6474e550</span>, <span class="comment">//   OS-specific location of .eh_frame section for stack unwinding
-    </span>PT_GNU_PROPERTY = <span class="number">0x6474e553</span>, <span class="comment">//   OS-specific location of .note.gnu.property section  for special loader notes
-    </span>PT_GNU_STACK = <span class="number">0x6474e551</span>,    <span class="comment">//   OS-specific location of stack segment?
-    </span>GNU_RELRO = <span class="number">0x6474e552</span>,       <span class="comment">//   OS-specific segment to be made read-only after linking
+    <span class="doccomment">/// Program header table entry unused
+    </span>PT_NULL = <span class="number">0x00000000</span>,
+    <span class="doccomment">/// Loadable segment
+    </span>PT_LOAD = <span class="number">0x00000001</span>,
+    <span class="doccomment">/// Dynamic linking information
+    </span>PT_DYNAMIC = <span class="number">0x00000002</span>,
+    <span class="doccomment">/// Entry contains size and location of a path to an interpreter
+    </span>PT_INTERP = <span class="number">0x00000003</span>,
+    <span class="doccomment">/// Entry contains size and location of auxiliary information
+    </span>PT_NOTE = <span class="number">0x00000004</span>,
+    <span class="doccomment">/// Segment type is reserved but has unspecified semantics
+    </span>PT_SHLIB = <span class="number">0x00000005</span>,
+    <span class="doccomment">/// Segment containing program header table itself
+    </span>PT_PHDR = <span class="number">0x00000006</span>,
+    <span class="doccomment">/// Thread-Local Storage template
+    </span>PT_TLS = <span class="number">0x00000007</span>,
+    <span class="doccomment">/// Entry contains the location and size of exception handling information
+    </span>PT_GNU_EH_FRAME = <span class="number">0x6474e550</span>,
+    <span class="doccomment">/// OS-specific location of .note.gnu.property section for special loader notes
+    </span>PT_GNU_PROPERTY = <span class="number">0x6474e553</span>,
+    <span class="doccomment">/// Used to indicate whether the stack should be executable (absence of flag = true)
+    </span>PT_GNU_STACK = <span class="number">0x6474e551</span>,
+    <span class="doccomment">/// OS-specific segment to be made read-only after linking
+    </span>GNU_RELRO = <span class="number">0x6474e552</span>,
 
-    // add other os-specific types here
+    <span class="doccomment">/// Lower bound of OS-specific types
+    </span>PT_LOOS = <span class="number">0x60000000</span>,
+    <span class="doccomment">/// Upper bound of OS-specific types
+    </span>PT_HIOS = <span class="number">0x6fffffff</span>,
+    <span class="doccomment">/// Lower bound of processor-specific types
+    </span>PT_LOPROC = <span class="number">0x70000000</span>,
+    <span class="doccomment">/// Upper bound of processor-specific types
+    </span>PT_HIPROC = <span class="number">0x7fffffff</span>,
 
-    </span>PT_HIOS = <span class="number">0x6fffffff</span>,         <span class="comment">//   Uppder bound of OS-specific types
-    </span>PT_LOPROC = <span class="number">0x70000000</span>,       <span class="comment">//   Lower bound of processor-specific types
-
-    // add other processor specific types here
-
-    </span>PT_HIPROC = <span class="number">0x7fffffff</span>,       <span class="comment">//   Upper bound of processor-specific types
+    <span class="doccomment">/// Unknown p_type value
     </span><span class="attr">#[num_enum(catch_all)]
     </span>Unknown(u32)
 }
@@ -312,43 +500,121 @@
 
 <span class="doccomment">/// The type of a section header
 ///
-/// This enum is generally parsed from the section headers (sh_type).
+/// This enum is generally parsed from the section headers (sh_type). Most of these section types can be found 
+/// in [this](https://docs.oracle.com/cd/E19683-01/817-3677/chapter6-94076/index.html) Oracle documentation, 
+/// with the exception of SHT_GNU_HASH and SHT_GNU_LIBLIST which are undocumented. Information regarding these 
+/// two section types was found in the freebsd documentation and various blogs, and (an abbreviated explanation) 
+/// is included below for reference.
+/// 
+/// ## SHT_GNU_HASH
+/// This does the same job at SHT_HASH, but adds a bloom filter to stop lookup for nonexistent symbols earlier. This provides
+/// some performance gains on GNU systems that use this lookup table over the standard one. The structure of the section is 
+/// something like the following struct[^1].
+/// 
+/// ```
+/// struct gnu_hash_table&lt;'a&gt; {
+///     nbuckets: u32,
+///     symoffset: u32,
+///     bloom_size: u32,
+///     bloom_shift: u32,
+///     bloom: &amp;'a [u64], // [bloom_size]; /* u32 for 32-bit binaries */
+///     buckets: &amp;'a [u32], //[nbuckets];
+///     chain: &amp;'a [u32], //[];
+/// };
+/// 
+/// ```
+/// 
+/// ## SHT_GNU_LIBLIST
+/// According to the freebsd documentation[^2], the SHT_GNU_LIBLIST is a section that contains a series of structs of type
+/// Elf32_Lib or Elf64_Lib with the following shape. These entries define external libraries that should be pre-linked
+/// when the current binary runs.
+/// 
+/// ```
+/// struct Elf32_Lib {
+///     l_name: u32,       /* Name (string table index) */
+///     l_time_stamp: u32, /* Timestamp */
+///     l_checksum: u32,   /* Checksum */
+///     l_version: u32,    /* Interface version */
+///     l_flags: u32,      /* Flags */
+/// }
+/// 
+/// struct Elf64_Lib {
+///     l_name: u64,
+///     l_time_stamp: u64,
+///     l_checksum: u64,
+///     l_version: u64,
+///     l_flags: u64,
+/// }
+/// ```
+/// 
+/// [^1]: &lt;https://flapenguin.me/elf-dt-gnu-hash&gt;
+/// [^2]: &lt;https://man.freebsd.org/cgi/man.cgi?elf(3)&gt;
 </span><span class="attr">#[repr(u32)]
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, IntoPrimitive, FromPrimitive)]
 </span><span class="kw">pub enum </span>SHType {
-    SHT_NULL = <span class="number">0x00000000</span>,
-    SHT_PROGBITS = <span class="number">0x00000001</span>,
-    SHT_SYMTAB = <span class="number">0x00000002</span>,
-    SHT_STRTAB = <span class="number">0x00000003</span>,
-    SHT_RELA = <span class="number">0x00000004</span>,
-    SHT_HASH = <span class="number">0x00000005</span>,
-    SHT_DYNAMIC = <span class="number">0x00000006</span>,
-    SHT_NOTE = <span class="number">0x00000007</span>,
-    SHT_NOBITS = <span class="number">0x00000008</span>,
-    SHT_REL = <span class="number">0x00000009</span>,
-    SHT_SHLIB = <span class="number">0x0000000A</span>,
-    SHT_DYNSYM = <span class="number">0x0000000B</span>,
-    SHT_INIT_ARRAY = <span class="number">0x0000000E</span>,
-    SHT_FINI_ARRAY = <span class="number">0x0000000F</span>,
-    SHT_PREINIT_ARRAY = <span class="number">0x00000010</span>,
-    SHT_GROUP = <span class="number">0x00000011</span>,
-    SHT_SYMTAB_SHNDX = <span class="number">0x00000012</span>,
-    SHT_NUM = <span class="number">0x00000013</span>,
-    SHT_LOOS = <span class="number">0x60000000</span>,
-    SHT_GNU_HASH = <span class="number">0x6ffffff6</span>,
-    SHT_GNU_LIBLIST = <span class="number">0x6ffffff7</span>,
-    SHT_VERDEF = <span class="number">0x6ffffffd</span>,
-    SHT_VERNEED = <span class="number">0x6ffffffe</span>,
-    SHT_VERSYM = <span class="number">0x6fffffff</span>,
-    SHT_ARM_EXIDX =	<span class="number">0x70000001</span>, <span class="comment">// ARM unwind info.
-    </span>SHT_ARM_PREEMPTMAP = <span class="number">0x70000002</span>, <span class="comment">// pre-emption details.
-    </span>SHT_ARM_ATTRIBUTES = <span class="number">0x70000003</span>, <span class="comment">// attributes.
-    </span>SHT_ARM_DEBUGOVERLAY = <span class="number">0x70000004</span>, <span class="comment">// overlay debug info.
-    </span>SHT_ARM_OVERLAYSECTION = <span class="number">0x70000005</span>, <span class="comment">// GDB and overlay integration info.
+    <span class="doccomment">/// Section is inactive
+    </span>SHT_NULL = <span class="number">0x00000000</span>,
+    <span class="doccomment">/// Information defined by the program
+    </span>SHT_PROGBITS = <span class="number">0x00000001</span>,
+    <span class="doccomment">/// Symbol table section
+    </span>SHT_SYMTAB = <span class="number">0x00000002</span>,
+    <span class="doccomment">/// String table section
+    </span>SHT_STRTAB = <span class="number">0x00000003</span>,
+    <span class="doccomment">/// Relocation table with explicit addends
+    </span>SHT_RELA = <span class="number">0x00000004</span>,
+    <span class="doccomment">/// Symbol hash table section
+    </span>SHT_HASH = <span class="number">0x00000005</span>,
+    <span class="doccomment">/// Dynamic linking information
+    </span>SHT_DYNAMIC = <span class="number">0x00000006</span>,
+    <span class="doccomment">/// General notes about the object file
+    </span>SHT_NOTE = <span class="number">0x00000007</span>,
+    <span class="doccomment">/// Section with no content
+    </span>SHT_NOBITS = <span class="number">0x00000008</span>,
+    <span class="doccomment">/// Relocation table index
+    </span>SHT_REL = <span class="number">0x00000009</span>,
+    <span class="doccomment">/// Reserved section with unspecified semantics
+    </span>SHT_SHLIB = <span class="number">0x0000000A</span>,
+    <span class="doccomment">/// Dynamic symbol table section 
+    </span>SHT_DYNSYM = <span class="number">0x0000000B</span>,
+    <span class="doccomment">/// Array of pointers to initialization functions
+    </span>SHT_INIT_ARRAY = <span class="number">0x0000000E</span>,
+    <span class="doccomment">/// Array of pointers to termination functions
+    </span>SHT_FINI_ARRAY = <span class="number">0x0000000F</span>,
+    <span class="doccomment">/// Array of pointers to preinit functions
+    </span>SHT_PREINIT_ARRAY = <span class="number">0x00000010</span>,
+    <span class="doccomment">/// Identifies an interrelated group of sections
+    </span>SHT_GROUP = <span class="number">0x00000011</span>,
+    <span class="doccomment">/// Extended symbol table index
+    </span>SHT_SYMTAB_SHNDX = <span class="number">0x00000012</span>,
+    <span class="doccomment">/// Marker value for section type iteration
+    </span>SHT_NUM = <span class="number">0x00000013</span>,
+    <span class="doccomment">/// Low bound for reserved OS-specific semantics
+    </span>SHT_LOOS = <span class="number">0x60000000</span>,
+    <span class="doccomment">/// High bound for reserved OS-specific semantics
+    </span>SHT_HIOS = <span class="number">0x6fffffff</span>,
+    <span class="doccomment">/// GNU-specific hash table
+    </span>SHT_GNU_HASH = <span class="number">0x6ffffff6</span>,
+    <span class="doccomment">/// GNU-specific list of libraries to be pre-linked
+    </span>SHT_GNU_LIBLIST = <span class="number">0x6ffffff7</span>,
+    <span class="doccomment">/// ARM unwind info
+    </span>SHT_ARM_EXIDX =	<span class="number">0x70000001</span>,
+    <span class="doccomment">/// Contains a pre-emption map that allows symbols to be overriden
+    </span>SHT_ARM_PREEMPTMAP = <span class="number">0x70000002</span>,
+    <span class="doccomment">/// Contains build attributes for ARM systems
+    </span>SHT_ARM_ATTRIBUTES = <span class="number">0x70000003</span>,
+    <span class="doccomment">/// Overlay debug info
+    </span>SHT_ARM_DEBUGOVERLAY = <span class="number">0x70000004</span>,
+    <span class="doccomment">/// GDB and overlay integration info
+    </span>SHT_ARM_OVERLAYSECTION = <span class="number">0x70000005</span>,
+    <span class="doccomment">/// Unknown catch-all type 
     </span><span class="attr">#[num_enum(catch_all)]
     </span>Unknown(u32),
-}
+
+    <span class="comment">// SHT_VERDEF = 0x6ffffffd,
+    // SHT_VERNEED = 0x6ffffffe,
+    // SHT_VERSYM = 0x6fffffff,
+</span>}
 
 <span class="kw">impl </span>Default <span class="kw">for </span>SHType {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{ <span class="self">Self</span>::SHT_NULL }
@@ -362,20 +628,32 @@
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq)]
 </span><span class="kw">pub enum </span>SHFlags {
-    SHF_WRITE            = <span class="number">0x00000001</span>, <span class="comment">//   Contains data that is writable during process execution. 
-    </span>SHF_ALLOC            = <span class="number">0x00000002</span>, <span class="comment">//   Occupies memory during process execution.
-    </span>SHF_EXECINSTR        = <span class="number">0x00000004</span>, <span class="comment">//   Contains executable machine instructions. 
-    </span>SHF_MERGE            = <span class="number">0x00000010</span>, <span class="comment">//   Identifies a section containing data that may be merged to eliminate duplication
-    </span>SHF_STRINGS          = <span class="number">0x00000020</span>, <span class="comment">//   Identifies a section that consists of null-terminated character strings
-    </span>SHF_INFO_LINK        = <span class="number">0x00000040</span>, <span class="comment">//   This section headers sh_info field holds a section header table index.
-    </span>SHF_LINK_ORDER       = <span class="number">0x00000080</span>, <span class="comment">//   This section adds special ordering requirements to the link-editor
-    </span>SHF_OS_NONCONFORMING = <span class="number">0x00000100</span>, <span class="comment">//   This section requires special OS-specific processing
-    </span>SHF_GROUP            = <span class="number">0x00000200</span>, <span class="comment">//   This section is a member, perhaps the only one, of a section group
-    </span>SHF_TLS              = <span class="number">0x00000400</span>, <span class="comment">//   This section holds thread-local storage
-    // SHF_MASKOS           = 0x0ff00000, //   All bits included in this mask are reserved for operating system-specific semantics.
-    </span>SHF_ORDERED          = <span class="number">0x40000000</span>, <span class="comment">//   This section requires ordering in relation to other sections of the same type
-    </span>SHF_EXCLUDE          = <span class="number">0x80000000</span>, <span class="comment">//   This section is excluded from input to the link-edit of an executable or shared object
-    // SHF_MASKPROC         = 0xf0000000, //   Reserved for processor-specific semantics. 
+    <span class="doccomment">/// Data is writable during process execution
+    </span>SHF_WRITE = <span class="number">0x00000001</span>,
+    <span class="doccomment">/// Occupies memory during process execution
+    </span>SHF_ALLOC = <span class="number">0x00000002</span>,
+    <span class="doccomment">/// Contains executable machine instructions
+    </span>SHF_EXECINSTR = <span class="number">0x00000004</span>,
+    <span class="doccomment">/// Section has data that may be merged to eliminate duplication
+    </span>SHF_MERGE = <span class="number">0x00000010</span>,
+    <span class="doccomment">/// Section that consists of null-terminated character strings
+    </span>SHF_STRINGS = <span class="number">0x00000020</span>,
+    <span class="doccomment">/// The section header holds a section header table index
+    </span>SHF_INFO_LINK = <span class="number">0x00000040</span>,
+    <span class="doccomment">/// Add special ordering requirements to the link-editor
+    </span>SHF_LINK_ORDER = <span class="number">0x00000080</span>,
+    <span class="doccomment">/// Section requires special OS-specific processing
+    </span>SHF_OS_NONCONFORMING = <span class="number">0x00000100</span>,
+    <span class="doccomment">/// Section is a member, perhaps the only one, of a section group
+    </span>SHF_GROUP = <span class="number">0x00000200</span>,
+    <span class="doccomment">/// Section holds thread-local storage
+    </span>SHF_TLS = <span class="number">0x00000400</span>,
+    <span class="doccomment">/// Section requires ordering in relation to other sections of the same type
+    </span>SHF_ORDERED = <span class="number">0x40000000</span>,
+    <span class="doccomment">/// Section is excluded from input to the link-edit of an executable or shared object
+    </span>SHF_EXCLUDE = <span class="number">0x80000000</span>,
+    <span class="comment">// SHF_MASKPROC = 0xf0000000, // Mask of bits reserved for processor-specific semantics. 
+    // SHF_MASKOS = 0x0ff00000, // Mask of bits reserved for OS-specific semantics.
 </span>}
 
 <span class="doccomment">/// The binding of a symbol entry from a static or dynamic symbol table
@@ -386,10 +664,13 @@
 #[allow(non_camel_case_types)]
 #[derive(Default, Debug, Clone, Copy, PartialEq, IntoPrimitive, FromPrimitive)]
 </span><span class="kw">pub enum </span>STBind {
-    <span class="attr">#[default]
-    </span>STB_LOCAL   = <span class="number">0x00</span>,
-    STB_GLOBAL  = <span class="number">0x01</span>,
-    STB_WEAK    = <span class="number">0x02</span>,
+    <span class="doccomment">/// Symbol is not visible outside the object file containing its definition
+    </span><span class="attr">#[default]
+    </span>STB_LOCAL = <span class="number">0x00</span>,
+    <span class="doccomment">/// Symbols is visible to all object files being combined
+    </span>STB_GLOBAL = <span class="number">0x01</span>,
+    <span class="doccomment">/// Same as STB_GLOBAL, but lower precedence
+    </span>STB_WEAK = <span class="number">0x02</span>,
 }
 
 <span class="doccomment">/// The type of a symbol entry from a static or dynamic symbol table
@@ -400,14 +681,21 @@
 #[allow(non_camel_case_types)]
 #[derive(Default, Debug, Clone, Copy, PartialEq, IntoPrimitive, FromPrimitive)]
 </span><span class="kw">pub enum </span>STType {
-    <span class="attr">#[default]
-    </span>STT_NOTYPE  = <span class="number">0x00</span>,
-    STT_OBJECT  = <span class="number">0x01</span>,
-    STT_FUNC    = <span class="number">0x02</span>,
-    STT_SECTION = <span class="number">0x03</span>,
-    STT_FILE    = <span class="number">0x04</span>,
-    STT_COMMON  = <span class="number">0x05</span>,
-    STT_TLS     = <span class="number">0x06</span>,
+    <span class="doccomment">/// The symbol type is not specified
+    </span><span class="attr">#[default]
+    </span>STT_NOTYPE = <span class="number">0x00</span>,
+    <span class="doccomment">/// Symbol is associated with a data object, such as a variable, an array, etc.
+    </span>STT_OBJECT = <span class="number">0x01</span>,
+    <span class="doccomment">/// Symbol is associated with a function or other executable code
+    </span>STT_FUNC = <span class="number">0x02</span>,
+    <span class="doccomment">/// Symbol is associated with a section
+    </span>STT_SECTION = <span class="number">0x03</span>,
+    <span class="doccomment">/// Symbol gives the name of an associated source file
+    </span>STT_FILE = <span class="number">0x04</span>,
+    <span class="doccomment">/// An uninitialized common block, treated the same as [STT_OBJECT](STType::STT_OBJECT)
+    </span>STT_COMMON = <span class="number">0x05</span>,
+    <span class="doccomment">/// Symbol is a thread local storage template (value is offset in [SHF_TLS](SHFlags::SHF_TLS) section)
+    </span>STT_TLS = <span class="number">0x06</span>,
 }
 
 <span class="doccomment">/// The binding of a symbol entry from a static or dynamic symbol table

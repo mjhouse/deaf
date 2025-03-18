@@ -471,10 +471,7 @@
 <a href="#470" id="470">470</a>
 <a href="#471" id="471">471</a>
 <a href="#472" id="472">472</a>
-<a href="#473" id="473">473</a>
-<a href="#474" id="474">474</a>
-<a href="#475" id="475">475</a>
-<a href="#476" id="476">476</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{<span class="prelude-ty">Result</span>};
+<a href="#473" id="473">473</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::Result;
 <span class="kw">use </span><span class="kw">crate</span>::common::{Width,Layout,Item,ranges::<span class="kw-2">*</span>,Updateable};
 
 <span class="doccomment">/// The ELF file header parsed from the beginning of the file
@@ -559,11 +556,8 @@
         <span class="self">self</span>.ei_abiversion.read(b)<span class="question-mark">?</span>;
         <span class="self">self</span>.ei_pad.read(b)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>layout = <span class="self">self
-            </span>.data();
-
-        <span class="kw">let </span>width = <span class="self">self
-            </span>.class();
+        <span class="kw">let </span>layout = <span class="self">self</span>.data();
+        <span class="kw">let </span>width = <span class="self">self</span>.class();
 
         <span class="self">self</span>.set_layout(layout);
         <span class="self">self</span>.set_width(width);

@@ -81,32 +81,73 @@
 <a href="#80" id="80">80</a>
 <a href="#81" id="81">81</a>
 <a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common::SHType;
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common::SHType;
 
-<span class="attr">#[derive(Debug, Clone, Copy, PartialEq)]
+<span class="doccomment">/// The type of a section (string table, relocation table etc.)
+/// 
+/// Refer to the [SHType] enum for more information about specific values.
+</span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq)]
 </span><span class="kw">pub enum </span>SectionType {
-    Null,              <span class="comment">// SHT_NULL
-    </span>Program,           <span class="comment">// SHT_PROGBITS
-    </span>Symbols,           <span class="comment">// SHT_SYMTAB
-    </span>DynamicSymbols,    <span class="comment">// SHT_DYNSYM
-    </span>ExtendedSymbols,   <span class="comment">// SHT_SYMTAB_SHNDX
-    </span>Strings,           <span class="comment">// SHT_STRTAB
-    </span>Relocations,       <span class="comment">// SHT_REL
-    </span>RelocationsAddend, <span class="comment">// SHT_RELA
-    </span>Hash,              <span class="comment">// SHT_HASH
-    </span>GNUHash,           <span class="comment">// SHT_GNU_HASH
-    </span>Dynamic,           <span class="comment">// SHT_DYNAMIC
-    </span>Notes,             <span class="comment">// SHT_NOTE
-    </span>Empty,             <span class="comment">// SHT_NOBITS
-    </span>Reserved,          <span class="comment">// SHT_SHLIB
-    </span>GNULibList,        <span class="comment">// SHT_GNU_LIBLIST
-    </span>InitArray,         <span class="comment">// SHT_INIT_ARRAY
-    </span>FiniArray,         <span class="comment">// SHT_FINI_ARRAY
-    </span>PreInitArray,      <span class="comment">// SHT_PREINIT_ARRAY
-    </span>Group,             <span class="comment">// SHT_GROUP
-    </span>ReservedTypes,     <span class="comment">// SHT_NUM
-    </span>Unknown,           <span class="comment">// Unknown(u32)
-</span>}
+    <span class="doccomment">/// Section is inactive (SHT_NULL)
+    </span>Null,
+    <span class="doccomment">/// Information defined by the program (SHT_PROGBITS)
+    </span>Program,
+    <span class="doccomment">/// Symbol table section (SHT_SYMTAB)
+    </span>Symbols,
+    <span class="doccomment">/// Dynamic symbol table section (SHT_DYNSYM)
+    </span>DynamicSymbols,
+    <span class="doccomment">/// Extended symbol table index (SHT_SYMTAB_SHNDX)
+    </span>ExtendedSymbols,
+    <span class="doccomment">/// String table section (SHT_STRTAB)
+    </span>Strings,
+    <span class="doccomment">/// Relocation table index (SHT_REL)
+    </span>Relocations,
+    <span class="doccomment">/// Relocation table with explicit addends (SHT_RELA)
+    </span>RelocationsAddend,
+    <span class="doccomment">/// Symbol hash table section (SHT_HASH)
+    </span>Hash,
+    <span class="doccomment">/// GNU-specific hash table (SHT_GNU_HASH)
+    </span>GNUHash,
+    <span class="doccomment">/// Dynamic linking information (SHT_DYNAMIC)
+    </span>Dynamic,
+    <span class="doccomment">/// General notes about the object file (SHT_NOTE)
+    </span>Notes,
+    <span class="doccomment">/// Section with no content (SHT_NOBITS)
+    </span>Empty,
+    <span class="doccomment">/// Reserved section with unspecified semantics (SHT_SHLIB)
+    </span>Reserved,
+    <span class="doccomment">/// GNU-specific list of libraries to be pre-linked (SHT_GNU_LIBLIST)
+    </span>GNULibList,
+    <span class="doccomment">/// Array of pointers to initialization functions (SHT_INIT_ARRAY)
+    </span>InitArray,
+    <span class="doccomment">/// Array of pointers to termination functions (SHT_FINI_ARRAY)
+    </span>FiniArray,
+    <span class="doccomment">/// Array of pointers to preinit functions (SHT_PREINIT_ARRAY)
+    </span>PreInitArray,
+    <span class="doccomment">/// Identifies an interrelated group of sections (SHT_GROUP)
+    </span>Group,
+    <span class="doccomment">/// Unknown section type (SHT_NUM, SHT_LOOS, etc.)
+    </span>Unknown,
+}
 
 <span class="kw">impl </span>From&lt;SHType&gt; <span class="kw">for </span>SectionType {
     <span class="kw">fn </span>from(v: SHType) -&gt; <span class="self">Self </span>{
@@ -130,8 +171,6 @@
             SHType::SHT_PREINIT_ARRAY =&gt; SectionType::PreInitArray,
             SHType::SHT_GROUP =&gt; SectionType::Group,
             SHType::SHT_SYMTAB_SHNDX =&gt; SectionType::ExtendedSymbols,
-            SHType::SHT_NUM =&gt; SectionType::ReservedTypes,
-            SHType::SHT_LOOS =&gt; SectionType::Unknown,
             <span class="kw">_ </span>=&gt; SectionType::Unknown,
         }
     }
@@ -159,7 +198,6 @@
             SectionType::PreInitArray =&gt; SHType::SHT_PREINIT_ARRAY,
             SectionType::Group =&gt; SHType::SHT_GROUP,
             SectionType::ExtendedSymbols =&gt; SHType::SHT_SYMTAB_SHNDX,
-            SectionType::ReservedTypes =&gt; SHType::SHT_NUM,
             SectionType::Unknown =&gt; SHType::Unknown(<span class="number">0</span>),
         }
     }
