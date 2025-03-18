@@ -1,28 +1,50 @@
 use crate::common::SHType;
 
+/// The type of a section (string table, relocation table etc.)
+/// 
+/// Refer to the [SHType] enum for more information about specific values.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum SectionType {
-    Null,              // SHT_NULL
-    Program,           // SHT_PROGBITS
-    Symbols,           // SHT_SYMTAB
-    DynamicSymbols,    // SHT_DYNSYM
-    ExtendedSymbols,   // SHT_SYMTAB_SHNDX
-    Strings,           // SHT_STRTAB
-    Relocations,       // SHT_REL
-    RelocationsAddend, // SHT_RELA
-    Hash,              // SHT_HASH
-    GNUHash,           // SHT_GNU_HASH
-    Dynamic,           // SHT_DYNAMIC
-    Notes,             // SHT_NOTE
-    Empty,             // SHT_NOBITS
-    Reserved,          // SHT_SHLIB
-    GNULibList,        // SHT_GNU_LIBLIST
-    InitArray,         // SHT_INIT_ARRAY
-    FiniArray,         // SHT_FINI_ARRAY
-    PreInitArray,      // SHT_PREINIT_ARRAY
-    Group,             // SHT_GROUP
-    ReservedTypes,     // SHT_NUM
-    Unknown,           // Unknown(u32)
+    /// Section is inactive (SHT_NULL)
+    Null,
+    /// Information defined by the program (SHT_PROGBITS)
+    Program,
+    /// Symbol table section (SHT_SYMTAB)
+    Symbols,
+    /// Dynamic symbol table section (SHT_DYNSYM)
+    DynamicSymbols,
+    /// Extended symbol table index (SHT_SYMTAB_SHNDX)
+    ExtendedSymbols,
+    /// String table section (SHT_STRTAB)
+    Strings,
+    /// Relocation table index (SHT_REL)
+    Relocations,
+    /// Relocation table with explicit addends (SHT_RELA)
+    RelocationsAddend,
+    /// Symbol hash table section (SHT_HASH)
+    Hash,
+    /// GNU-specific hash table (SHT_GNU_HASH)
+    GNUHash,
+    /// Dynamic linking information (SHT_DYNAMIC)
+    Dynamic,
+    /// General notes about the object file (SHT_NOTE)
+    Notes,
+    /// Section with no content (SHT_NOBITS)
+    Empty,
+    /// Reserved section with unspecified semantics (SHT_SHLIB)
+    Reserved,
+    /// GNU-specific list of libraries to be pre-linked (SHT_GNU_LIBLIST)
+    GNULibList,
+    /// Array of pointers to initialization functions (SHT_INIT_ARRAY)
+    InitArray,
+    /// Array of pointers to termination functions (SHT_FINI_ARRAY)
+    FiniArray,
+    /// Array of pointers to preinit functions (SHT_PREINIT_ARRAY)
+    PreInitArray,
+    /// Identifies an interrelated group of sections (SHT_GROUP)
+    Group,
+    /// Unknown section type (SHT_NUM, SHT_LOOS, etc.)
+    Unknown,
 }
 
 impl From<SHType> for SectionType {
@@ -47,8 +69,6 @@ impl From<SHType> for SectionType {
             SHType::SHT_PREINIT_ARRAY => SectionType::PreInitArray,
             SHType::SHT_GROUP => SectionType::Group,
             SHType::SHT_SYMTAB_SHNDX => SectionType::ExtendedSymbols,
-            SHType::SHT_NUM => SectionType::ReservedTypes,
-            SHType::SHT_LOOS => SectionType::Unknown,
             _ => SectionType::Unknown,
         }
     }
@@ -76,7 +96,6 @@ impl From<SectionType> for SHType {
             SectionType::PreInitArray => SHType::SHT_PREINIT_ARRAY,
             SectionType::Group => SHType::SHT_GROUP,
             SectionType::ExtendedSymbols => SHType::SHT_SYMTAB_SHNDX,
-            SectionType::ReservedTypes => SHType::SHT_NUM,
             SectionType::Unknown => SHType::Unknown(0),
         }
     }
