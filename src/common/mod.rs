@@ -31,6 +31,7 @@ pub use iterator::{
 pub use constants::{
     Width,
     Layout,
+    OFType,
     PHType,
     SHType,
     SHFlags,
@@ -46,10 +47,5 @@ pub use update::{
     All
 };
 
-pub use enums::{
-    SectionType
-};
-
-pub use item_array::{
-    ItemArray
-};
+pub use enums::SectionType;
+pub use item_array::ItemArray;

@@ -1,4 +1,4 @@
-use crate::errors::{Result};
+use crate::errors::Result;
 use crate::common::{Width,Layout,Item,ranges::*,Updateable};
 
 /// The ELF file header parsed from the beginning of the file
@@ -83,11 +83,8 @@ impl FileHeader {
         self.ei_abiversion.read(b)?;
         self.ei_pad.read(b)?;
 
-        let layout = self
-            .data();
-
-        let width = self
-            .class();
+        let layout = self.data();
+        let width = self.class();
 
         self.set_layout(layout);
         self.set_width(width);

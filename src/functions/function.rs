@@ -2,6 +2,7 @@ use crate::errors::{Error,Result};
 use crate::common::{STType,STBind,STVisibility,Layout,Width};
 use crate::symbols::{Symbol,SymbolInfo};
 
+/// A symbol that represents a function located in the object file.
 #[derive(Default)]
 pub struct Function {
     name: String,
@@ -10,6 +11,7 @@ pub struct Function {
 
 impl Function {
 
+    /// Create an empty function struct
     pub fn new() -> Function {
         Self::default()
     }

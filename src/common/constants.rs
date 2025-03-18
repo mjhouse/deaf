@@ -31,35 +31,79 @@ pub enum Layout {
     Big = 0x02
 }
 
+/// The object file type
+/// 
+/// This enum is parsed from the header of the object file (e_type), and indicates 
+/// what type of file it is.
+#[repr(u16)]
+#[allow(non_camel_case_types)]
+#[derive( Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
+pub enum OFType {
+    /// Unknown file type
+    ET_NONE = 0x0000,
+    /// Relocatable file
+    ET_REL = 0x0001,
+    /// Executable file
+    ET_EXEC = 0x0002,
+    /// Shared object file
+    ET_DYN = 0x0003,
+    /// Core dump file
+    ET_CORE = 0x0004,
+    /// Lower bound of OS-specific values
+    ET_LOOS = 0xfe00,
+    /// Upper bound of OS-specific values
+    ET_HIOS = 0xfeff,
+    /// Lower bound of processor-specific values
+    ET_LOPROC = 0xff00,
+    /// Upper bound of processor-specific values
+    ET_HIPROC = 0xffff
+}
+
 /// The type of a program header
 ///
-/// This enum is generally parsed from the program headers (p_type).
+/// This enum is generally parsed from the program headers (p_type). More information
+/// for each of the values for this flag are available in linux documentation[^1].
+/// 
+/// [^1]: <https://refspecs.linuxbase.org/elf/gabi4+/ch5.pheader.html#p_type>
 #[repr(u32)]
 #[allow(non_camel_case_types)]
 #[derive( Debug, Clone, Copy, PartialEq, IntoPrimitive, TryFromPrimitive)]
 pub enum PHType {
-    PT_NULL = 0x00000000,         // 	Program header table entry unused.
-    PT_LOAD = 0x00000001,         // 	Loadable segment.
-    PT_DYNAMIC = 0x00000002,      // 	Dynamic linking information.
-    PT_INTERP = 0x00000003,       // 	Interpreter information.
-    PT_NOTE = 0x00000004,         // 	Auxiliary information.
-    PT_SHLIB = 0x00000005,        // 	Reserved.
-    PT_PHDR = 0x00000006,         // 	Segment containing program header table itself.
-    PT_TLS = 0x00000007,          // 	Thread-Local Storage template.
-    PT_LOOS = 0x60000000,         //   Lower bound of OS-specific types
-    PT_GNU_EH_FRAME = 0x6474e550, //   OS-specific location of .eh_frame section for stack unwinding
-    PT_GNU_PROPERTY = 0x6474e553, //   OS-specific location of .note.gnu.property section  for special loader notes
-    PT_GNU_STACK = 0x6474e551,    //   OS-specific location of stack segment?
-    GNU_RELRO = 0x6474e552,       //   OS-specific segment to be made read-only after linking
+    /// Program header table entry unused
+    PT_NULL = 0x00000000,
+    /// Loadable segment
+    PT_LOAD = 0x00000001,
+    /// Dynamic linking information
+    PT_DYNAMIC = 0x00000002,
+    /// Entry contains size and location of a path to an interpreter
+    PT_INTERP = 0x00000003,
+    /// Entry contains size and location of auxiliary information
+    PT_NOTE = 0x00000004,
+    /// Segment type is reserved but has unspecified semantics
+    PT_SHLIB = 0x00000005,
+    /// Segment containing program header table itself
+    PT_PHDR = 0x00000006,
+    /// Thread-Local Storage template
+    PT_TLS = 0x00000007,
+    /// Entry contains the location and size of exception handling information
+    PT_GNU_EH_FRAME = 0x6474e550,
+    /// OS-specific location of .note.gnu.property section for special loader notes
+    PT_GNU_PROPERTY = 0x6474e553,
+    /// Used to indicate whether the stack should be executable (absence of flag = true)
+    PT_GNU_STACK = 0x6474e551,
+    /// OS-specific segment to be made read-only after linking
+    GNU_RELRO = 0x6474e552,
 
-    // add other os-specific types here
+    /// Lower bound of OS-specific types
+    PT_LOOS = 0x60000000,
+    /// Upper bound of OS-specific types
+    PT_HIOS = 0x6fffffff,
+    /// Lower bound of processor-specific types
+    PT_LOPROC = 0x70000000,
+    /// Upper bound of processor-specific types
+    PT_HIPROC = 0x7fffffff,
 
-    PT_HIOS = 0x6fffffff,         //   Uppder bound of OS-specific types
-    PT_LOPROC = 0x70000000,       //   Lower bound of processor-specific types
-
-    // add other processor specific types here
-
-    PT_HIPROC = 0x7fffffff,       //   Upper bound of processor-specific types
+    /// Unknown p_type value
     #[num_enum(catch_all)]
     Unknown(u32)
 }
