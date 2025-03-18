@@ -157,7 +157,7 @@ or not covered in the guides, create an issue describing the problem and someone
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
-[docs-shield]: https://github.com/mjhouse/deaf/actions/workflows/docs.yaml/badge.svg?branch=documentation
+[docs-shield]: https://github.com/mjhouse/deaf/actions/workflows/docs.yaml/badge.svg?branch=master
 [docs-url]: https://mjhouse.github.io/deaf/
 
 [tests-shield]: https://github.com/mjhouse/deaf/actions/workflows/test.yaml/badge.svg?branch=testing
