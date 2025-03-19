@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::fs;
 
-use crate::Section;
+use crate::{Section, Segment};
 use crate::symbols::Symbol;
 use crate::functions::Function;
 use crate::tables::{Table,TableView,StringItem, SymbolTable, SymbolTableMut, StringTable};
@@ -20,6 +20,7 @@ use crate::common::{
 pub struct Binary {
     header: FileHeader,
     sections: Vec<Section>,
+    segments: Vec<Segment>,
 }
 
 impl Binary {
@@ -27,12 +28,13 @@ impl Binary {
     fn empty() -> Self {
         Self { 
             header: FileHeader::new(), 
-            sections: Vec::new()
+            sections: Vec::new(),
+            segments: Vec::new()
         }
     }
 
-    fn new(header: FileHeader, sections: Vec<Section>) -> Self {
-        Self { header, sections }
+    fn new(header: FileHeader, sections: Vec<Section>, segments: Vec<Segment>) -> Self {
+        Self { header, sections, segments }
     }
 
     pub fn read(&mut self, data: &[u8]) -> Result<usize> {
@@ -45,6 +47,19 @@ impl Binary {
         let width = self.header.width();
 
         self.sections = Section::read_all(
+            &data,
+            count,
+            offset,
+            size,
+            layout,
+            width
+        )?;
+
+        let count = self.header.phnum();
+        let offset = self.header.phoff();
+        let size = self.header.phentsize();
+
+        self.segments = Segment::read_all(
             &data,
             count,
             offset,
@@ -142,6 +157,18 @@ impl Binary {
         self.sections
             .iter_mut()
             .filter(|s| s.is_kind(kind))
+            .collect()
+    }
+
+    pub fn segments(&self) -> Vec<&Segment> {
+        self.segments
+            .iter()
+            .collect()
+    }
+
+    pub fn segments_mut(&mut self) -> Vec<&mut Segment> {
+        self.segments
+            .iter_mut()
             .collect()
     }
 
@@ -447,6 +474,92 @@ mod tests {
 
         let section = result.unwrap();
         assert_eq!(section.name(),".text");
+    }
+
+    #[test]
+    fn test_get_segments() {
+
+        let path = "assets/libvpf/libvpf.so.4.1";
+        let binary = Binary::load(path).unwrap();
+        
+        let segments = binary.segments();
+        
+        fn assert(binary: &Binary, segments: &Vec<&Segment>, index: usize, start: usize, names: Vec<&str>) {
+            let segment = segments.iter().nth(index).unwrap();
+            assert_eq!(segment.start(),start);
+    
+            let sections = segment.sections(&binary).into_iter().map(Section::name).collect::<Vec<String>>();
+            assert_eq!(sections.len(),names.len());
+    
+            for name in names.into_iter() {
+                assert!(sections.contains(&name.to_string()),"{}",name);
+            }
+
+        }
+
+        assert(
+            &binary, &segments, 0, 0x00000, vec![
+                "",
+                ".note.gnu.property",
+                ".note.gnu.build-id",
+                ".gnu.hash",
+                ".dynsym",
+                ".dynstr",
+                ".gnu.version",
+                ".gnu.version_r",
+                ".rela.dyn",
+                ".rela.plt",
+            ]
+        );
+
+        assert(
+            &binary, &segments, 1, 0x05000, vec![
+                ".init",
+                ".plt",
+                ".plt.got",
+                ".plt.sec",
+                ".text",
+                ".fini",
+            ]
+        );
+
+        assert(
+            &binary, &segments, 2, 0x34000, vec![
+                ".rodata",
+                ".eh_frame_hdr",
+                ".eh_frame",
+            ]
+        );
+
+        assert(
+            &binary, &segments, 3, 0x45b30, vec![
+                ".init_array",
+                ".fini_array",
+                ".data.rel.ro",
+                ".dynamic",
+                ".got",
+                ".data",
+                ".bss",
+            ]
+        );
+
+        assert(&binary, &segments, 4, 0x45bb0, vec![".dynamic"]);
+        assert(&binary, &segments, 5, 0x002a8, vec![".note.gnu.property"]);
+        assert(&binary, &segments, 6, 0x002c8, vec![".note.gnu.build-id"]);
+        assert(&binary, &segments, 7, 0x002a8, vec![".note.gnu.property"]);
+        assert(&binary, &segments, 8, 0x36bd0, vec![".eh_frame_hdr"]);
+        assert(&binary, &segments, 9, 0x00000, vec![""]);
+
+        assert(
+            &binary, &segments, 10, 0x45b30, vec![
+                ".init_array",
+                ".fini_array",
+                ".data.rel.ro",
+                ".dynamic",
+                ".got",
+            ]
+        );
+
     }
 
 

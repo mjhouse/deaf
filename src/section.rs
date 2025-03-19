@@ -7,7 +7,7 @@ use crate::common::{Layout,Width,SectionType,Update,Updateable};
 pub struct Section {
     name: String,
     header: SectionHeader,
-    data: Vec<u8>,
+    data: Vec<u8>
 }
 
 impl Section {
@@ -16,11 +16,12 @@ impl Section {
     pub fn new(header: SectionHeader) -> Self {
         Self { 
             name: String::new(),
-            header: header, 
-            data: Vec::new()
+            data: Vec::new(),
+            header
         }
     }
 
+    /// Read a section, given a header and data
     pub fn read(header: SectionHeader, data: &[u8]) -> Result<Self> {
         let offset = header.offset();
         let size   = header.body_size();
@@ -37,6 +38,7 @@ impl Section {
         Ok(section)
     }
 
+    /// Write a section, given mutable data and offset
     pub fn write(&self, data: &mut [u8], offset: usize, index: usize) -> Result<usize> {
         self.header.write(&mut data[offset..])?;
 
@@ -180,7 +182,7 @@ impl Section {
     }
 
     pub fn is_kind(&self, kind: SectionType) -> bool {
-        kind == self.kind()
+        [self.kind(),SectionType::Any].contains(&kind)
     }
 
 }
