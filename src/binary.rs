@@ -483,14 +483,25 @@ mod tests {
         let binary = Binary::load(path).unwrap();
         
         let segments = binary.segments();
-        
-        fn assert(binary: &Binary, segments: &Vec<&Segment>, index: usize, start: usize, names: Vec<&str>) {
+
+        fn assert(binary: &Binary, segments: &Vec<&Segment>, index: usize, offset: usize, names: Vec<&str>) {
+            // get the segment by index
             let segment = segments.iter().nth(index).unwrap();
-            assert_eq!(segment.start(),start);
+
+            // check that the offset of the segment is correct
+            assert_eq!(segment.offset(),offset);
     
-            let sections = segment.sections(&binary).into_iter().map(Section::name).collect::<Vec<String>>();
+            // get all included section names
+            let sections = segment
+                .sections(&binary)
+                .into_iter()
+                .map(Section::name)
+                .collect::<Vec<String>>();
+            
+            // make sure the segment includes the correct number of sections
             assert_eq!(sections.len(),names.len());
     
+            // make sure that each expected section is included by name
             for name in names.into_iter() {
                 assert!(sections.contains(&name.to_string()),"{}",name);
             }
