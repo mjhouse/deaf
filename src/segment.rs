@@ -1,5 +1,3 @@
-use std::cmp::{max, min};
-
 use crate::{common::{Layout, SectionType, Width}, headers::ProgramHeader, Binary, Section};
 use crate::errors::Result;
 
@@ -59,22 +57,43 @@ impl Segment {
 
     /// Check if the segment contains the given section
     pub fn contains(&self, section: &Section) -> bool {
-        section.start() >= self.start() &&
-        section.end() <= self.end()
+        let s1 = self.start();
+        let e1 = self.end();
+        let s2 = section.start();
+        let e2 = section.end();
+
+        (s2 >= s1 && s2 <= e1) && 
+        (e2 >= s1 && e2 <= e1)
     }
 
     /// Check if the segment overlaps the given section
     pub fn overlaps(&self, section: &Section) -> bool {
-        let a = max(self.start() as i64,section.start() as i64);
-        let b = min(self.end() as i64,section.end() as i64);
-        a - b <= 0
+        let s1 = self.start();
+        let e1 = self.end();
+        let s2 = section.start();
+        let e2 = section.end();
+
+        (s2 >= s1 && s2 <= e1) || 
+        (e2 >= s1 && e2 <= e1)
+    }
+
+    /// Check if the segment includes the given section
+    /// 
+    /// A section is included if it is either completed contained
+    /// by the segment OR is partially overlaps the segment and
+    /// is flagged as empty (NOBITS).
+    pub fn includes(&self, section: &Section) -> bool {
+        self.contains(section) || ( 
+            self.overlaps(section) && 
+            section.is_kind(SectionType::Empty) 
+        )
     }
 
     /// Get the sections for the segment
     pub fn sections<'a>(&self, binary: &'a Binary) -> Vec<&'a Section> {
         binary.sections(SectionType::Any)
             .into_iter()
-            .filter(|s| self.contains(s) || ( self.overlaps(s) && s.is_kind(SectionType::Empty) ))
+            .filter(|s| self.includes(s))
             .collect()
     }
 
@@ -82,7 +101,7 @@ impl Segment {
     pub fn sections_mut<'a>(&self, binary: &'a mut Binary) -> Vec<&'a mut Section> {
         binary.sections_mut(SectionType::Any)
             .into_iter()
-            .filter(|s| self.contains(s) || ( self.overlaps(s) && s.is_kind(SectionType::Empty) ))
+            .filter(|s| self.includes(s))
             .collect()
     }
 
