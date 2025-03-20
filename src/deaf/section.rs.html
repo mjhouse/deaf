@@ -231,7 +231,9 @@
 <a href="#230" id="230">230</a>
 <a href="#231" id="231">231</a>
 <a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::headers::SectionHeader;
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::headers::SectionHeader;
 <span class="kw">use </span><span class="kw">crate</span>::errors::{<span class="prelude-ty">Result</span>,Error};
 <span class="kw">use </span><span class="kw">crate</span>::common::{Layout,Width,SectionType,Update,Updateable};
 
@@ -240,7 +242,7 @@
 </span><span class="kw">pub struct </span>Section {
     name: String,
     header: SectionHeader,
-    data: Vec&lt;u8&gt;,
+    data: Vec&lt;u8&gt;
 }
 
 <span class="kw">impl </span>Section {
@@ -249,12 +251,13 @@
     </span><span class="kw">pub fn </span>new(header: SectionHeader) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ 
             name: String::new(),
-            header: header, 
-            data: Vec::new()
+            data: Vec::new(),
+            header
         }
     }
 
-    <span class="kw">pub fn </span>read(header: SectionHeader, data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="doccomment">/// Read a section, given a header and data
+    </span><span class="kw">pub fn </span>read(header: SectionHeader, data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>offset = header.offset();
         <span class="kw">let </span>size   = header.body_size();
         <span class="kw">let </span>start  = offset;
@@ -270,7 +273,8 @@
         <span class="prelude-val">Ok</span>(section)
     }
 
-    <span class="kw">pub fn </span>write(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <span class="kw-2">&amp;mut </span>[u8], offset: usize, index: usize) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
+    <span class="doccomment">/// Write a section, given mutable data and offset
+    </span><span class="kw">pub fn </span>write(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <span class="kw-2">&amp;mut </span>[u8], offset: usize, index: usize) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
         <span class="self">self</span>.header.write(<span class="kw-2">&amp;mut </span>data[offset..])<span class="question-mark">?</span>;
 
         <span class="kw">let </span>offset = <span class="self">self</span>.header.offset();
@@ -413,7 +417,7 @@
     }
 
     <span class="kw">pub fn </span>is_kind(<span class="kw-2">&amp;</span><span class="self">self</span>, kind: SectionType) -&gt; bool {
-        kind == <span class="self">self</span>.kind()
+        [<span class="self">self</span>.kind(),SectionType::Any].contains(<span class="kw-2">&amp;</span>kind)
     }
 
 }

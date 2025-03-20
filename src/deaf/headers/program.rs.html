@@ -395,7 +395,7 @@
 /// 
 /// Normally found at the offset declared in the FileHeader 
 /// as 'phoff'.
-</span><span class="attr">#[derive(Debug)]
+</span><span class="attr">#[derive(Debug,Clone)]
 </span><span class="kw">pub struct </span>ProgramHeader {
     layout: Layout,
     width: Width,

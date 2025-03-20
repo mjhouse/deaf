@@ -100,7 +100,10 @@
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
 <a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common::SHType;
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common::SHType;
 
 <span class="doccomment">/// The type of a section (string table, relocation table etc.)
 /// 
@@ -147,6 +150,8 @@
     </span>Group,
     <span class="doccomment">/// Unknown section type (SHT_NUM, SHT_LOOS, etc.)
     </span>Unknown,
+    <span class="doccomment">/// Any section type
+    </span>Any,
 }
 
 <span class="kw">impl </span>From&lt;SHType&gt; <span class="kw">for </span>SectionType {
@@ -199,6 +204,7 @@
             SectionType::Group =&gt; SHType::SHT_GROUP,
             SectionType::ExtendedSymbols =&gt; SHType::SHT_SYMTAB_SHNDX,
             SectionType::Unknown =&gt; SHType::Unknown(<span class="number">0</span>),
+            SectionType::Any =&gt; SHType::Unknown(<span class="number">0</span>),
         }
     }
 }</code></pre></div></section></main></body></html>
