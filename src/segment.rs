@@ -79,7 +79,7 @@ impl Segment {
 
     /// Check if the segment includes the given section
     /// 
-    /// A section is included if it is either completed contained
+    /// A section is included if it is either completely contained
     /// by the segment OR is partially overlaps the segment and
     /// is flagged as empty (NOBITS).
     pub fn includes(&self, section: &Section) -> bool {
