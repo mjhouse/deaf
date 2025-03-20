@@ -45,6 +45,8 @@ pub enum SectionType {
     Group,
     /// Unknown section type (SHT_NUM, SHT_LOOS, etc.)
     Unknown,
+    /// Any section type
+    Any,
 }
 
 impl From<SHType> for SectionType {
@@ -97,6 +99,7 @@ impl From<SectionType> for SHType {
             SectionType::Group => SHType::SHT_GROUP,
             SectionType::ExtendedSymbols => SHType::SHT_SYMTAB_SHNDX,
             SectionType::Unknown => SHType::Unknown(0),
+            SectionType::Any => SHType::Unknown(0),
         }
     }
 }

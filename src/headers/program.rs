@@ -12,7 +12,7 @@ use crate::errors::Result;
 /// 
 /// Normally found at the offset declared in the FileHeader 
 /// as 'phoff'.
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct ProgramHeader {
     layout: Layout,
     width: Width,
